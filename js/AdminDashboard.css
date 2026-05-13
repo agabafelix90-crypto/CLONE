@@ -1,0 +1,228 @@
+/* General styles */
+.admin-dashboard-container {
+  padding: 20px;
+  background-color: #f5f5f5;
+  overflow-x: hidden; /* Hide horizontal overflow */
+  margin-top: 70px;
+}
+
+.admin-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden; /* Hide all overflow */
+}
+
+.admin-title {
+  font-size: 24px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 80%;
+  overflow: auto; /* Enable scrolling if content exceeds modal size */
+  max-height: 80vh; /* Limit maximum height to 80% of viewport height */
+}
+.admin-transaction-prompt {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.admin-permissions-checkboxes {
+  margin-bottom: 10px;
+}
+
+.admin-login-code-input {
+  margin-bottom: 10px;
+}
+
+.admin-button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.admin-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 10px;
+    overflow: auto; /* Enable scrolling for smaller screens */
+  }
+
+  .admin-title {
+    font-size: 20px;
+  }
+}
+
+.admin-modal-content h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+
+.permission-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.admin-login-code-input label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.admin-login-code-input input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.admin-button-group button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.admin-button-group button:hover {
+  background-color: #ddd;
+  transform: translateX(2px);
+}
+
+.admin-button-group button:first-child {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.admin-button-group button:last-child {
+  background-color: #4CAF50;
+  color: #fff;
+}
+
+.admin-employee-list {
+  margin-top: 20px;
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+}
+
+.admin-employee-list table {
+  width: 90%;
+  margin: 10px auto;
+  border-collapse: collapse;
+}
+
+.admin-employee-list th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  text-align: center;
+  font-size: 18px;
+  padding: 12px;
+  text-transform: uppercase;
+}
+
+.admin-employee-list td {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.admin-employee-list .actions-column {
+  width: 40%;
+}
+
+.admin-employee-list .name-column,
+.admin-employee-list .role-column {
+  width: 10%;
+}
+
+.admin-employee-list td .action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.admin-employee-list td button {
+  background-color: #35bbdc;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.admin-employee-list td button:hover {
+  background-color: #2349c8;
+  transform: translateX(2px);
+}
+
+.admin-add-employee {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.admin-add-employee:hover {
+  background-color: #218838;
+  transform: translateX(2px);
+}
+.settings-button-container {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  margin-top: 70px;
+}
+
+.settings-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px; /* Adjusted padding */
+  font-size: 12px; /* Smaller font size */
+  cursor: pointer;
+  border-radius: 3px; /* Adjusted border radius */
+}
+
+
+.settings-button:hover {
+  background-color: #0056b3;
+  transform: translateX(2px);
+}

@@ -1,0 +1,96 @@
+/* Cashier Page Container */
+.cashier-page-container {
+    margin: 20px;
+    padding: 20px;
+    text-align: center; /* Center the content */
+  }
+  
+  /* Heading with Greeting */
+  .cashier-page-container h1 {
+    font-size: 35px; /* Slightly bigger font */
+    margin-bottom: 20px;
+    animation: fadeIn 7s ease; /* Fade-in animation */
+    margin-top: 30px;
+  }
+  
+  /* Custom Dashboard Container */
+  .cashier-custom-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Live Info Section */
+  .cashier-live-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  /* Live Info Card */
+  .cashier-live-info > div {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Live Data Text */
+  .cashier-live-data {
+    font-size: 18px;
+  }
+  
+  /* Buttons Section */
+  .cashier-custom-dashboard-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Button Styles */
+  .cashier-custom-dashboard-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cashier-custom-dashboard-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Badge for Awaiting Patients */
+  .cashier-badge {
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 50%;
+  }
+  
+  /* Awaiting Patients Button */
+  .cashier-awaiting-patients {
+    background-color: #28a745;
+  }
+  
+  /* Adjustments for Small Screens */
+  @media screen and (max-width: 768px) {
+    .cashier-live-info {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Fade-in Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  

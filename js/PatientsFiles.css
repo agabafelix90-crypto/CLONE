@@ -1,0 +1,199 @@
+/* Patients page container */
+.patients-page-container {
+  padding: 2rem;
+ 
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+  background-color: white;
+  border-radius: 0px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+.patients-page-container h1 {
+  text-align: center;
+  font-size: 2.1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  margin-top: 30px;
+}
+
+.patients-page-container h2 {
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+/* Search and filter container */
+/* Search and filter container */
+.search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 2rem; /* Increase the gap between the elements */
+}
+
+.search-container input[type="text"] {
+  flex: 1;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.date-picker-container {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: #555;
+  margin-left: 10rem; /* Increase left margin for additional spacing */
+}
+
+.date-picker-container label {
+  margin-bottom: 0.5rem;
+}
+
+.date-picker-container input[type="date"] {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Loading text */
+.patients-page-container p {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Patient list */
+.patient-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Individual patient card */
+.patient-card {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 0px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  position: relative;
+  border-color: rgb(245, 245, 245);
+  height: 300px; /* Set a fixed height for all cards */
+  overflow: hidden; /* Ensure content does not overflow outside the card */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space out elements evenly */
+}
+
+.patient-card h3, .patient-card p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.2; /* Adjust line height for better spacing */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Add ellipsis to overflow text */
+  white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.patient-card p {
+  font-size: 0.9rem; /* Slightly smaller font size for paragraphs */
+  flex-grow: 1; /* Allow paragraphs to grow and fill available space */
+}
+
+.patient-card button {
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background-color: #0e84e4;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  border-radius: 0px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  align-self: flex-end; /* Ensure the button is at the bottom of the card */
+}
+
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 0px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .search-container {
+      flex-direction: column;
+  }
+
+  .patient-list {
+      grid-template-columns: 1fr;
+  }
+
+  .patient-card button {
+      padding: 0.8rem 1rem;
+  }
+}
+.clickable-status {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+/* Container for the scrolling text */
+.scrolling-text-container {
+  width: 100%; /* Container takes full width of the card */
+  overflow: hidden; /* Hide overflowed content */
+  position: relative; /* Required for absolutely positioned child */
+  height: 1.5rem; /* Adjust height to match the text's height */
+  margin-top: 1rem; /* Add some space above the scrolling text */
+}
+
+/* Scrolling text (Marquee effect) */
+.scrolling-text {
+  position: absolute; /* Positioned relative to the container */
+  white-space: nowrap; /* Prevent text from wrapping */
+  animation: scroll-left 10s linear infinite; /* Continuous scrolling */
+  color: #555; /* Match the color with other text in the card */
+  font-size: 0.9rem; /* Ensure the font size matches the design */
+}
+
+/* Keyframes for the scroll animation */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%); /* Start from right outside the container */
+  }
+  100% {
+    transform: translateX(-100%); /* End at left outside the container */
+  }
+}
+.patients-page-container {
+  transition: transform 0.5s;
+}
+
+.patients-page-container.rotated {
+  transform: rotateY(180deg);
+}

@@ -1,0 +1,82 @@
+/* Style for the modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: auto; /* Enable scrolling for the entire modal */
+}
+
+/* Style for the modal content */
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
+    overflow-y: auto; /* Enable vertical scrolling within the modal content */
+    max-width: 700px; /* Increased maximum width for better content distribution */
+    text-align: center; /* Centering content horizontally */
+    width: 90%; /* Ensure responsiveness */
+    max-height: 80vh; /* Limit maximum height to 80% of viewport height */
+    border: 2px solid #ff0000; /* Red border */
+}
+
+/* Ensure proper scrolling for the entire modal content */
+.modal-content > * {
+    margin-bottom: 20px;
+}
+
+/* Style for the input fields and buttons */
+input[type="text"],
+textarea {
+    width: calc(100% - 26px); /* Adjusted width to account for scrollbar */
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 12px 24px;
+    background-color: #007bff; /* Blue color */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker shade of blue on hover */
+}
+
+/* Patientappointments.css */
+
+/* Style for the main container */
+
+
+/* Style for the main container */
+.appointment-card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust the minimum and maximum width as needed */
+    grid-gap: 20px;
+}
+
+/* Style for the appointment card */
+.appointment-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border: 2px solid red; /* Red border */
+    max-width: fit-content; /* Adjust width based on content */
+}
+
+

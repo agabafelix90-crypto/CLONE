@@ -1,0 +1,91 @@
+
+/* Styles for Recent Lab Test Cards */
+.recent-lab-tests-container .lab-test-card {
+  background-color: #f5f5f5; /* Light grey background */
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.recent-lab-tests-container .lab-test-card h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #2c3e50; /* Dark grey text */
+}
+
+.recent-lab-tests-container .lab-test-card p {
+  margin: 5px 0;
+  color: #070707; /* Light grey text */
+}
+
+.recent-lab-tests-container .lab-test-card:hover {
+  transform: scale(1.02); /* Slight zoom on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Additional Styles for Pending Lab Tests Notification */
+.header-container .pending-lab-tests {
+  animation: pulse 1.5s infinite; /* Optional animation */
+}
+
+/* Additional styles if needed for other elements */
+.header-container {
+  margin-bottom: 20px;
+}
+
+
+/* Pending Lab Tests Statement */
+.pending-lab-tests {
+  font-size: 18px;
+  color: #333;
+  cursor: default;
+  transition: color 0.2s ease, transform 0.2s ease;
+  text-align: right; /* Aligns text to the right */
+  margin-right: 60px; /* Adjust the value as needed for spacing */
+}
+
+
+
+.pending-lab-tests.active {
+  color: red;
+  cursor: pointer;
+  animation: pulse 1.5s infinite;
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* General Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f2f5;
+}
+
+* {
+  box-sizing: inherit;
+}

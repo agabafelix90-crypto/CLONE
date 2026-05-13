@@ -1,0 +1,170 @@
+/* Global reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  background-color: #f0f0f0; /* Soft background color */
+}
+
+/* Container for the entire page */
+.container {
+  max-width: 1200px; /* Adjust max-width for desktop layout */
+  margin: 0 auto; /* Center align horizontally */
+  padding: 20px;
+}
+
+/* Header styles */
+.headerx {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #ffffff; /* Header background color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.dispensary-title {
+  font-size: 2.5rem; /* Responsive font size */
+  color: #333; /* Darker text color */
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Main content section */
+.content {
+  display: flex;
+  justify-content: space-between; /* Distribute space between containers */
+  margin-top: 20px;
+}
+
+/* Container styles for specific sections */
+.container-get-drugs {
+
+  padding: 20px;
+  width: 48%; /* Adjust width for desktop layout */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  overflow-y: auto; /* Enable vertical scrolling */
+ background-color: rgb(245, 245, 255);
+  margin-right: 50px; /* Add space between containers horizontally */
+  text-align: center;
+}
+
+.container-stock {
+background-color: rgb(242, 242, 252);
+  padding: 20px;
+  width: 48%; /* Adjust width for desktop layout */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  overflow-y: auto; /* Enable vertical scrolling */
+ margin-right: 0px;
+  text-align: center;
+}
+/* Hover animation for drug rows */
+.container-stock table tbody tr:hover {
+ 
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for background color and transform */
+  transform: scale(1.05); /* Zoom in effect */
+}
+
+
+/* Form styles */
+.container-get-drugs table,
+.container-stock table {
+  width: 100%;
+  margin-bottom: 20px;
+  border-collapse: collapse; /* Collapse table borders */
+}
+
+.container-get-drugs input[type="text"],
+.container-get-drugs input[type="number"],
+.container-stock input[type="text"],
+.container-stock input[type="number"] {
+  width: calc(100% - 20px); /* Full width with padding */
+  padding: 12px; /* Comfortable padding */
+  font-size: 1rem; /* Standard font size */
+
+  border-radius: 4px; /* Rounded corners */
+  margin-bottom: 10px;
+}
+
+.container-get-drugs input[type="text"]::placeholder,
+.container-get-drugs input[type="number"]::placeholder,
+.container-stock input[type="text"]::placeholder,
+.container-stock input[type="number"]::placeholder {
+  color: #999; /* Placeholder text color */
+}
+
+/* Button styles */
+.container-get-drugs button,
+.container-stock button {
+  background-color: #007bff; /* Primary button color */
+  color: #fff; /* Text color */
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.container-get-drugs button:hover,
+.container-stock button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+/* Table styles */
+.container-get-drugs table,
+.container-stock table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.container-get-drugs th,
+.container-get-drugs td,
+.container-stock th,
+.container-stock td {
+  border: 1px solid #ddd; /* Light gray border */
+  padding: 12px;
+  text-align: left;
+}
+
+.container-get-drugs th,
+.container-stock th {
+  background-color: #f2f2f2; /* Light gray background for header */
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .content {
+    flex-direction: column; /* Stack containers vertically on smaller screens */
+  }
+
+  .container-get-drugs,
+  .container-stock {
+    width: 100%; /* Full width on smaller screens */
+    margin-bottom: 20px; /* Space between containers */
+    max-height: none; /* Reset max-height for responsiveness */
+  }
+}
+/* Image container styles */
+.image-containerx {
+  background-color: black; /* White background */
+  padding: 1px; /* Padding */
+  margin-bottom: 2px; /* Margin bottom */
+  display: flex; /* Flex container */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  height: 30px; /* Height */
+  overflow: hidden; /* Hide overflow */
+  max-width: 1200px; /* Maximum width */
+}
+
+.image-containerx img {
+  height: 100%; /* Full height */
+  object-fit: contain; /* Fit image inside container */
+  animation: moveLeftRight 30s infinite; /* Apply animation */
+}

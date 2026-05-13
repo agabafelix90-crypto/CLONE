@@ -1,0 +1,282 @@
+/* DoctorsRoom.css */
+
+/* Ensure the body has a white background */
+
+
+/* Container for the entire page content */
+
+
+/* Container for the doctors room content */
+.doctors-room-container2 {
+   
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+/* Header styles */
+.doctors-room-container2 h1 {
+    font-size: 50px;
+    margin-bottom: 20px;
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* Patient details section styles */
+.read-only-fields-container {
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+/* Input container styling */
+.doctors-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+label {
+    font-weight: bold;
+    color: #34495e;
+}
+
+.input-container label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.input-container input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Modal overlay and content */
+.doctors-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure overlay is above other content */
+}
+
+.doctors-modal-content {
+    background: #ffffff; /* White background */
+    padding: 30px; /* Increased padding for better spacing */
+    border-radius: 12px; /* Rounded corners */
+    width: 90%; /* Take up 90% of the viewport width */
+    max-width: 600px; /* Maximum width of the modal */
+    max-height: 85%; /* Maximum height of the modal */
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2); /* Subtle box shadow for depth */
+    z-index: 1100; /* Ensure modal content is above overlay */
+}
+
+/* Modal header */
+.doctors-modal-content h2 {
+    font-size: 24px; /* Larger font size for modal headers */
+    margin-bottom: 20px; /* Space below header */
+    color: #333; /* Dark text color */
+}
+
+/* Modal input fields */
+.doctors-modal-content .input-container {
+    margin-bottom: 20px; /* Space between input fields */
+}
+
+.doctors-modal-content label {
+    font-weight: bold; /* Bold labels for clarity */
+    color: #555; /* Slightly darker text color */
+}
+
+.doctors-modal-content input[type="text"],
+.doctors-modal-content select {
+    width: 100%; /* Full width input fields */
+    padding: 12px; /* Increased padding for better touch experience */
+    border-radius: 6px; /* Slightly rounded corners */
+    border: 1px solid #ccc; /* Light border */
+    outline: none; /* Remove default input focus outline */
+    transition: border-color 0.3s ease; /* Smooth border color transition */
+}
+
+.doctors-modal-content input[type="text"]:focus,
+.doctors-modal-content select:focus {
+    border-color: #007bff; /* Highlight border color on focus */
+}
+
+/* Modal buttons */
+.doctors-modal-content button {
+    background-color: #007bff; /* Blue primary button color */
+    color: #fff; /* White text color */
+    border: none; /* Remove default button border */
+    padding: 12px 20px; /* Padding for button */
+    border-radius: 6px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s ease; /* Smooth background color transition */
+    margin-top: 10px; /* Space above buttons */
+}
+
+.doctors-modal-content button:hover {
+    background-color: #0056b3; /* Darker shade on button hover */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .doctors-modal-content {
+        width: 95%; /* Adjust width for smaller screens */
+        padding: 20px; /* Decrease padding slightly */
+    }
+}
+
+
+/* Button styles */
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.remove-button {
+    background-color: #dc3545;
+    margin-left: 10px;
+}
+
+.remove-button:hover {
+    background-color: #c82333;
+}
+
+/* Section styles */
+.textarea-container {
+    margin-bottom: 20px;
+}
+
+.textarea-container h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    resize: vertical;
+}
+
+/* Vitals section styles */
+.vitals-section {
+    margin-bottom: 20px;
+}
+
+.vitals-inputs {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.vital-input {
+    width: calc(50% - 10px);
+    margin-bottom: 10px;
+    padding-right: 10px;
+}
+
+.vital-input label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.vital-input input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Lab tests and radiology exams section styles */
+.lab-test-form,
+.radiology-exam-form {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.lab-test-form select,
+.radiology-exam-form select {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 10px;
+}
+
+.lab-test-form button,
+.radiology-exam-form button {
+    background-color: #28a745;
+}
+
+.lab-test-form button:hover,
+.radiology-exam-form button:hover {
+    background-color: #218838;
+}
+
+.lab-test-list,
+.radiology-exam-list {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.lab-test-item,
+.radiology-exam-item {
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.lab-test-item span,
+.radiology-exam-item span {
+    margin-right: 10px;
+}
+
+/* Submit button styles */
+button[disabled] {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Additional styling for footer */
+.footer2 {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}

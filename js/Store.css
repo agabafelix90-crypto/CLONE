@@ -1,0 +1,327 @@
+/* General styles for store container */
+.store-container {
+  /*  width: 1200px; /* Fixed width for desktop layout */
+    margin: 0 auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    text-align: center;
+    zoom: 100%; /* Adjust zoom level as per your design */
+  }
+  
+  
+  .store-container h1 {
+    font-size: 40px;
+    margin-bottom: 25px;
+  }
+  
+  /* Button container styles */
+  .button-container {
+    display: flex;
+    gap: 5px; /* Remove flex-wrap to prevent buttons from wrapping */
+  }
+  
+  .button-container button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 3px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button-container button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Selected button styles */
+  .selected {
+    background-color: rgb(0, 255, 34);
+    color: white;
+  }
+  
+  /* Define keyframes for continuous scrolling */
+  @keyframes scrollText {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  /* Apply the animation to the input field */
+  .drug-input {
+    width: 100%; /* Ensure the input field takes up the full width */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide any overflow text */
+  }
+  
+  /* Apply the animation to the text within the input field */
+  .drug-input::placeholder {
+    animation: scrollText 10s linear infinite; /* Apply animation to the placeholder text */
+  }
+  /* Professional CSS for selected drugs section */
+  
+  .selected-drugs-container {
+    
+    text-align: left; /* Align text to the left */
+    border: 2px solid #21fa0d;
+    margin-top: 20px;
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 200 200'%3E%3Cpolygon fill='%23DCEFFA' fill-opacity='0.17' points='100 0 0 100 100 100 100 200 200 100 200 0'/%3E%3C/svg%3E");
+  }
+  .selected-drugs-list {
+    list-style-type: none; /* Remove default list bullets */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+  }
+  
+  .selected-drug-item {
+    margin-bottom: 10px; /* Add space between list items */
+    padding: 10px; /* Add padding inside each item */
+    border: 1px solid #ddd; /* Optional: Add a border around each item */
+    border-radius: 3px; /* Optional: Add rounded corners to the border */
+    background-color: #fff; /* Optional: Add a background color */
+  }
+  
+  .selected-drug-name,
+  .selected-drug-quantity,
+  .selected-drug-price {
+    display: block; /* Ensure each piece of information is on a new line */
+    margin-bottom: 5px; /* Add space between lines of information */
+  }
+  
+  .move-drugs-prompt {
+    background-color: #f5f5f5;
+    border: 2px solid #f0cc03;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-height: 2000px; /* Adjust max-height as per your design */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+  
+  
+  .search-container {
+    margin-bottom: 10px;
+  }
+  
+  .move-drugs-table-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .move-drugs-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .move-drugs-table th,
+  .move-drugs-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .move-drugs-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .move-drugs-table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  
+  
+  
+  .selected-drug-name {
+    font-weight: bold;
+  }
+  
+  .move-actions {
+    margin-top: 20px;
+  }
+  
+  .move-actions button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .move-actions button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  .warning-move-drug-message {
+    display: none;
+    color: red;
+    animation: showHide 20s linear infinite;
+  }
+  
+  @keyframes showHide {
+    0%, 100% {
+        opacity: 0;
+        display: none;
+    }
+    16.66%, 83.33% {
+        opacity: 1;
+        display: block;
+    }
+  }
+  /* Container styles */
+  .move-insert-container {
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    align-items: center; /* Center the buttons vertically */
+    gap: 10px;
+    margin-top: 20px; /* Customize top margin */
+    margin-bottom: 20px; /* Customize bottom margin */
+  }
+  
+  /* Button styles */
+  .insert-new-drugs-button,
+  .move-drugs-button {
+    position: relative;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    background-color: #007bff; /* Default background color */
+    color: white; /* Default text color */
+  }
+  
+  /* Hover effects for buttons */
+  .insert-new-drugs-button:hover,
+  .move-drugs-button:hover {
+    background-color: #0056b3;
+    color: white;
+    transform: scale(1.05); /* Slightly enlarge the button on hover */
+  }
+  
+  /* Custom tooltip styles */
+  /* Tooltip styles to appear below the buttons with some space */
+  .insert-new-drugs-button[data-tooltip]:hover::after,
+  .move-drugs-button[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 110%; /* Add space between the button and tooltip */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: black;
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    text-align: center;
+    font-size: 12px;
+    z-index: 10;
+    min-width: 200px;
+    max-width: 300px;
+  }
+  
+  
+  /* Additional button spacing (if needed) */
+  .insert-new-drugs-button + .move-drugs-button {
+    margin-left: 120px; /* Adjust spacing between specific buttons if needed */
+  }
+  .store-icon {
+    color: blue; /* Change color as needed */
+    margin-right: 10px; /* Optional: Adjust spacing between icon and text */
+  }
+  
+  .non-editable {
+    pointer-events: none; /* Prevents mouse events */
+    cursor: default; /* Ensures no cursor change on hover */
+    color: #333; /* Adjust color as needed */
+    background-color: #f0f0f0; /* Optional: gives a distinct background color */
+    padding: 5px; /* Optional: for spacing */
+  }
+  
+  /* Backdrop styling */
+  .backdrop {
+    position: fixed; /* Covers the entire viewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    backdrop-filter: blur(5px); /* Blurring effect */
+    z-index: 999; /* Ensure it is behind the prompt */
+  }
+  
+  /* Prompt styling */
+  .prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000; /* Ensure it is above the backdrop */
+    overflow: auto; /* Allow scrolling if content is too large */
+    box-sizing: border-box; /* Include padding in the element's total width and height */
+  }
+  /* Prompt styling */
+  .move-drugs-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000; /* Ensure it is above the backdrop */
+    overflow: auto; /* Allow scrolling if content is too large */
+    box-sizing: border-box; /* Include padding in the element's total width and height */
+  }
+  
+  /* Table wrapper to fill the available space */
+  .move-drugs-table-wrapper {
+    overflow: auto;
+    max-height: calc(100% - 120px); /* Adjust based on header/footer height */
+  }
+  
+  /* Selected drugs container */
+  .selected-drugs-container {
+    margin-top: 20px;
+    overflow: auto;
+  }
+  
+  /* Table styling for full screen */
+  .move-drugs-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .move-drugs-table th, .move-drugs-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .move-drugs-table th {
+    background-color: #f4f4f4;
+  }
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333; /* Change color as needed */
+  }
+  
+  .close-btn:hover {
+    color: red; /* Change color on hover if desired */
+  }

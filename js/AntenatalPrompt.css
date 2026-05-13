@@ -1,0 +1,177 @@
+/* Ensure the page fills the entire width and height */
+
+
+/* Main container for the antenatal form */
+.antenatal-card-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  border-radius: 8px;
+
+  margin: 0 auto;
+  overflow-y: auto; /* Allow vertical scrolling */
+  height: 100vh; /* Make the container fill the height of the viewport */
+}
+
+/* Section styling to separate the different parts of the form */
+.section {
+  margin-bottom: 20px;
+}
+
+/* Styling for headings */
+.heading {
+  color: #000000;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+/* Styling for form inputs */
+.input-field {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  
+  font-size: 1.3em;
+  background-color: #fff;
+}
+
+/* Styling for checkboxes */
+.checkbox {
+  margin: 10px 0;
+  display: block;
+  font-size: 1em;
+
+}
+
+/* Button styling */
+.submit-button {
+  width: 20%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
+/* Button hover effect */
+.submit-button:hover {
+  background-color: #45a049;
+}
+
+/* Center align the form title */
+.form-title {
+  text-align: center;
+}
+.input-label {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+  color: #000000;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.input-label textarea {
+  width: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  resize: vertical;
+  color: #000000;
+}
+.checkbox-label {
+  color: black; /* Text color */
+  font-family: 'Arial', sans-serif; /* Set a professional font */
+  font-size: 1rem; /* Adjust size for readability */
+  margin-left: 8px; /* Space between checkbox and text */
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px; /* Add spacing between checkboxes */
+
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.heading {
+  font-size: 1.5rem;
+  color: #000000;
+  margin-bottom: 15px;
+}
+.clickable-statement p {
+  font-size: 14px; /* Makes the font size smaller */
+  color: blue; /* Sets the text color to blue */
+  cursor: pointer; /* Adds a pointer cursor to indicate it's clickable */
+  text-decoration: underline; /* Optionally add an underline to make it more clickable */
+}
+
+
+.prompt-button {
+  flex: 1; /* Ensure buttons take up equal width */
+  height: 100%; /* Buttons span the full height of the group */
+  background-color: #ffffff; /* Default button background */
+  border: none; /* Remove default button borders */
+  font-size: 16px; /* Button font size */
+  font-weight: bold; /* Bold text */
+  color: #333; /* Button text color */
+  text-align: center; /* Center align text */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+}
+
+.prompt-button:hover {
+  background-color: #e6e6e6; /* Light grey on hover */
+}
+
+.prompt-button:not(:last-child) {
+  border-right: 2px solid #ccc; /* Divider between buttons */
+}
+
+.prompt-button:active {
+  background-color: #ddd; /* Slightly darker color on click */
+}
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.prompt-button {
+  background-color: #4CAF50; /* Green background */
+  color: white;              /* White text */
+  border: none;              /* Remove border */
+  border-radius: 5px;        /* Rounded corners */
+  padding: 12px 24px;        /* Padding around the text */
+  font-size: 16px;           /* Font size */
+  font-weight: 600;          /* Bold font */
+  cursor: pointer;          /* Pointer cursor on hover */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.prompt-button:hover {
+  background-color: #45a049; /* Slightly darker green on hover */
+  transform: translateY(-2px); /* Small lift on hover */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow on hover */
+}
+
+.prompt-button:focus {
+  outline: none;             /* Remove default focus outline */
+  border: 2px solid #4CAF50; /* Green border on focus */
+}
+
+.prompt-button:active {
+  transform: translateY(1px); /* Button 'pressed' effect */
+  box-shadow: none;           /* Remove shadow when button is pressed */
+}

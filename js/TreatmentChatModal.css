@@ -1,0 +1,206 @@
+
+.treatment-chat-container {
+    width: 80vw;
+    max-width: 1000px;
+    min-height: 600px;
+    height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f7f6f6;
+    border-radius: 0px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-left: 130px; /* Adjust this value as needed */
+}
+
+.treatment-chat-header {
+    margin-bottom: 20px;
+}
+
+.treatment-chat-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.treatment-chat-table th, .treatment-chat-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.treatment-chat-table td input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.treatment-chat-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+
+
+.treatment-chat-preview {
+    margin-bottom: 20px;
+ 
+
+}
+
+.submit-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.treatment-chat-submit-button, .treatment-chat-close-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.treatment-chat-submit-button {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.treatment-chat-close-button {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+
+/* Adjust the position to stay within the container */
+.treatment-chat-container {
+    position: relative; /* Make sure the container has relative positioning */
+}
+
+
+
+
+/* Buttons */
+.add-row-button, .remove-row-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-row-button {
+    background-color: #007bff;
+    color: #fff;
+    margin-right: 5px;
+}
+
+.remove-row-button {
+    background-color: #dc3545;
+    color: #fff;
+}
+.treatment-chat-preview {
+    max-width: 100%; /* Adjust as needed to fit the container */
+    padding: 10px;
+    border: 1px solid #ddd; /* Optional: for visualization */
+    background-color: #f9f9f9; /* Optional: for better readability */
+    font-size: smaller;
+  
+
+}
+
+.treatment-chat-preview pre {
+    word-wrap: break-word; /* Allows long words to break onto the next line */
+    overflow-wrap: break-word; /* Ensures text wraps within the container */
+    white-space: pre-wrap; /* Preserves whitespace and wraps text */
+    margin: 0; /* Remove default margins if needed */
+    padding: 0; /* Remove default padding if needed */
+    font-family: 'Roboto', sans-serif;
+}
+.next-dose-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    background-color: #f2f5f1;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.next-dose-container h3 {
+    margin-bottom: 11px;
+    font-size: 18px;
+    color: #333;
+}
+
+.next-dose-container label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.next-dose-container input[type="radio"] {
+    margin-right: 8px;
+}
+
+.date-time-inputs {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 0px;
+    background-color: #fff;
+}
+
+.date-time-inputs label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.date-time-inputs input[type="date"],
+.date-time-inputs input[type="time"] {
+    margin-left: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+}
+.drug-chat-suggestions-container {
+    position: absolute;
+    top: 100%; /* Positions the list directly below the input */
+    left: 0; /* Aligns it with the input */
+    z-index: 100; /* Ensures it's on top */
+    background-color: rgb(57, 56, 56);
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Make it the same width as the input */
+    color: black;
+    height: 500px; /* Adjust this value as needed */
+  }
+  
+  .drug-chat-suggestions-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  
+  .drug-chat-suggestions-list li {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  
+  .drug-chat-suggestions-list li:hover {
+    background-color: #8fb492;
+    transform: scale(1.05); /* Slightly enlarge the element on hover */
+  }
+  
+  .treatment-chat-heading {
+    font-size: small;
+    color: red;
+    margin-bottom: 10px;
+  }
+  .quantity-input {
+    /* Ensure no overflow causes unintended scrolling */
+    overflow: hidden;
+    /* You can also add other styling to make it more user-friendly */
+}

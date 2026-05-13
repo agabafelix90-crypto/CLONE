@@ -1,0 +1,136 @@
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Page title */
+  .page-title {
+    margin-top: 90px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  /* Contacts list */
+  .contacts-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+    background-color: white;
+  }
+  
+/* Contacts scrollable container */
+.contacts-scrollable-container {
+    
+    margin: 0 auto; /* Center the container horizontally */
+    overflow-y: auto; /* Enable vertical scrolling */
+    background-color: rgb(238, 196, 196);
+  }
+  
+  /* Contact item */
+  .contact-item {
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: calc(50% - 20px); /* Set the width to half of the container width minus padding */
+    display: inline-block; /* Display items in a row */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    margin-left: 15px;
+  }
+  
+  
+  /* Buttons */
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Modal content */
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 0px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Transaction prompt */
+  .transaction-prompt {
+    text-align: center;
+  }
+  
+  /* Transaction buttons */
+  .transaction-buttons {
+    margin-top: 20px;
+  }
+  
+  /* Message section */
+  .message-buttons {
+    margin-top: 20px;
+  }
+  
+  /* Add contact section */
+  .add-contact-section {
+    margin-top: 20px;
+  }
+  .page-title{
+    margin-top: 20px;
+    font-size: 40px;
+    text-align: center;
+  }
+  /* Custom button container */
+/* Custom button container */
+.custom-button-container {
+  display: flex;
+  justify-content: center; /* Center the contents horizontally */
+  margin-top: 20px; /* Add some space above the buttons */
+}
+
+/* Buttons within the custom button container */
+.custom-button-container button {
+  margin: 0 10px; /* Add some horizontal spacing between buttons */
+}
+
+.custom2-button-container {
+  display: flex;
+  justify-content: center; /* Center the contents horizontally */
+  margin-top: 20px; /* Add some space above the buttons */
+}
+
+/* Search section container */
+.search-container {
+  text-align: center; /* Center the contents horizontally */
+  justify-content: center;
+  max-width: 1000px;
+
+}
+
+/* Search input */
+/* Search input */
+.search-input {
+  width: 200px; /* Increase the width as needed */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: px;
+  margin-top: 10px;
+  font-size: 16px;
+  margin-left: 170px;
+}
+

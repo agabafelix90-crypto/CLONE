@@ -1,0 +1,233 @@
+/* Credits.css */
+
+/* Main container */
+.container {
+  max-width: 1200px; /* Adjust max-width as needed */
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/* Search input and buttons container */
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 70px;
+
+}
+
+/* Search input */
+input[type="text"] {
+  padding: 10px;
+  width: 70%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+}
+
+/* Search button */
+.search-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.search-container button:hover {
+  background-color: #0056b3;
+}
+
+/* Credit container */
+.credits-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust minmax values as needed */
+  grid-gap: 20px;
+}
+
+/* Credit box */
+.credit-box {
+  border: px solid red; /* Red border */
+  padding: 20px;
+  border-radius: 0px;
+  background-color: #e7e7e7; /* Cream background */
+  color: black;
+}
+
+.credit-box p {
+  margin: 5px 0;
+}
+
+/* Prompt modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* Ensure the prompt overlay is on top */
+  backdrop-filter: blur(10px); /* Blur the background content */
+}
+
+/* Prompt modal content */
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid darkgreen; /* Dark green border */
+  filter: blur(0); /* Initially no blur */
+  transition: filter 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Blur the background when prompt appears */
+.modal-overlay.show-blur .modal-content {
+  filter: blur(10px); /* Apply blur effect */
+}
+
+.transaction-prompt h2 {
+  margin-bottom: 20px;
+}
+
+/* Prompt input fields */
+.modal-content input[type="text"],
+.modal-content input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+/* Prompt buttons */
+.modal-content button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.modal-content button:hover {
+  background-color: #0056b3;
+}
+/* Receipt overlay */
+.receipt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* Ensure the receipt overlay is on top */
+  backdrop-filter: blur(10px); /* Blur the background content */
+}
+
+.receipt-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid darkgreen; /* Dark green border */
+  filter: blur(0); /* No blur on the receipt */
+  transition: filter 0.3s ease-in-out; /* Smooth transition */
+  max-width: 400px; /* Set a max width for the receipt */
+  width: 90%; /* Make it responsive */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+  text-align: center; /* Center align headings */
+  position: relative; /* For positioning the close button */
+  margin-top: 80px;
+}
+
+.receipt-heading {
+  margin: 0;
+  color: darkgreen; /* Match with the border color */
+  margin-top: 30px;
+}
+
+.receipt-details {
+  text-align: left; /* Align non-heading data to the left */
+  margin-top: 20px;
+}
+
+.receipt-details p {
+  margin: 5px 0; /* Adjust spacing between lines */
+}
+
+.receipt-details strong {
+  color: darkgreen; /* Match label color with the border */
+}
+
+.receipt-buttons {
+  margin-top: 20px;
+}
+
+.receipt-buttons button {
+  background-color: darkgreen; /* Matching the border color */
+  color: white;
+  padding: 10px 20px;
+  margin: 5px; /* Space between buttons */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: inline-flex; /* Align icons and text horizontally */
+  align-items: center;
+}
+
+.receipt-buttons button:hover {
+  background-color: green; /* Lighter shade on hover */
+}
+
+.close-button {
+  background-color: #f44336; /* Red background for close button */
+  color: white;
+  border: none;
+  border-radius: 50%; /* Round shape for the button */
+  padding: 5px 10px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 14px; /* Smaller font size */
+}
+
+.close-button:hover {
+  background-color: #c62828; /* Darker red on hover */
+}
+
+/* Remove decimal points from money figures */
+.receipt-details p {
+  font-size: 16px; /* Adjust as needed */
+}
+
+.receipt-details p span.money {
+  font-weight: bold; /* Highlight the money figures */
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: fadeInUp 0.5s ease forwards;
+}

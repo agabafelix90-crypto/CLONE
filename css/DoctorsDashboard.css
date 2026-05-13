@@ -1,0 +1,211 @@
+/* General Styles */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #edf1e7;
+}
+
+/* Full-screen container for the entire dashboard */
+.full-screen-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #eef7f2;
+  padding-top: 90px; /* Add space at the top */
+  padding-bottom: 40px; /* Adjust this value for desired space */
+}
+
+.doctors-dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two columns layout */
+  grid-gap: 20px;
+  width: 100%;
+  height: 100vh; /* Occupy most of the screen height */
+  margin-top: 20px;
+  background-color: #f0f2f5;
+}
+
+/* Patient Containers */
+.patients-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.container-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.container-header h2 {
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.patient-count {
+  background-color: #082b10;
+  color: white;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 50px;
+  font-weight: bold;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Scrollable list of patients */
+.patients-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.patients-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.patients-list::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 10px;
+}
+
+/* Patient Card */
+.patient-card {
+  background-color: #f8f9fa;
+  border: 1px solid #dddddd;
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin-bottom: 5px; /* Tighten spacing between rows */
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, background-color 0.3s ease;
+}
+
+.patient-card:hover {
+  transform: scale(1.02);
+  background-color: #fefefe;
+}
+
+.patient-card p {
+  margin: 3px 0; /* Reduce space between text lines */
+  font-size: 14px;
+}
+
+.patient-card strong {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Attention-based colors */
+.red {
+  border-left: 4px solid #ff6b6b;
+}
+
+.orange {
+  border-left: 4px solid #ffa500;
+}
+
+.green {
+  border-left: 4px solid #4caf50;
+}
+
+/* Blinking number and "Critical" text */
+.blinking {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Critical patient count with label */
+.critical-count {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.critical-count .count-number {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff6b6b; /* Red color for attention */
+}
+
+.critical-count .critical-label {
+  font-size: 14px;
+  color: #ff6b6b;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+/* Buttons Container */
+.buttons-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.doctors-room-menu-button {
+  background-color: #007bff;
+  color: white;
+  padding: 15px 30px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  margin: 0 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doctors-room-menu-button svg {
+  margin-right: 8px;
+}
+
+.doctors-room-menu-button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .doctors-dashboard {
+    grid-template-columns: 1fr; /* Single column layout for smaller screens */
+  }
+
+  .buttons-container {
+    flex-direction: column;
+  }
+
+  .doctors-room-menu-button {
+    margin-bottom: 15px;
+  }
+}
+@keyframes blink {
+  0% {
+    color: red;
+  }
+  50% {
+    color: black;
+  }
+  100% {
+    color: red;
+  }
+}
+
+.blinking-card {
+  animation: blink 1s infinite;
+}

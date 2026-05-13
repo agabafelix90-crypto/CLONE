@@ -1,0 +1,119 @@
+/* Statistics.css */
+
+.statistics-page {
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.month-year-selection {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.month-year-selection select,
+.month-year-selection input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  table-layout: fixed; /* Ensures equal column width */
+}
+
+table thead {
+  background-color: #4CAF50;
+  color: white;
+}
+
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  font-weight: bold;
+  color: #000; /* Black color for table headings */
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+
+.footer {
+  text-align: center;
+  padding: 20px 10px;
+  background-color: #333;
+  color: #fff;
+  font-size: 14px;
+  border-top: 1px solid #4CAF50;
+}
+
+.footer a {
+  color: #4CAF50;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .month-year-selection {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .totals {
+    padding: 15px;
+  }
+
+  table th,
+  table td {
+    font-size: 14px;
+  }
+
+  .footer {
+    font-size: 12px;
+  }
+}
+.statistics-table th, .statistics-table td {
+  border: 1px solid #ddd; /* Optional: adds borders to the table cells */
+}
+
+.statistics-table th:nth-child(1),
+.statistics-table td:nth-child(1) {
+  width: 150px;
+}
+
+.statistics-table th:nth-child(2),
+.statistics-table td:nth-child(2),
+.statistics-table th:nth-child(3),
+.statistics-table td:nth-child(3),
+.statistics-table th:nth-child(4),
+.statistics-table td:nth-child(4),
+.statistics-table th:nth-child(5),
+.statistics-table td:nth-child(5),
+.statistics-table th:nth-child(6),
+.statistics-table td:nth-child(6) {
+  width: 200px;
+}

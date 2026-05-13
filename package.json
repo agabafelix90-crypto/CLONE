@@ -1,0 +1,53 @@
+{
+  "name": "medical-health-management-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "backend:start": "npm --prefix backend start",
+    "backend:dev": "npm --prefix backend run dev"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@fortawesome/fontawesome-svg-core": "^7.2.0",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@mui/icons-material": "^5.14.0",
+    "@mui/material": "^5.14.7",
+    "@supabase/ssr": "^0.10.2",
+    "@supabase/supabase-js": "^2.105.3",
+    "axios": "^1.6.0",
+    "chart.js": "^4.4.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "draft-js": "^0.11.7",
+    "draftjs-to-html": "^0.9.1",
+    "font-awesome": "^4.7.0",
+    "helmet": "^8.1.0",
+    "html-to-draftjs": "^1.5.0",
+    "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.10.1",
+    "jsencrypt": "^3.0.0-rc.1",
+    "jspdf": "^2.5.1",
+    "lucide-react": "^0.533.0",
+    "print-js": "^1.6.0",
+    "qrcode.react": "^1.0.0",
+    "react": "^17.0.2",
+    "react-chartjs-2": "^5.2.0",
+    "react-datepicker": "^4.21.0",
+    "react-dom": "^17.0.2",
+    "react-draft-wysiwyg": "^1.15.0",
+    "react-icons": "^4.11.0",
+    "react-router-dom": "^6.14.1",
+    "react-select": "^5.10.2",
+    "react-spinners": "^0.14.0",
+    "react-toastify": "^9.1.2",
+    "web-vitals": "^3.5.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.1"
+  }
+}

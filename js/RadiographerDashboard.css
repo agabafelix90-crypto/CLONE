@@ -1,0 +1,26 @@
+/* Styles for Radiology Exam Cards */
+.recent-exams-container .exam-card {
+    background-color: #f5f5f5; /* Light grey background */
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .recent-exams-container .exam-card h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2c3e50; /* Dark grey text */
+  }
+  
+  .recent-exams-container .exam-card p {
+    margin: 5px 0;
+    color: #070707; /* Light grey text */
+  }
+  
+  .recent-exams-container .exam-card:hover {
+    transform: scale(1.02); /* Slight zoom on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  

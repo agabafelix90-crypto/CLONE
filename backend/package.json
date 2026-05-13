@@ -1,0 +1,29 @@
+{
+  "name": "medical-health-management-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node test-endpoints.js",
+    "migrate": "node migrate.js",
+    "prod": "set NODE_ENV=production&&node src/server.js"
+  },
+  "dependencies": {
+    "@googleapis/calendar": "^8.0.0",
+    "@googleapis/gmail": "^5.0.0",
+    "@supabase/supabase-js": "^2.10.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "googleapis": "^171.4.0",
+    "helmet": "^7.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.0.0",
+    "pg": "^8.20.0"
+  }
+}

@@ -1,0 +1,578 @@
+/* General Styles */
+.doctors-room-body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f7f7fc;
+    color: #030303;
+}
+
+.doctors-room-container2 {
+
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+
+
+h3 {
+    margin-top: 20px;
+}
+
+.patient-details-section {
+    margin-bottom: 20px;
+}
+
+.transaction-buttons button,
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.add-patient-input,
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="date"] {
+    padding: 7px;
+}
+
+.input-container,
+.vital-input {
+    margin-bottom: 15px;
+}
+
+.input-container label,
+.vital-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.vitals-section {
+    padding: 20px;
+    background-color: #f2f8f3;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.vitals-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.vitals-inputs-top,
+.vitals-inputs-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.vital-input {
+    flex: 1;
+    min-width: 180px; /* Adjust to fit your layout */
+    max-width: calc(33% - 16px); /* For top row, fit 3 items */
+}
+
+.vitals-inputs-bottom .vital-input {
+    max-width: calc(25% - 16px); /* For bottom row, fit 4 items */
+}
+
+.vital-input label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.vital-input input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.vital-input p {
+    margin-top: 8px;
+    color: #666;
+}
+
+.vital-warning {
+    margin-top: 10px;
+}
+
+.vital-warning p {
+    font-weight: bold;
+}
+
+.unique-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.unique-modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.unique-modal-content h2 {
+    margin-top: 0;
+}
+
+.transaction-prompt {
+    margin: 20px 0;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #f1f1f1;
+}
+
+.selected-tests {
+    margin-top: 20px;
+}
+
+.selected-tests ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.selected-tests li {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+}
+
+.selected-tests button {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.selected-tests button:hover {
+    background: #c82333;
+}
+
+.selection-options,
+.attention-level-selection {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.selection-options div,
+.attention-level-selection div {
+    margin-bottom: 10px;
+}
+
+.selection-options input[type="radio"],
+.attention-level-selection input[type="radio"] {
+    margin-right: 10px;
+}
+
+.attention-level-selection h2 {
+    margin-bottom: 10px;
+}
+.read-only-fields-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Pulse Rate Styles */
+.low-pulse {
+    color: red;
+    font-weight: bold;
+}
+
+.high-pulse {
+    color: orange;
+    font-weight: bold;
+}
+
+.normal-pulse {
+    color: green;
+    font-weight: bold;
+}
+
+/* Blood Pressure Styles */
+.low-pressure {
+    color: blue;
+    font-weight: bold;
+}
+
+.high-pressure {
+    color: purple;
+    font-weight: bold;
+}
+
+.normal-pressure {
+    color: green;
+    font-weight: bold;
+}
+
+.vital-input {
+    margin: 10px;
+}
+
+
+.vital-inputs {
+    display: flex;
+    flex-direction: column;
+}
+.classification-message {
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+/* Styles for blood pressure messages */
+.low-pressure {
+    color: #f00; /* Red for low pressure */
+}
+
+.high-pressure {
+    color: #f00; /* Red for high pressure */
+}
+
+.normal-pressure {
+    color: #008000; /* Green for normal pressure */
+}
+
+/* Styles for pulse rate messages */
+.low-pulse {
+    color: #f00; /* Red for low pulse */
+}
+
+.high-pulse {
+    color: #f00; /* Red for high pulse */
+}
+
+.normal-pulse {
+    color: #008000; /* Green for normal pulse */
+}
+
+/* Styles for temperature messages */
+.high-temperature {
+    color: #f00; /* Red for high temperature */
+}
+
+.normal-temperature {
+    color: #008000; /* Green for normal temperature */
+}
+
+/* Styles for SPO2 messages */
+.low-spo2 {
+    color: #f00; /* Red for low SPO2 */
+}
+
+.normal-spo2 {
+    color: #008000; /* Green for normal SPO2 */
+}
+
+/* Styles for respiratory rate messages */
+.low-respiratory-rate {
+    color: #f00; /* Red for low respiratory rate */
+}
+
+.high-respiratory-rate {
+    color: #f00; /* Red for high respiratory rate */
+}
+
+.normal-respiratory-rate {
+    color: #008000; /* Green for normal respiratory rate */
+}
+
+.vital-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .vital-input {
+    margin-bottom: 8px; /* Space between BMI value and warning */
+  }
+  
+  .bmi-value {
+    margin: 0;
+    font-size: 16px; /* Adjust as needed */
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  
+  .vital-warning {
+    margin-top: 4px; /* Adjust if needed */
+  }
+  
+  .warning-message {
+    margin: 0;
+    font-size: 15px; /* Adjust font size */
+    font-family: Arial, sans-serif; /* Adjust font family */
+    font-weight: bold; /* Adjust font weight */
+  }
+  
+  .warning {
+    color: red;
+  }
+  
+  .safe {
+    color: green;
+  }
+  .ptclassification-container {
+    width: 100%; /* Full width of the parent container */
+    padding: 10px; /* Optional padding for spacing inside the container */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #edecf5;
+}
+
+.classification-label {
+    display: block;
+    margin-bottom: 10px; /* Space below the label */
+    font-weight: bold; /* Make the label text bold */
+}
+
+.classification-options {
+    display: flex;
+    flex-wrap: wrap; /* Allow options to wrap to the next line if needed */
+    gap: 15px; /* Space between each option */
+}
+
+.option-item {
+    display: flex;
+    align-items: center; /* Center radio button vertically with label */
+}
+
+.option-input {
+    margin-right: 8px; /* Space between radio button and label */
+}
+
+.option-label {
+    font-size: 14px; /* Adjust font size if needed */
+}
+.signs-container {
+    width: 100%; /* Full width of the parent container */
+    padding: 10px; /* Optional padding for spacing inside the container */
+    box-sizing: border-box; /* Ensure padding is included in the total width */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.signs-label {
+    display: block;
+    margin-bottom: 8px; /* Space below the label */
+    font-weight: bold; /* Make the label text bold */
+    font-size: 16px; /* Adjust font size if needed */
+}
+
+.signs-textarea {
+    width: 100%; /* Full width of the parent container */
+    height: 100px; /* Adjust height as needed */
+    padding: 8px; /* Padding inside the textarea */
+    border: 1px solid #ccc; /* Light border for the textarea */
+    border-radius: 4px; /* Rounded corners */
+    resize: vertical; /* Allow vertical resizing only */
+    font-size: 14px; /* Font size inside the textarea */
+    box-sizing: border-box; /* Ensure padding and border are included in the total width/height */
+}
+
+.signs-textarea::placeholder {
+    color: #888; /* Placeholder text color */
+    font-style: italic; /* Italicize placeholder text */
+}
+.attention-level-container {
+    width: 100%; /* Full width of the parent container */
+    padding: 10px; /* Optional padding for spacing inside the container */
+    box-sizing: border-box; /* Ensure padding is included in the total width */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #f2f8f3;
+}
+
+.attention-heading {
+    margin-bottom: 12px; /* Space below the heading */
+    font-size: 18px; /* Font size for the heading */
+    font-weight: bold; /* Make the heading text bold */
+}
+
+.attention-option {
+    display: flex;
+    align-items: center; /* Center radio button vertically with label */
+    margin-bottom: 10px; /* Space between each option */
+}
+
+.attention-input {
+    margin-right: 8px; /* Space between radio button and label */
+}
+
+.attention-label {
+    font-size: 14px; /* Font size for the label text */
+}
+
+.attention-input:disabled + .attention-label {
+    color: #999; /* Color for disabled options */
+}
+.actions-container {
+    width: 100%; /* Full width of the parent container */
+    padding: 10px; /* Padding for spacing inside the container */
+    box-sizing: border-box; /* Ensure padding is included in the total width */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #edecf5;
+}
+
+.actions-heading {
+    margin-bottom: 12px; /* Space below the heading */
+    font-size: 18px; /* Font size for the heading */
+    font-weight: bold; /* Make the heading text bold */
+}
+
+.actions-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping to the next line if needed */
+    gap: 20px; /* Space between the action options */
+}
+
+.action-option {
+    display: flex;
+    align-items: center; /* Center radio button and label vertically */
+    flex: 1; /* Allow options to grow and shrink as needed */
+    max-width: 300px; /* Max width to prevent too wide options */
+}
+
+.action-input {
+    margin-right: 8px; /* Space between radio button and label */
+}
+
+.action-label {
+    font-size: 14px; /* Font size for the label text */
+}
+
+.test-prompt-list {
+    margin-top: 8px; /* Space above the list */
+    padding-left: 20px; /* Indent the list */
+    font-size: 14px; /* Font size for list items */
+    list-style-type: disc; /* Display list items with bullets */
+}
+.signs-textarea {
+    font-family: 'Roboto', Arial, sans-serif; /* Apply the custom font */
+    font-size: 16px; /* Adjust font size as needed */
+    line-height: 1.5; /* Improve readability */
+    padding: 10px; /* Add padding for comfort */
+    border: 1px solid #ccc; /* Border style */
+    border-radius: 4px; /* Rounded corners */
+    width: 100%; /* Make it responsive */
+    height: 100px; /* Adjust height as needed */
+    resize: vertical; /* Allow vertical resizing */
+}
+.selected-tests-container {
+    background-color: #fafafa; /* Light background for contrast */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    padding: 20px; /* Space inside the container */
+    margin: 20px 0; /* Space around the container */
+}
+
+.selected-tests {
+    margin-bottom: 20px; /* Space between different test sections */
+}
+
+h6 {
+    color: #333; /* Darker color for the headings */
+    font-size: 1.5rem; /* Larger font size for emphasis */
+    margin-bottom: 10px; /* Space below the heading */
+    border-bottom: 2px solid #4caf50; /* Green underline for headings */
+    padding-bottom: 5px; /* Space below the underline */
+}
+
+ul {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0; /* Remove default padding */
+}
+
+li {
+    background-color: #ffffff; /* White background for each item */
+    border: 1px solid #e0e0e0; /* Light border around each item */
+    border-radius: 4px; /* Rounded corners for items */
+    padding: 10px 15px; /* Space inside each item */
+    display: flex; /* Use flexbox for alignment */
+    justify-content: space-between; /* Space between text and button */
+    align-items: center; /* Center items vertically */
+    margin-bottom: 10px; /* Space between list items */
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+li:hover {
+    background-color: #f1f1f1; /* Slightly darker background on hover */
+}
+
+.remove-btn {
+    background-color: #e57373; /* Red background for remove button */
+    color: white; /* White text for contrast */
+    border: none; /* Remove default border */
+    border-radius: 4px; /* Rounded corners for button */
+    padding: 6px 10px; /* Space inside the button */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.remove-btn:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+.remove-btn:focus {
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.5); /* Custom focus outline */
+}
+.transaction-buttons {
+    position: sticky; /* Make the buttons sticky */
+    bottom: 0; /* Stick to the bottom of the container */
+    background-color: white; /* Set a background color to avoid overlap with content */
+    padding: 10px; /* Add padding for spacing */
+    border-top: 1px solid #ccc; /* Optional: Add a border to distinguish */
+    z-index: 100; /* Ensure it stays above other content */
+}

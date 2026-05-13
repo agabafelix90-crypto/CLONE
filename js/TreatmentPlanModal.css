@@ -1,0 +1,218 @@
+/* Base styling for the treatment plan table only */
+.treatment-plan-container {
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #ebe8e8;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    border: 2px solid rgb(0, 162, 255);
+    font-size: 1rem; /* Base font size */
+}
+
+.table-treatment-plan {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.table-treatment-plan th, .table-treatment-plan td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.table-treatment-plan th {
+    background-color: #f2f2f2;
+}
+
+.table-treatment-plan th:nth-child(1),
+.table-treatment-plan td:nth-child(1) { 
+    width: 10%;
+}
+
+.table-treatment-plan th:nth-child(2),
+.table-treatment-plan td:nth-child(2) { 
+    width: 25%;
+}
+
+.table-treatment-plan th:nth-child(3),
+.table-treatment-plan td:nth-child(3) { 
+    width: 10%;
+}
+
+.table-treatment-plan th:nth-child(4),
+.table-treatment-plan td:nth-child(4) { 
+    width: 20%;
+}
+
+.table-treatment-plan th:nth-child(5),
+.table-treatment-plan td:nth-child(5) { 
+    width: 12%;
+}
+
+.table-treatment-plan th:nth-child(6),
+.table-treatment-plan td:nth-child(6) { 
+    width: 10%;
+}
+
+.table-treatment-plan th:nth-child(7),
+.table-treatment-plan td:nth-child(7) { 
+    width: 5%;
+}
+
+.table-treatment-plan .drug-input-container {
+    position: relative;
+}
+
+
+/* Actions section */
+.treatment-plan-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.treatment-plan-actions .add-row-button,
+.treatment-plan-actions .delete-button,
+.treatment-plan-actions .add-button,
+.treatment-plan-actions .close-button {
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+.treatment-plan-actions .add-row-button {
+    background-color: #4caf50;
+}
+
+.treatment-plan-actions .add-row-button:hover {
+    background-color: #45a049;
+}
+
+.treatment-plan-actions .delete-button {
+    background-color: #f44336;
+}
+
+.treatment-plan-actions .delete-button:hover {
+    background-color: #e53935;
+}
+
+.treatment-plan-actions .add-button {
+    background-color: #0ce491;
+}
+
+.treatment-plan-actions .add-button:hover {
+    background-color: #128bdb;
+}
+
+.treatment-plan-actions .close-button {
+    background-color: #607d8b;
+}
+
+.treatment-plan-actions .close-button:hover {
+    background-color: #546e7a;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .treatment-plan-container {
+        font-size: 0.85rem;
+        max-height: 70vh;
+        padding: 5px;
+    }
+
+    .table-treatment-plan th,
+    .table-treatment-plan td {
+        padding: 6px;
+    }
+
+    .treatment-plan-actions .add-row-button,
+    .treatment-plan-actions .delete-button,
+    .treatment-plan-actions .add-button,
+    .treatment-plan-actions .close-button {
+        font-size: 14px;
+        padding: 6px 8px;
+    }
+
+    .medical-bill-modal {
+        width: 90%;
+    }
+    
+    .table-treatment-plan .suggestions-list {
+        max-height: 300px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .treatment-plan-container {
+        font-size: 0.7rem;
+        max-height: 60vh;
+        padding: 4px;
+    }
+
+    .table-treatment-plan th,
+    .table-treatment-plan td {
+        padding: 4px;
+    }
+
+    .treatment-plan-actions .add-row-button,
+    .treatment-plan-actions .delete-button,
+    .treatment-plan-actions .add-button,
+    .treatment-plan-actions .close-button {
+        font-size: 12px;
+        padding: 5px 6px;
+    }
+
+    .medical-bill-modal {
+        width: 100%;
+    }
+    
+    .table-treatment-plan .suggestions-list {
+        max-height: 200px;
+        font-size: 0.7rem;
+    }
+
+    body {
+        zoom: 80%;
+    }
+}
+.drug-input-container {
+    position: relative;
+    width: 100%;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* Remove or adjust any styles affecting the datalist */
+.suggestions-list {
+    display: none; /* Remove if using a custom dropdown */
+}
+@keyframes trashAnimation {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(10deg); }
+    50% { transform: rotate(-10deg); }
+    75% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.trash-icon:hover {
+    animation: trashAnimation 0.5s ease;
+}

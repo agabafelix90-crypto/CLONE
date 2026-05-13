@@ -1,0 +1,410 @@
+/* Reset default margin and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Ensure full coverage of HTML and body */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scrolling */
+}
+
+/* Main container to hold the entire content */
+.main-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content area that fills the available space */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* Style for modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Style for modal content with animation */
+.modal-content {
+  background-color: #f9f9f9; /* Light gray background */
+  border-radius: 15px; /* Rounded corners */
+  padding: 30px; /* Padding around content */
+  width: 80%; /* Responsive width */
+  max-width: 600px; /* Maximum width */
+  max-height: 90vh; /* Maximum height to fit within the viewport */
+  overflow-y: auto; /* Enable vertical scrolling */
+  animation: spinIn 0.5s ease forwards; /* Apply animation */
+  text-align: left; /* Align text and inline elements to the left */
+}
+
+.modal-content h1,
+.modal-content h2,
+.modal-content h3,
+.modal-content p {
+  margin: 0; /* Optional: remove default margins for better alignment */
+}
+
+/* Transaction buttons container */
+.transaction-buttons {
+  display: flex;
+  justify-content: space-between; /* Evenly space buttons */
+  margin-top: 20px; /* Margin above buttons */
+}
+
+/* Style for transaction buttons */
+.transaction-buttons button {
+  padding: 10px 20px; /* Padding inside buttons */
+  font-size: 16px; /* Font size */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  background-color: #007bff; /* Button background color */
+  color: white; /* Button text color */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
+
+/* Button hover effect */
+.transaction-buttons button:hover {
+  background-color: #0056b3; /* Darker background on hover */
+  transform: translateY(-2px); /* Move button up */
+  transform: scale(1.05); /* Zoom in effect */
+}
+
+/* Styles for drug input field */
+.drug-input {
+  width: 80px; /* Input width */
+  font-size: 22px; /* Font size */
+  border: 4px solid rgb(39, 16, 243); /* Border style */
+  border-radius: 1px; /* Border radius */
+}
+
+/* Remove spinners from number input fields */
+.input-field::-webkit-inner-spin-button,
+.input-field::-webkit-outer-spin-button,
+.drug-input::-webkit-inner-spin-button,
+.drug-input::-webkit-outer-spin-button {
+  -webkit-appearance: none; /* Remove default spinner appearance */
+  margin: 0; /* Remove default margin */
+}
+
+/* Style for success message */
+.success-message {
+  color: green; /* Green text color */
+  font-weight: bold; /* Bold text */
+  animation: shake 2s ease-in-out; /* Apply animations */
+}
+
+
+
+/* Style for error message */
+.error-message {
+  color: red; /* Red text color */
+  font-weight: bold; /* Bold text */
+  animation: shake 2s ease-in-out; /* Apply animation */
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(5px); }
+  50% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
+/* Keyframes for spinIn animation */
+@keyframes spinIn {
+  from {
+    transform: translateX(-100%) rotate(-360deg); /* Start off screen and rotated */
+    opacity: 0; /* Initially invisible */
+  }
+  to {
+    transform: translateX(0) rotate(0deg); /* Fully visible and no rotation */
+    opacity: 1;
+  }
+}
+
+/* Additional styles for better visibility of content */
+.container-sell-drugs,
+
+.container-selling-drugs {
+  background-color: rgb(222, 250, 250); /* Background color */
+  padding: 10px; /* Padding */
+  width: 100%; /* Responsive width */
+  height: 100vh; /* Full viewport height */
+  box-sizing: border-box; /* Include padding and border in total width and height */
+}
+
+.container-selling-drugs {
+  font-family: Arial, sans-serif; /* Font family */
+  background-color: rgb(156, 196, 230); /* Background color */
+}
+
+/* Header styles */
+
+.headerx {
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px; /* Reduced padding */
+  min-height: 30px; /* Small minimum height */
+  background-color: #d3d1d1;
+  color: black;
+  z-index: 1000;
+}
+
+
+
+/* Dropdown styles */
+.header .dropdown {
+  flex-grow: 1; /* Grow to fill available space */
+  text-align: center; /* Center text */
+}
+
+.header .dropdown a {
+  color: black; /* Text color */
+  text-decoration: none; /* Remove underline */
+  padding: 10px 20px; /* Padding */
+}
+
+.header .dropdown a:hover {
+  background-color: #555; /* Darker background on hover */
+}
+
+.dropdown {
+  margin-right: 10px; /* Margin */
+}
+
+.dropdown a {
+  text-decoration: none; /* Remove underline */
+  color: black; /* Text color */
+  padding: 10px; /* Padding */
+  border-left: 0.1px solid white; /* Left border */
+  border-right: 0.1px solid white; /* Right border */
+  border-top: none; /* No top border */
+  border-bottom: none; /* No bottom border */
+  border-radius: 0px; /* Rounded corners */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+.dropdown {
+  margin: 0 140px; /* Increase margin on left and right */
+}
+
+.dropdown a:hover {
+  background-color: #007bff; /* Darker background on hover */
+  color: white; /* Text color */
+}
+
+/* Style for tables within Selldrugs component */
+.selldrugs-table {
+  background-color: #fff4e6; /* Cream background color */
+}
+
+/* Additional styles for better visibility */
+.container-sell-drugs table,
+.container-sell-drugs2 table {
+  width: 100%; /* Full width */
+  
+}
+
+.container-sell-drugs input,
+.container-sell-drugs2 input {
+  width: calc(100% - 10px); /* Adjust input width */
+}
+
+.container-sell-drugs button,
+.container-sell-drugs2 button {
+  margin-top: 10px; /* Margin between input and button */
+}
+
+/* Styles for search input */
+.selldrugs-search-input {
+  width: 100%; /* Full width */
+  padding: 20px; /* Padding */
+  border: 5px solid #07c24f; /* Border */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 16px; /* Font size */
+  margin-top: 10px; /* Margin top */
+}
+
+/* Keyframes for image animation */
+@keyframes moveLeftRight {
+  0% {
+    transform: translateX(-800%); /* Move to the left */
+  }
+  50% {
+    transform: translateX(800%); /* Move to the right */
+  }
+  100% {
+    transform: translateX(-800%); /* Move to the left */
+  }
+}
+/* Image container styles */
+.image-container {
+  background-color: white; /* White background */
+  padding: 1px; /* Padding */
+  margin-bottom: 1px; /* Margin bottom */
+  display: flex; /* Flex container */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  height: 25px; /* Height */
+  overflow: hidden; /* Hide overflow */
+  width: 100vw; /* Full width of the viewport */
+  max-width: 100%; /* Maximum width set to 100% */
+}
+
+
+.image-container img {
+  height: 100%; /* Full height */
+  object-fit: contain; /* Fit image inside container */
+  animation: moveLeftRight 30s infinite; /* Apply animation */
+}
+/* Ensure container has fixed height and is scrollable */
+.container-sell-drugs2 {
+  background-color: rgb(222, 250, 250); /* Background color */
+  padding: 10px; /* Padding */
+  width: 100%; /* Responsive width */
+  height: calc(100vh - 90px); /* Fixed height, adjust as needed */
+  overflow-y: auto; /* Enable vertical scrolling */
+  text-align: center;
+  margin-top: 40px;
+  
+}
+
+/* Hover animation for drug rows */
+.container-sell-drugs2 table tbody tr:hover {
+  background-color: white; /* Light background on hover */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for background color and transform */
+  transform: scale(1.05); /* Zoom in effect */
+}
+
+.container-sell-drugs {
+  font-family: Arial, sans-serif; /* Font family */
+  background-color: rgb(234, 241, 247); /* Background color */
+  padding: 10px; /* Padding */
+  width: 100%; /* Responsive width */
+  height: calc(100vh - 90px); /* Fixed height, adjust as needed */
+  overflow-y: auto; /* Enable vertical scrolling */
+  text-align: center;
+  margin-top: 40px;
+  padding-bottom: 900px; /* Add padding at the bottom */
+}
+.remove-button {
+  background-color: red;      /* Red background */
+  color: white;               /* White text */
+  border: none;               /* No border */
+  padding: 6px 10px;          /* Adjust padding to fit the space */
+  cursor: pointer;            /* Pointer cursor on hover */
+  border-radius: 4px;         /* Slightly rounded corners */
+  font-size: 14px;            /* Adjust font size */
+  margin: 0 auto;             /* Center the button in the cell */
+  display: block;             /* Ensure it takes up full width within its constraints */
+  width: 50%;                /* Make the button take the full width of its container */
+  text-align: center;         /* Center-align the text */
+}
+
+.remove-button:hover {
+  background-color: darkred;  /* Darker red on hover */
+}
+.receipt-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the modal is above other content */
+}
+
+.receipt-modal-content {
+  background: #fff; /* White background for the modal */
+  padding: 20px; /* Spacing inside the modal */
+  width: 80%; /* Width of the modal */
+  max-width: 500px; /* Maximum width */
+  max-height: 90vh; /* Maximum height to fit within the viewport */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  text-align: center; /* Centered text alignment */
+  position: relative; /* For positioning children like buttons */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+}
+
+.receipt-modal-content h2 {
+  margin-top: 0; /* Remove default margin from heading */
+  font-size: 1.5em; /* Larger font size for the clinic name */
+  color: #333; /* Dark color for heading */
+}
+
+.receipt-modal-content p {
+  margin: 5px 0; /* Space between paragraphs */
+  color: #555; /* Subtle text color */
+}
+
+.receipt-items {
+  margin: 20px 0; /* Space around receipt details */
+  border-top: 1px solid #ddd; /* Top border to separate from content above */
+  padding-top: 15px; /* Padding at the top of the details section */
+  text-align: left; /* Align text to the left for details */
+}
+
+.receipt-items div {
+  margin-bottom: 8px; /* Space between each item detail */
+  font-size: 0.9em; /* Slightly smaller font size for items */
+}
+
+.receipt-total {
+  font-weight: bold; /* Make the total amount bold */
+  border-top: 1px solid #ddd; /* Top border for total amount */
+  padding-top: 10px; /* Padding above total amount */
+}
+
+.receipt-action-buttons {
+  display: flex;
+  justify-content: space-around; /* Space the buttons evenly */
+  margin-top: 20px; /* Space above the buttons */
+}
+
+.receipt-action-buttons button {
+  background: #007bff; /* Primary blue color */
+  color: #fff; /* White text */
+  border: none; /* No borders */
+  padding: 10px 20px; /* Button padding */
+  border-radius: 5px; /* Rounded button corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background 0.3s ease; /* Smooth background color transition */
+}
+
+.receipt-action-buttons button:hover {
+  background: #0056b3; /* Darker blue on hover */
+}
+
+.receipt-action-buttons button:nth-child(2) {
+  background: #dc3545; /* Red color for the cancel button */
+}
+
+.receipt-action-buttons button:nth-child(2):hover {
+  background: #c82333; /* Darker red on hover */
+}

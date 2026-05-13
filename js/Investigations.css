@@ -1,0 +1,136 @@
+/* Main container */
+.investigations-container {
+ 
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: relative; /* Ensure relative positioning for absolute elements */
+}
+
+/* Header */
+.investigations-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+/* Add New Investigation section */
+.add-investigation-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.add-investigation-section h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.lab-icon {
+  width: 140px;
+  height: 110px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  transition: transform 0.3s ease; 
+}
+
+
+.lab-icon:hover {
+  transform: scale(1.1); /* Zoom in slightly on hover */
+}
+
+.add-investigation-form {
+  display: flex;
+  align-items: center;
+}
+
+.add-investigation-form input,
+.add-investigation-form select,
+.add-investigation-form button {
+  margin-right: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-investigation-form button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+}
+
+.add-investigation-form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.add-investigation-form button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Search section */
+.search-investigations {
+  margin-bottom: 20px;
+}
+
+.search-investigations input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Investigations list */
+.investigations-list {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.investigations-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.investigations-list th,
+.investigations-list td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.investigations-list th {
+  background-color: #f0f0f0;
+}
+
+.investigations-list tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.investigations-list button.delete-button {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  background-color: transparent;
+  color: #dc3545; /* Red color */
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.investigations-list button.delete-button:hover {
+  color: #bd2130; /* Darker red on hover */
+}

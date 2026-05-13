@@ -1,0 +1,323 @@
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff; /* Adjust background as needed */
+    box-shadow: 0 2px 4px rgba(119, 69, 69, 0.1); /* Optional shadow */
+    z-index: 1000; /* Ensure it's on top of other content */
+    display: flex;
+    justify-content: space-around; /* Adjust spacing as needed */
+    padding: 10px 0; /* Adjust padding as needed */
+}
+
+.topbar-button {
+    background-color: #f8f9fa; /* Common background for all buttons */
+    border: 1px solid #ccc; /* Optional border */
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 14px; /* Adjust font size as needed */
+    text-transform: capitalize;
+    color: #000; /* Black text color */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
+    border-radius: 4px; /* Rounded corners */
+}
+
+.topbar-button.active {
+    /* Active button specific styles */
+    background-color: #e0e0e0; /* Slightly darker background */
+}
+
+.topbar-button.inactive {
+    /* Inactive button specific styles */
+    background-color: #e0e0e0; /* Matching background with active */
+    opacity: 1; /* Remove reduced opacity for consistency */
+    cursor: not-allowed; /* Indicates button is inactive */
+}
+
+.topbar-button:hover {
+    background-color: #d6d6d6; /* Hover effect for all buttons */
+}
+
+.topbar-button-status {
+    font-size: 12px;
+    color: red; /* Change as needed */
+}
+
+.topbar-button-icon {
+    margin-left: 8px;
+    color: red; /* Adjust the red color if needed */
+    font-size: 0.9em; /* Adjust icon size if necessary */
+}
+.logout-button {
+    position: fixed;
+    bottom: 20px; /* Adjust the distance from the bottom */
+    right: 20px; /* Adjust the distance from the right */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px; /* Larger icon size */
+    color: #dc3545; /* Icon color for logout */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
+}
+
+.logout-button:hover {
+    background-color: rgba(0, 0, 0, 1); /* Black background with full opacity */
+    color: #fff; /* White icon color on hover */
+}
+
+.logout-button:hover .logout-text {
+    display: inline; /* Show text on hover */
+}
+
+.logout-text {
+    display: none; /* Hide text by default */
+    margin-left: 8px; /* Space between icon and text */
+    font-size: 14px; /* Adjust text size */
+    color: #fff; /* White text color on hover */
+}
+
+.performance-section {
+    background-color: black; /* Black background for contrast */
+    padding: 4px; /* Adjust padding to control overall height */
+    border-radius: 5px; /* Optional: Rounded corners */
+    display: inline-flex; /* Use flex to fit content */
+    align-items: center; /* Center content vertically */
+    color: white; /* Set text color to white */
+    gap: 5px; /* Space between the heading and the stars */
+}
+
+.performance-section h3 {
+    margin: 0; /* Remove any default margin */
+    padding: 0; /* Remove any padding */
+    font-size: 14px; /* Adjust font size */
+    line-height: 0; /* Reduce line height to minimize space */
+}
+
+.stars {
+    display: flex; /* Align stars horizontally */
+    gap: 5px; /* Space between stars */
+    margin: 0; /* Remove margin to reduce space */
+    padding: 0; /* Remove padding to reduce space */
+}
+
+.star-icon {
+    width: 20px; /* Adjusted width of the star */
+    height: 20px; /* Adjusted height to make stars fit better */
+    fill: none; /* No fill for the outline */
+    stroke: black; /* Sharp border color */
+    stroke-width: 1.5; /* Border thickness */
+    transition: fill 0.3s ease; /* Smooth transition for filled stars */
+    padding: -50; 
+}
+
+.star-icon.filled {
+    fill: gold; /* Bright gold color for filled stars */
+    stroke: black; /* Optional black stroke for filled stars */
+}
+
+.star-icon.empty {
+    fill: rgba(10, 10, 10, 0.2); /* Light gold with some transparency for empty stars */
+    stroke: rgb(90, 88, 88); /* White stroke for empty stars */
+    stroke-width: 1.5; /* Stroke thickness for empty stars */
+}
+
+  
+  
+ 
+  /* Media query for very small screens */
+@media (max-width: 480px) {
+    .topbar,
+    .topbar-button,
+    .logout-button,
+    .performance-section,
+    .stars,
+    .star-icon,
+    .performance-section h3 {
+        display: none; /* Hide all elements */
+    }
+
+    /* Optional: Add a placeholder or message for very small screens */
+    .small-screen-placeholder {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 20px;
+        background-color: #f8f9fa;
+        color: #333;
+        font-size: 16px;
+    }
+}
+.topbar-dropdown {
+    position: relative; /* Allows the dropdown menu to be positioned absolutely within this container */
+}
+
+.topbar-button {
+    background-color: #f8f9fa; /* Common background for all buttons */
+    border: 1px solid #ccc; /* Optional border */
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 14px; /* Adjust font size as needed */
+    text-transform: capitalize;
+    color: #000; /* Black text color */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
+    border-radius: 4px; /* Rounded corners */
+    position: relative; /* Needed for positioning the dropdown */
+    display: inline-block; /* Ensures the button's width is respected */
+}
+
+.topbar-button:hover {
+    background-color: #d6d6d6; /* Hover effect for all buttons */
+}
+
+.topbar-button-icon {
+    margin-left: 8px;
+    color: #000; /* Adjust icon color if needed */
+    font-size: 0.9em; /* Adjust icon size if necessary */
+    transition: transform 0.3s; /* Smooth transition for icon rotation */
+}
+
+.topbar-button-icon.rotate {
+    transform: rotate(180deg); /* Rotate icon when dropdown is open */
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%; /* Position right below the button */
+    left: 0;
+    width: 100%; /* Matches the width of the parent button */
+    background-color: #fff; /* Background color of dropdown */
+    border: 1px solid #ccc; /* Border for dropdown */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    border-radius: 4px; /* Rounded corners to match button */
+    z-index: 10; /* Ensure it stays on top of other elements */
+    padding: 10px 0; /* Padding around items */
+    display: none; /* Hidden by default */
+}
+
+.topbar-dropdown:hover .dropdown-menu {
+    display: block; /* Show dropdown on hover */
+}
+
+.dropdown-item {
+    padding: 10px 20px; /* Space around each dropdown item */
+    font-size: 14px; /* Font size */
+    color: #333; /* Text color */
+    cursor: pointer; /* Pointer cursor for dropdown items */
+    transition: background-color 0.3s; /* Smooth background transition on hover */
+    background-color: #f0f0f0; /* Background color on hover */
+}
+
+.dropdown-item:hover {
+    background-color: #d1f7d6; /* Background color on hover */
+}
+
+.dropdown-item:active {
+    background-color: #ddd; /* Slightly darker when active */
+}
+.topbar-button-icon {
+    color: green; /* Changes the color of the icon to green */
+  }
+/* CSS file or style block */
+.red-icon {
+    color: red; /* Change color to red */
+  }
+  .critical-notification {
+    position: fixed;
+    top: 50%;
+    right: -300px; /* Initially offscreen */
+    padding: 15px;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    animation: slide-in 1s forwards, slide-out 1s 4s forwards;
+  }
+  
+  @keyframes slide-in {
+    from {
+      right: -300px;
+    }
+    to {
+      right: 20px;
+    }
+  }
+  
+  @keyframes slide-out {
+    from {
+      right: 20px;
+    }
+    to {
+      right: -300px;
+    }
+  }
+  .reminder {
+    position: fixed; /* Fixed position to center it on the screen */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Perfectly center the reminder both vertically and horizontally */
+    background-color: #000000; /* Black background */
+    border: 2px solid #4CAF50; /* Green border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Padding for content */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    z-index: 1000; /* Ensure it appears above other content */
+    max-width: 90%; /* Ensure the reminder doesn’t overflow the screen */
+    word-wrap: break-word; /* Break long words to prevent overflow */
+    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+    max-height: 80vh; /* Limit the height to 80% of the viewport */
+    animation: slideIn 0.5s forwards; /* Animation for slide-in */
+    color: #ffffff; /* White text */
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -50%) translateX(100%); /* Slide in from the right */
+    }
+    to {
+        transform: translate(-50%, -50%); /* End at the center */
+    }
+}
+
+.reminder p {
+    margin: 0 0 10px; /* Add space between paragraphs */
+    font-family: Arial, sans-serif; /* Use a clean font */
+    font-size: 16px; /* Font size */
+    color: #ffffff; /* White text */
+    line-height: 1.5; /* Better readability with increased line height */
+    word-wrap: break-word; /* Ensure long words break to new lines */
+}
+
+.reminder strong {
+    color: #4CAF50; /* Green color for strong text to highlight important info */
+}
+
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: red; /* Red color for the close icon */
+    cursor: pointer;
+    font-size: 18px;
+}
+.arrow-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.left-arrow {
+    color: blue;
+}
+
+.right-arrow {
+    color: green;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}

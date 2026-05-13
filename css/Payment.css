@@ -1,0 +1,175 @@
+/* General styles for the entire page */
+body {
+    background-color: white;
+    color: black;
+    font-family: Arial, sans-serif;
+}
+
+/* Container styles */
+.payment-container {
+    margin: 50px auto;
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+/* Heading styles */
+.payment-heading {
+    text-align: center;
+    color: #ff6600; /* Orange color */
+    margin-bottom: 20px;
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Label styles */
+.payment-label {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.payment-label input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Instructions styles */
+.payment-instructions {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.payment-instructions h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.payment-instructions ol {
+    padding-left: 20px;
+    list-style-type: decimal;
+}
+
+.payment-instructions ol li {
+    margin-bottom: 10px;
+    font-weight: normal;
+    line-height: 1.5;
+}
+
+/* Button styles */
+.payment-button {
+    background-color: #ff6600; /* Orange color */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.payment-button:hover {
+    background-color: #e65c00; /* Darker orange on hover */
+}
+
+.payment-button:disabled {
+    background-color: #ffcc99; /* Lighter orange when disabled */
+    cursor: not-allowed;
+}
+
+/* Spinner styles */
+.fa-spinner {
+    margin-right: 8px;
+}
+
+/* Error message styles */
+.payment-error-message {
+    color: red;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* Input error styles */
+input[type="email"]:invalid {
+    border-color: red;
+}
+
+/* Custom styles for disabled input fields */
+input:disabled {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .payment-container {
+        padding: 15px;
+    }
+
+    .payment-label input {
+        padding: 8px;
+    }
+
+    .payment-button {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .payment-instructions {
+        padding: 10px;
+    }
+
+    .payment-instructions h3 {
+        font-size: 18px;
+    }
+
+    .payment-instructions ol {
+        padding-left: 15px;
+    }
+
+    .payment-instructions ol li {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+}
+
+/* Animation for "Tips on how to Pay" */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.payment-instructions-toggle {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: white;
+    color: black;
+    border-radius: 4px;
+    animation: pulse 8s infinite;
+}
+
+.payment-instructions-toggle:hover {
+    background-color: #ffcc99;
+}

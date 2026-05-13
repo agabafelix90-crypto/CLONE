@@ -1,0 +1,122 @@
+/* Style for the feedback container */
+.feedbackContainer {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .feedbackHeading {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Employee feedback section styles */
+  .employeeFeedbackContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .employeeCard {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 80%;
+    background-color: #f9f9f9;
+  }
+  
+  .employeeName {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  /* Rating section styles */
+  .ratingContainer {
+    margin: 20px 0;
+  }
+  
+  .ratingPrompt {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  .ratingCheckboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;  /* Space between checkboxes */
+  }
+  
+  .ratingCheckbox {
+    display: flex;
+    align-items: center;
+  }
+  
+  .ratingCheckbox input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  
+  .ratingButton.selected {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  /* Comment box styling */
+  .commentBox {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Submit button styling */
+  .submitButton {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .submitButton:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  /* Thank you and transition message styling */
+  .thankYouMessage,
+  .transitionMessage {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
+  .thankYouMessage {
+    color: #ff5722;
+    margin-bottom: 20px;
+  }
+  
+  .transitionMessage {
+    color: #4caf50;
+  }
+  
+  /* Fade-in animation for messages */
+  .fade-in {
+    animation: fadeIn 2s ease-in-out;
+  }
+  
+  /* Define the keyframe for the fade-in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
