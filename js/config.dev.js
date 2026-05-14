@@ -23,6 +23,7 @@ export const urls = {
   addcontact: `${API_URL}addcontact.php`,
   addcontact2: `${API_URL}addcontact2.php`,
   whatsapp: `${API_URL}whatsapp.php`,
+  genericTable: `${API_URL}generic/`,
   permitadmin: `${API_URL}permitadmin.php`,
   removecontact: `${API_URL}removecontact.php`,
   whatsappall: `${API_URL}whatsappall.php`,

@@ -5,10 +5,12 @@ import { getTokenFromUrlOrSession, clearSessionToken, verifySession } from './au
 
 const onboardingAllowedPaths = [
   '/onboarding',
+  '/settings',
   '/employeesettings',
   '/employee-settings',
   '/manageDrugs',
   '/adddrug',
+  '/manageLaboratory',
   '/labTests',
   '/radiology',
   '/manageServices',
@@ -18,7 +20,6 @@ const onboardingAllowedPaths = [
 const adminPasswordRequiredPaths = [
   '/employeesettings',
   '/employee-settings',
-  '/manageDrugs',
   '/adddrug',
   '/labTests',
   '/radiology',
@@ -64,16 +65,20 @@ function RequireOnboardingGuard() {
             return;
           }
 
-          if (!isAdminPasswordChanged && adminPasswordRequiredPaths.some(path => normalizedPath === path || normalizedPath.startsWith(path))) {
+          if (!isAdminPasswordChanged && adminPasswordRequiredPaths.some((path) => {
+            const normalizedAllowedPath = path.toLowerCase();
+            return normalizedPath === normalizedAllowedPath || normalizedPath.startsWith(normalizedAllowedPath);
+          })) {
             if (!isCancelled) {
               setStatus({ checking: false, allowAccess: false, redirectTo: `/onboarding?token=${token}` });
             }
             return;
           }
 
-          const allowedDuringOnboarding = onboardingAllowedPaths.some((allowedPath) =>
-            normalizedPath === allowedPath || normalizedPath.startsWith(allowedPath)
-          );
+          const allowedDuringOnboarding = onboardingAllowedPaths.some((allowedPath) => {
+            const normalizedAllowedPath = allowedPath.toLowerCase();
+            return normalizedPath === normalizedAllowedPath || normalizedPath.startsWith(normalizedAllowedPath);
+          });
 
           if (!allowedDuringOnboarding) {
             if (!isCancelled) {

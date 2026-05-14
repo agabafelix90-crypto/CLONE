@@ -415,11 +415,10 @@ PQIDAQAB
     setSelectedPermissions(updatedPermissions);
   };
 
-  // Function to extract token from URL
   const extractTokenFromURL = () => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
-    setUrlToken(token);
+    setToken(token);
   };
 
   // useEffect to extract the token when the component mounts
@@ -429,7 +428,7 @@ PQIDAQAB
 
   return (
     <div className="admin-dashboard-container">
-      <Topbar token={urlToken} />
+      <Topbar token={token} />
       <div className="admin-dashboard">
         <h1 className="admin-title">EMPLOYEE SETTINGS</h1>
 

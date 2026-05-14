@@ -702,6 +702,7 @@ function Contacts() {
           token: tokenFromUrl,
           phone: phoneNumber,
           message: message,
+          smsType: 'custom',
         }),
       });
 

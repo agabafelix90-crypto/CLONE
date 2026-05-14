@@ -1087,7 +1087,10 @@ function Credits() {
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify(smsPayload),
+                body: JSON.stringify({
+                  ...smsPayload,
+                  smsType: 'billing',
+                }),
               });
             } catch (error) {
               console.error("Error sending payment SMS:", error);

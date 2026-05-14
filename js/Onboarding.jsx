@@ -140,6 +140,14 @@ function Onboarding() {
     }
   };
 
+  const handleQuickNavigate = (path) => {
+    if (!token) {
+      toast.error('Token missing. Please refresh the page and try again.');
+      return;
+    }
+    navigate(`${path}?token=${token}`);
+  };
+
   const canComplete = status.admin_password_changed && status.employee_count > 0 && status.facilityConfigCount > 0;
 
   return (
@@ -179,6 +187,22 @@ function Onboarding() {
                   <p style={{ margin: '6px 0 0' }}>
                     The admin password is <strong>12345</strong> <br /> <strong>change it immediately for security</strong>
                   </p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
+                  <button
+                    onClick={() => navigate(`/settings?token=${token}`)}
+                    style={{
+                      borderRadius: '12px',
+                      border: '1px solid #9d174d',
+                      background: '#ffffff',
+                      color: '#9d174d',
+                      padding: '12px 16px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Change Admin Password
+                  </button>
                 </div>
                 <div>
                   <strong>Employee Settings:</strong>
@@ -302,13 +326,19 @@ function Onboarding() {
                   Go to Employee Settings
                 </button>
                 <button
-                  onClick={() => navigate(`/manageDrugs?token=${token}`)}
+                  onClick={() => navigate(`/settings?token=${token}`)}
+                  style={{ width: '100%', borderRadius: '12px', border: '1px solid #9d174d', background: '#ffffff', color: '#9d174d', padding: '14px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Change Admin Password
+                </button>
+                <button
+                  onClick={() => handleQuickNavigate('/manageDrugs')}
                   style={{ width: '100%', borderRadius: '12px', border: '1px solid #047857', background: '#ffffff', color: '#047857', padding: '14px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   Go to Set Drugs
                 </button>
                 <button
-                  onClick={() => navigate(`/labTests?token=${token}`)}
+                  onClick={() => handleQuickNavigate('/manageLaboratory')}
                   style={{ width: '100%', borderRadius: '12px', border: '1px solid #0c4a6e', background: '#ffffff', color: '#0c4a6e', padding: '14px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   Go to Lab/Radiology Exams

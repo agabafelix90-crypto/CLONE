@@ -15,18 +15,24 @@ CREATE TABLE clinics (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
+  password TEXT,
   phone TEXT,
   address JSONB, -- { street, city, region, country, postal_code }
   owners_info JSONB, -- { names: [], contacts: [] }
+  set_up TEXT DEFAULT 'clinic',
   year_established INTEGER CHECK (year_established >= 1900 AND year_established <= EXTRACT(YEAR FROM NOW())),
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
   subscription_plan TEXT DEFAULT 'basic' CHECK (subscription_plan IN ('basic', 'standard', 'premium')),
+  subscription_balance NUMERIC(12,2) DEFAULT 0 CHECK (subscription_balance >= 0),
   wallet_balance NUMERIC(12,2) DEFAULT 0 CHECK (wallet_balance >= 0),
   wallet_currency TEXT DEFAULT 'UGX',
+  wallet_status TEXT DEFAULT 'active' CHECK (wallet_status IN ('active', 'inactive', 'suspended')),
+  wallet_preload_done BOOLEAN DEFAULT false,
   sms_credits INTEGER DEFAULT 0 CHECK (sms_credits >= 0),
   is_first_login BOOLEAN DEFAULT true,
   setup_completed BOOLEAN DEFAULT false,
   welcome_shown BOOLEAN DEFAULT false,
+  admin_password_changed BOOLEAN DEFAULT false,
   -- SMS Settings
   enable_bill_payment_sms BOOLEAN DEFAULT false,
   enable_birthday_sms BOOLEAN DEFAULT false,
@@ -73,6 +79,7 @@ CREATE TABLE employees (
   role TEXT NOT NULL,
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
   login_code TEXT UNIQUE, -- Encrypted QR code for quick login
+  password TEXT,
   last_login_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

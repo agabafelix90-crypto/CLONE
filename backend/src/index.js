@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const legacyRouter = require('./routes/legacy');
 const googleRouter = require('./routes/google');
+const genericRouter = require('./routes/generic');
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/google', googleRouter);
+app.use('/api/generic', genericRouter);
 app.use('/', legacyRouter);
 
 app.use((req, res) => {

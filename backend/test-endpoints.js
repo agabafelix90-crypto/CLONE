@@ -2,6 +2,10 @@
 
 // Simple test script to verify backend endpoints
 const http = require('http');
+const dotenv = require('dotenv');
+
+// Load environment variables
+dotenv.config();
 
 const BASE_URL = 'http://localhost:4000';
 
@@ -58,6 +62,36 @@ async function runTests() {
     const drugs = await testEndpoint('/fetchdrugs.php');
     console.log(`   Status: ${drugs.status}`);
     console.log(`   Response: ${JSON.stringify(drugs.data)}\n`);
+
+    // Test clinic registration
+    console.log('3. Testing clinic registration...');
+    const registerData = {
+      clinicName: 'Test Clinic',
+      email: 'admin@testclinic.com',
+      password: 'AdminPassword123',
+      confirmPassword: 'AdminPassword123',
+      district: 'Kampala',
+      country: 'Uganda',
+      town: 'Kampala',
+      yearOfOpening: '2020',
+      ownersNames: 'John Doe',
+      ownersAddress: '123 Test Street, Kampala',
+      ownersContact: '0777123456',
+      ownersWhatsapp: '0777123456'
+    };
+    const register = await testEndpoint('/registerClinic.php', 'POST', registerData);
+    console.log(`   Status: ${register.status}`);
+    console.log(`   Response: ${JSON.stringify(register.data)}\n`);
+
+    // Test clinic login
+    console.log('4. Testing clinic login...');
+    const loginData = {
+      clinicName: 'Test Clinic',
+      password: 'AdminPassword123'
+    };
+    const login = await testEndpoint('/loginClinic.php', 'POST', loginData);
+    console.log(`   Status: ${login.status}`);
+    console.log(`   Response: ${JSON.stringify(login.data)}\n`);
 
     console.log('Tests completed. If you see database errors, make sure to:');
     console.log('1. Run the SQL schema in your Supabase dashboard');

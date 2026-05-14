@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
-import JSEncrypt from 'jsencrypt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { urls } from './config.dev'; // Import URLs from config.dev
 import './settings.css'; // Import CSS for styling
-
-const publicKey = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAup3FU135mAvJT6OheYW3
-pQyWf6jvS4duUMY4cXrlJXyGqu8HqvTU0ewPy6w2HhCPxWboNclkAkPhOCc4URNT
-x1Grg+mCsWmfhVimP2wtfmlBCJ09cyDMYf93iGj8RFf3CshY5yhppT/pX+RgTuXw
-ClpOXe24CLG2VF9suNylk+ReAMLyOxaekYofAMBvvrD4+GYPJgvkTMXCXCKp2PnO
-8+OjiltNMnoyqPEZoXHTV4EXtTrjYnwzSe0WZSSuzgVMhmtdx+IS4eisSumHV1eI
-wBeZwI0bYGxDCedPRassmSFgTFqkkcgIXmEP1n5w/08S/QPr2G+myKTeRqp5RJA5
-PQIDAQAB
------END PUBLIC KEY-----`;
 
 const SettingsModal = ({ token, onClose }) => {
   const [editMode, setEditMode] = useState(false);
@@ -31,12 +20,6 @@ const SettingsModal = ({ token, onClose }) => {
       return;
     }
 
-    const encrypt = new JSEncrypt();
-    encrypt.setPublicKey(publicKey);
-
-    const encryptedOldPassword = encrypt.encrypt(oldPassword);
-    const encryptedNewPassword = encrypt.encrypt(newPassword);
-
     setLoading(true);
 
     try {
@@ -47,8 +30,8 @@ const SettingsModal = ({ token, onClose }) => {
         },
         body: JSON.stringify({
           token,
-          old_password: encryptedOldPassword,
-          new_password: encryptedNewPassword,
+          old_password: oldPassword,
+          new_password: newPassword,
           password_type: passwordType,
         }),
       });

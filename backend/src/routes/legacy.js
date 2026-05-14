@@ -1,7 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const router = express.Router();
 const { sendGeniusSMS } = require('../lib/smsService');
+
+const RSA_PRIVATE_KEY = process.env.RSA_PRIVATE_KEY || process.env.PRIVATE_KEY || null;
+const RSA_PRIVATE_KEY_PEM = RSA_PRIVATE_KEY ? RSA_PRIVATE_KEY.replace(/\\n/g, '\n') : null;
 
 const DEFAULT_ADMIN_EMAIL = 'agabafelix90@gmail.com';
 const DEFAULT_ADMIN_PASSWORD = '12345';
@@ -11,6 +15,8 @@ let supabaseClient = null;
 
 const getSupabase = () => {
   if (!supabaseClient) {
+    // Ensure environment variables are loaded
+    require('dotenv').config();
     const { supabase } = require('../lib/supabaseClient');
     supabaseClient = supabase;
   }
@@ -23,6 +29,39 @@ function isMissingTableError(error) {
     error.code === 'PGRST205' ||
     (typeof error.message === 'string' && error.message.includes("Could not find the table 'public.employees'"))
   );
+}
+
+function isMissingColumnError(error) {
+  if (!error || !error.message) return false;
+  return /column .* of relation .* does not exist/i.test(error.message) ||
+    /Could not find the ['"]?([^'"]+)['"]? column/i.test(error.message);
+}
+
+async function updateClinicWithRetry(token, payload) {
+  const supabase = getSupabase();
+  let updatePayload = { ...payload };
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { error } = await supabase.from('clinics').update(updatePayload).eq('id', token);
+    if (!error) {
+      return { error: null };
+    }
+
+    if (!error.message) {
+      return { error };
+    }
+
+    const match = error.message.match(/(?:column "?([^"\s]+)"? of relation .* does not exist)|(?:Could not find the ['"]?([^'"]+)['"]? column)/i);
+    const missingColumn = match && (match[1] || match[2]);
+    if (!missingColumn || !(missingColumn in updatePayload)) {
+      return { error };
+    }
+
+    delete updatePayload[missingColumn];
+  }
+
+  const { error } = await supabase.from('clinics').update(updatePayload).eq('id', token);
+  return { error };
 }
 
 function sanitizeToken(value) {
@@ -94,11 +133,235 @@ async function verifyPassword(password, storedHash) {
   return password === storedHash;
 }
 
+function getStoredPasswordHash(record) {
+  if (!record) return null;
+  if (record.password) {
+    return record.password;
+  }
+  if (record.owners_info && typeof record.owners_info === 'object') {
+    return record.owners_info.auth?.password_hash || null;
+  }
+  return null;
+}
+
+function isClinicAdminPasswordChanged(clinic) {
+  if (!clinic) return false;
+  if (clinic.admin_password_changed === true) return true;
+
+  const storedHash = getStoredPasswordHash(clinic);
+  if (!storedHash) return false;
+
+  if (storedHash.startsWith('$2')) {
+    return !bcrypt.compareSync(DEFAULT_ADMIN_PASSWORD, storedHash);
+  }
+
+  return storedHash !== DEFAULT_ADMIN_PASSWORD;
+}
+
+async function selectClinicWithOptionalAdminFlag(supabase, token) {
+  const baseFields = 'name, set_up, subscription_balance, welcome_shown, is_first_login, wallet_balance, wallet_currency';
+  let { data: clinic, error } = await supabase
+    .from('clinics')
+    .select(`${baseFields}, admin_password_changed, password, owners_info`)
+    .eq('id', token)
+    .maybeSingle();
+
+  if (error && error.message && error.message.includes('admin_password_changed')) {
+    const fallback = await supabase
+      .from('clinics')
+      .select(`${baseFields}, password, owners_info`)
+      .eq('id', token)
+      .maybeSingle();
+    clinic = fallback.data;
+    error = fallback.error;
+  }
+
+  if (error && isMissingColumnError(error)) {
+    const fallback = await supabase
+      .from('clinics')
+      .select('name, set_up, welcome_shown, is_first_login, admin_password_changed, password, owners_info')
+      .eq('id', token)
+      .maybeSingle();
+    clinic = fallback.data;
+    error = fallback.error;
+  }
+
+  if (clinic) {
+    clinic.admin_password_changed = isClinicAdminPasswordChanged(clinic);
+  }
+
+  return { data: clinic, error };
+}
+
 function isDefaultLoginAllowed(clinic, password) {
   if (!clinic) return false;
   const usingGlobalDefault = clinic.email === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD;
   const usingClinicDefault = password === DEFAULT_ADMIN_PASSWORD;
   return (usingGlobalDefault || usingClinicDefault) && clinic.is_first_login === true;
+}
+
+function decryptMaybe(value) {
+  if (!RSA_PRIVATE_KEY_PEM || typeof value !== 'string' || !value.trim()) {
+    return value;
+  }
+
+  const trimmedValue = value.trim();
+  if (!/[+/=]/.test(trimmedValue) || trimmedValue.length < 64) {
+    return value;
+  }
+
+  try {
+    const encryptedBuffer = Buffer.from(trimmedValue, 'base64');
+    if (!encryptedBuffer.length) {
+      return value;
+    }
+
+    const decrypted = crypto.privateDecrypt(
+      {
+        key: RSA_PRIVATE_KEY_PEM,
+        padding: crypto.constants.RSA_PKCS1_PADDING,
+      },
+      encryptedBuffer,
+    );
+
+    const decryptedText = decrypted.toString('utf8');
+    return decryptedText || value;
+  } catch (err) {
+    return value;
+  }
+}
+
+function normalizeBillingBalance(clinic) {
+  const subscriptionBalance = clinic.subscription_balance != null ? Number(clinic.subscription_balance) : null;
+  const walletBalance = clinic.wallet_balance != null ? Number(clinic.wallet_balance) : null;
+  const billingBalance = subscriptionBalance != null ? subscriptionBalance : walletBalance != null ? walletBalance : 0;
+  const syncWallet = walletBalance != null && (subscriptionBalance == null || walletBalance === subscriptionBalance);
+  return { subscriptionBalance, walletBalance, billingBalance, syncWallet };
+}
+
+function getSmsCost(smsType, message) {
+  const text = String(message || '');
+  const length = text.length;
+  if (length === 0) return 0;
+
+  let costPerChar = 0.9;
+  let minCost = 150;
+
+  switch (smsType) {
+    case 'billing':
+    case 'debt_reminder':
+      costPerChar = 0.5;
+      minCost = 100;
+      break;
+    case 'birthday':
+      costPerChar = 0.6;
+      minCost = 100;
+      break;
+    case 'custom':
+    case 'notification':
+    default:
+      costPerChar = 0.9;
+      minCost = 150;
+      break;
+  }
+
+  return Number(Math.max(minCost, length * costPerChar).toFixed(2));
+}
+
+async function recordSmsCharge(supabase, clinic, cost, smsType, recipientPhone, message) {
+  const { subscriptionBalance: currentSubscriptionBalance, walletBalance: currentWalletBalance } = normalizeBillingBalance(clinic);
+
+  if (currentSubscriptionBalance < cost || currentWalletBalance < cost) {
+    return { success: false, message: 'Insufficient subscription balance to send SMS' };
+  }
+
+  const newSubscriptionBalance = Number((currentSubscriptionBalance - cost).toFixed(2));
+  const newWalletBalance = Number((currentWalletBalance - cost).toFixed(2));
+
+  const updatePayload = {
+    subscription_balance: newSubscriptionBalance,
+    wallet_balance: newWalletBalance,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error: updateError } = await updateClinicWithRetry(clinic.id, updatePayload);
+  if (updateError) {
+    console.error('Supabase sms charge update error:', updateError);
+    return { success: false, message: 'Failed to update subscription balance after SMS send' };
+  }
+
+  const walletTx = {
+    clinic_id: clinic.id,
+    transaction_type: 'debit',
+    amount: cost,
+    currency: 'UGX',
+    description: `SMS charge (${smsType})`,
+    balance_before: currentSubscriptionBalance,
+    balance_after: newSubscriptionBalance,
+    created_at: new Date().toISOString(),
+  };
+
+  const { error: walletError } = await supabase.from('wallet_transactions').insert([walletTx]);
+  if (walletError) {
+    console.error('Supabase wallet transaction insert error:', walletError);
+    await updateClinicWithRetry(clinic.id, {
+      subscription_balance: currentSubscriptionBalance,
+      wallet_balance: currentWalletBalance,
+      updated_at: new Date().toISOString(),
+    });
+    return { success: false, message: 'Failed to record SMS billing transaction' };
+  }
+
+  const smsTx = {
+    clinic_id: clinic.id,
+    transaction_type: 'usage',
+    credits_amount: -1,
+    cost,
+    description: `SMS usage charge (${smsType})`,
+    balance_before: clinic.sms_credits != null ? Number(clinic.sms_credits) : null,
+    balance_after: clinic.sms_credits != null ? Number(clinic.sms_credits) - 1 : null,
+    created_at: new Date().toISOString(),
+  };
+
+  const { error: smsTxError } = await supabase.from('sms_transactions').insert([smsTx]);
+  if (smsTxError) {
+    console.error('Supabase sms transaction insert error:', smsTxError);
+    await updateClinicWithRetry(clinic.id, {
+      subscription_balance: currentSubscriptionBalance,
+      wallet_balance: currentWalletBalance,
+      updated_at: new Date().toISOString(),
+    });
+
+    await supabase.from('wallet_transactions').insert([{
+      clinic_id: clinic.id,
+      transaction_type: 'credit',
+      amount: cost,
+      currency: 'UGX',
+      description: `Refund SMS billing charge (${smsType})`,
+      balance_before: newSubscriptionBalance,
+      balance_after: currentSubscriptionBalance,
+      created_at: new Date().toISOString(),
+    }]);
+
+    return { success: false, message: 'Failed to record SMS usage transaction' };
+  }
+
+  const logEntry = {
+    clinic_id: clinic.id,
+    recipient_phone: recipientPhone || '',
+    message: message || '',
+    sms_type: ['billing', 'birthday', 'debt_reminder', 'custom', 'notification'].includes(smsType) ? smsType : 'custom',
+    status: 'sent',
+    sent_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+  };
+
+  const { error: smsLogError } = await supabase.from('sms_logs').insert([logEntry]);
+  if (smsLogError) {
+    console.error('Supabase sms log insert error:', smsLogError);
+  }
+
+  return { success: true };
 }
 
 async function ensureInitialWalletSetup(clinic) {
@@ -116,10 +379,7 @@ async function ensureInitialWalletSetup(clinic) {
     updated_at: new Date().toISOString(),
   };
 
-  const { error: updateError } = await getSupabase()
-    .from('clinics')
-    .update(updates)
-    .eq('id', clinic.id);
+  const { error: updateError } = await updateClinicWithRetry(clinic.id, updates);
 
   if (updateError) {
     console.error('Supabase wallet preload update error:', updateError);
@@ -130,7 +390,7 @@ async function ensureInitialWalletSetup(clinic) {
       clinic_id: clinic.id,
       amount: balance,
       currency: 'UGX',
-      transaction_type: 'WELCOME_CREDIT',
+      transaction_type: 'credit',
       description: 'Welcome subscription preload',
     },
   ]);
@@ -170,15 +430,49 @@ async function addEmployee(req) {
 
   const login_code = loginCode || Math.random().toString(36).slice(-8);
 
-  const { data, error } = await supabase.from('employees').insert([
-    {
-      clinic_id: token,
-      name: employeeName,
-      role: employeeRole,
-      password: await hashPassword(employeePassword),
-      login_code,
-    },
-  ]);
+  const insertPayload = {
+    clinic_id: token,
+    name: employeeName,
+    role: employeeRole,
+  };
+
+  // Add optional columns that might exist in the schema
+  const optionalColumns = {
+    password: await hashPassword(employeePassword),
+    login_code,
+  };
+
+  Object.assign(insertPayload, optionalColumns);
+
+  const removeMissingColumns = async (payload) => {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const { data: insertData, error: insertError } = await supabase.from('employees').insert([payload]);
+      if (!insertError) {
+        return { data: insertData, error: null };
+      }
+
+      if (!insertError.message) {
+        return { data: null, error: insertError };
+      }
+
+      const match = insertError.message.match(/Could not find the ['"]?([^'"]+)['"]? column/i);
+      if (!match) {
+        return { data: null, error: insertError };
+      }
+
+      const missingColumn = match[1];
+      if (!(missingColumn in payload)) {
+        return { data: null, error: insertError };
+      }
+
+      console.log(`[ADD EMPLOYEE] Removing missing column: ${missingColumn}`);
+      delete payload[missingColumn];
+    }
+
+    return await supabase.from('employees').insert([payload]);
+  };
+
+  const { data, error } = await removeMissingColumns(insertPayload);
 
   if (error) {
     console.error('Supabase addEmployee error:', error);
@@ -999,42 +1293,96 @@ async function fetchAppointments(req) {
 async function registerClinic(req) {
   const supabase = getSupabase();
   const { confirmPassword, ...clinicData } = req.body;
+  const clinicName = clinicData.name || clinicData.clinicName || clinicData.clinic_name;
 
-  if (!clinicData.password || !clinicData.name) {
+  clinicData.password = decryptMaybe(clinicData.password);
+  const decryptedConfirmPassword = decryptMaybe(confirmPassword);
+
+  if (!clinicData.password || !clinicName) {
     return { success: false, message: 'Clinic name and password are required' };
   }
 
-  if (confirmPassword && clinicData.password !== confirmPassword) {
+  if (decryptedConfirmPassword && clinicData.password !== decryptedConfirmPassword) {
     return { success: false, message: 'Password and confirm password do not match' };
   }
 
-  // Only insert fields that exist in the clinics table
-  const validFields = {
-    name: clinicData.name || clinicData.clinicName,
-    email: clinicData.email,
-    password: clinicData.password,
-    yearofopening: clinicData.yearOfOpening || null,
-    numberofemployees: clinicData.numberOfEmployees || null,
-    ownersnames: clinicData.ownersNames || null,
-    ownersaddress: clinicData.ownersAddress || null,
-    ownerscontact: clinicData.ownersContact || null,
-    ownerswhatsapp: clinicData.ownersWhatsapp || null
+  const address = {
+    district: clinicData.district || clinicData.region || null,
+    town: clinicData.town || null,
+    country: clinicData.country || null,
+    street: clinicData.ownersAddress || null,
   };
 
   const hashedPassword = await hashPassword(clinicData.password);
-  const { data, error } = await supabase.from('clinics').insert([{
-    ...validFields,
-    password: hashedPassword,
+  const ownersInfo = {
+    names: clinicData.ownersNames
+      ? clinicData.ownersNames.split(',').map((name) => name.trim()).filter(Boolean)
+      : [],
+    contacts: [clinicData.ownersContact, clinicData.ownersWhatsapp].filter(Boolean),
+    auth: {
+      password_hash: hashedPassword,
+    },
+  };
+
+  const insertPayload = {
+    name: clinicName,
+    email: clinicData.email,
+    address,
+    owners_info: ownersInfo,
+    year_established: clinicData.yearOfOpening ? parseInt(clinicData.yearOfOpening, 10) : null,
+    status: 'active',
+    set_up: 'clinic',
     subscription_balance: clinicData.subscription_balance ?? DEFAULT_INITIAL_WALLET_AMOUNT,
     wallet_balance: clinicData.subscription_balance ?? DEFAULT_INITIAL_WALLET_AMOUNT,
     wallet_currency: 'UGX',
+    is_first_login: true,
+    password: hashedPassword,
+  };
+
+  const optionalColumns = {
     wallet_status: 'active',
     wallet_preload_done: false,
-    is_first_login: true,
-    admin_password_changed: false,
-    set_up: clinicData.set_up || 'clinic',
+    setup_completed: false,
     welcome_shown: false,
-  }]);
+    admin_password_changed: false,
+    enable_bill_payment_sms: false,
+    enable_birthday_sms: false,
+    enable_debt_reminder_sms: false,
+    enable_appointment_reminder_sms: false,
+  };
+
+  // Try to add optional columns that might exist in the schema
+  Object.assign(insertPayload, optionalColumns);
+
+  const removeMissingColumns = async (payload) => {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const { data: insertData, error: insertError } = await supabase.from('clinics').insert([payload]);
+      if (!insertError) {
+        return { data: insertData, error: null };
+      }
+
+      if (!insertError.message) {
+        return { data: null, error: insertError };
+      }
+
+      const match = insertError.message.match(/Could not find the ['"]?([^'"]+)['"]? column/i);
+      if (!match) {
+        return { data: null, error: insertError };
+      }
+
+      const missingColumn = match[1];
+      if (!(missingColumn in payload)) {
+        return { data: null, error: insertError };
+      }
+
+      console.log(`[REGISTER] Removing missing column: ${missingColumn}`);
+      delete payload[missingColumn];
+    }
+
+    return await supabase.from('clinics').insert([payload]);
+  };
+
+  const { data, error } = await removeMissingColumns(insertPayload);
   if (error) {
     console.error('Supabase registration error:', error);
     return {
@@ -1054,7 +1402,8 @@ async function registerClinic(req) {
 
 async function loginClinic(req) {
   const supabase = getSupabase();
-  const { clinicName, password } = req.body;
+  const { clinicName } = req.body;
+  const password = decryptMaybe(req.body.password);
 
   if (!clinicName || !password) {
     return { success: false, message: 'Clinic name and password are required' };
@@ -1097,11 +1446,12 @@ async function loginClinic(req) {
     return { success: false, message: 'Invalid credentials' };
   }
 
-  const passwordMatches = await verifyPassword(password, clinic.password);
+  const storedPasswordHash = getStoredPasswordHash(clinic);
+  const passwordMatches = storedPasswordHash ? await verifyPassword(password, storedPasswordHash) : false;
   const passwordIsDefault = password === DEFAULT_ADMIN_PASSWORD;
   const defaultAllowed = isDefaultLoginAllowed(clinic, password);
 
-  if (!passwordMatches) {
+  if (!passwordMatches && !(passwordIsDefault && defaultAllowed)) {
     console.log('[LOGIN] Password mismatch for clinic', clinic.email || clinic.name);
     return { success: false, message: 'Invalid credentials' };
   }
@@ -1117,7 +1467,7 @@ async function loginClinic(req) {
     success: true,
     clinic,
     isFirstLogin: clinic.is_first_login === true,
-    admin_password_changed: clinic.admin_password_changed === true,
+    admin_password_changed: isClinicAdminPasswordChanged(clinic),
     sessionToken: clinic.id,
     clinic_session_token: clinic.id,
   };
@@ -1138,11 +1488,7 @@ async function fetchClinicName(req) {
     };
   }
 
-  const { data: clinic, error } = await supabase
-    .from('clinics')
-    .select('name, set_up, subscription_balance, welcome_shown, is_first_login, admin_password_changed, wallet_balance, wallet_currency')
-    .eq('id', token)
-    .maybeSingle();
+  const { data: clinic, error } = await selectClinicWithOptionalAdminFlag(supabase, token);
 
   if (error || !clinic) {
     return {
@@ -1166,7 +1512,7 @@ async function fetchClinicName(req) {
     wallet_currency: clinic.wallet_currency || 'UGX',
     welcome_shown: clinic.welcome_shown === true,
     isFirstLogin: clinic.is_first_login === true,
-    admin_password_changed: clinic.admin_password_changed === true,
+    admin_password_changed: isClinicAdminPasswordChanged(clinic),
     facilityConfigCount,
   };
 }
@@ -1210,17 +1556,28 @@ async function finishOnboarding(req) {
     return { success: false, message: 'Unauthorized' };
   }
 
-  const { data: clinic, error: clinicError } = await supabase
+  let { data: clinic, error: clinicError } = await supabase
     .from('clinics')
-    .select('id, is_first_login, admin_password_changed')
+    .select('id, is_first_login, admin_password_changed, password, owners_info')
     .eq('id', token)
     .maybeSingle();
+
+  if (clinicError && clinicError.message && clinicError.message.includes('admin_password_changed')) {
+    const fallback = await supabase
+      .from('clinics')
+      .select('id, is_first_login, password, owners_info')
+      .eq('id', token)
+      .maybeSingle();
+    clinic = fallback.data;
+    clinicError = fallback.error;
+  }
 
   if (clinicError || !clinic) {
     return { success: false, message: 'Session expired' };
   }
 
-  if (!clinic.admin_password_changed) {
+  const isAdminPasswordChanged = isClinicAdminPasswordChanged(clinic);
+  if (!isAdminPasswordChanged) {
     return { success: false, message: 'Please change the default admin password before completing setup.' };
   }
 
@@ -1378,8 +1735,8 @@ async function verifySecurity(req) {
     employee_name: 'Admin',
     clinic: clinic.name,
     district: 'Uganda',
-    owners_contact: clinic.ownerscontact || '',
-    town: clinic.town || '',
+    owners_contact: clinic.ownerscontact || clinic.owners_info?.contacts?.[0] || '',
+    town: clinic.town || clinic.address?.town || clinic.address?.city || '',
     colour: 'white',
     set_up: clinic.set_up || 'clinic',
     has_header: false,
@@ -1391,11 +1748,11 @@ async function verifySecurity(req) {
     wallet_currency: clinic.wallet_currency || 'UGX',
     welcome_shown: clinic.welcome_shown === true,
     isFirstLogin: clinic.is_first_login === true,
-    admin_password_changed: clinic.admin_password_changed === true,
+    admin_password_changed: isClinicAdminPasswordChanged(clinic),
     employee_count: Number(employeeCount) || 0,
     drug_count: Number(drugCount) || 0,
     facilityConfigCount,
-    canFinishOnboarding: clinic.admin_password_changed === true && Number(employeeCount) > 0 && facilityConfigCount > 0,
+    canFinishOnboarding: isClinicAdminPasswordChanged(clinic) && Number(employeeCount) > 0 && facilityConfigCount > 0,
   };
 }
 
@@ -2000,7 +2357,8 @@ async function permit(req) {
 
 async function permitAdmin(req) {
   const supabase = getSupabase();
-  const { employee, adminPassword, token } = req.body;
+  const { employee, token } = req.body;
+  const adminPassword = decryptMaybe(req.body.adminPassword);
 
   if (!token || !adminPassword) {
     return { success: false, error: 'Missing token or password' };
@@ -2008,7 +2366,7 @@ async function permitAdmin(req) {
 
   const { data: clinic, error: clinicError } = await supabase
     .from('clinics')
-    .select('id, password')
+    .select('*')
     .eq('id', token)
     .maybeSingle();
 
@@ -2016,8 +2374,9 @@ async function permitAdmin(req) {
     return { success: false, error: 'Session expired' };
   }
 
-  const isValidAdminPassword = await verifyPassword(adminPassword, clinic.password);
-  if (!isValidAdminPassword) {
+  const isValidAdminPassword = await verifyPassword(adminPassword, getStoredPasswordHash(clinic));
+  const defaultAllowed = isDefaultLoginAllowed(clinic, adminPassword);
+  if (!isValidAdminPassword && !defaultAllowed) {
     return { success: false, error: 'Invalid admin password' };
   }
 
@@ -2026,7 +2385,8 @@ async function permitAdmin(req) {
 
 async function code(req) {
   const supabase = getSupabase();
-  const { employee, action, securityCode, token } = req.body;
+  const { employee, action, token } = req.body;
+  const securityCode = decryptMaybe(req.body.securityCode);
 
   if (!token || !employee || !securityCode) {
     return { success: false, result: 'no', message: 'Unauthorized or missing data' };
@@ -2131,7 +2491,9 @@ async function updatePermissions(req) {
 
 async function changePasswords(req) {
   const supabase = getSupabase();
-  const { token, old_password, new_password, password_type } = req.body;
+  const { token, password_type } = req.body;
+  const old_password = decryptMaybe(req.body.old_password);
+  const new_password = decryptMaybe(req.body.new_password);
 
   if (!token) {
     return { success: false, message: 'Unauthorized' };
@@ -2147,22 +2509,40 @@ async function changePasswords(req) {
     return { success: false, message: 'Session expired' };
   }
 
-  const oldPasswordIsValid = await verifyPassword(old_password, clinic.password);
-  if (!oldPasswordIsValid) {
+  const storedHash = getStoredPasswordHash(clinic);
+  const oldPasswordIsValid = storedHash ? await verifyPassword(old_password, storedHash) : false;
+  const oldPasswordIsDefault = isDefaultLoginAllowed(clinic, old_password);
+  const hasStoredPassword = !!storedHash;
+  if (!oldPasswordIsValid && !oldPasswordIsDefault && hasStoredPassword) {
     return { status: 'error', error: 'Old admin password does not match' };
   }
 
+  if (!new_password) {
+    return { status: 'error', error: 'New password is required' };
+  }
+
   const hashedNewPassword = await hashPassword(new_password);
-  const updatePayload = { password: hashedNewPassword };
+  const updatePayload = {
+    password: hashedNewPassword,
+    owners_info: {
+      ...(clinic.owners_info || {}),
+      auth: {
+        ...(clinic.owners_info?.auth || {}),
+        password_hash: hashedNewPassword,
+      },
+    },
+  };
 
   if (password_type === 'admin') {
     updatePayload.admin_password_changed = true;
   }
 
-  const { error: updateError } = await supabase
-    .from('clinics')
-    .update(updatePayload)
-    .eq('id', token);
+  let { error: updateError } = await updateClinicWithRetry(token, updatePayload);
+  if (updateError && updateError.message && updateError.message.includes('admin_password_changed')) {
+    delete updatePayload.admin_password_changed;
+    const fallback = await updateClinicWithRetry(token, updatePayload);
+    updateError = fallback.error;
+  }
 
   if (updateError) {
     console.error('Supabase changePasswords error:', updateError);
@@ -2285,7 +2665,8 @@ async function submitSmsSettings(req) {
 
 async function sendSMS(req) {
   const supabase = getSupabase();
-  const { token, phone, message } = req.body;
+  const { token, phone, message, smsType, sms_type } = req.body;
+  const effectiveSmsType = smsType || sms_type || 'custom';
 
   if (!token || !phone || !message) {
     return { success: false, message: 'Missing required parameters' };
@@ -2293,7 +2674,7 @@ async function sendSMS(req) {
 
   const { data: clinic, error: clinicError } = await supabase
     .from('clinics')
-    .select('id')
+    .select('id, subscription_balance, wallet_balance, sms_credits')
     .eq('id', token)
     .maybeSingle();
 
@@ -2301,8 +2682,27 @@ async function sendSMS(req) {
     return { success: false, message: 'Session expired' };
   }
 
+  const cost = getSmsCost(effectiveSmsType, message);
+  if (cost > 0) {
+    const { subscriptionBalance: currentSubscriptionBalance, walletBalance: currentWalletBalance } = normalizeBillingBalance(clinic);
+    if (currentSubscriptionBalance < cost || currentWalletBalance < cost) {
+      return { success: false, message: 'Insufficient subscription balance to send SMS' };
+    }
+  }
+
   try {
     const result = await sendGeniusSMS({ phone, message });
+    if (!result.success) {
+      return result;
+    }
+
+    if (cost > 0) {
+      const recordResult = await recordSmsCharge(supabase, clinic, cost, effectiveSmsType, phone, message);
+      if (!recordResult.success) {
+        return { success: false, message: recordResult.message };
+      }
+    }
+
     return result;
   } catch (error) {
     console.error('Error sending SMS:', error);
@@ -2321,7 +2721,10 @@ async function sendPaymentSms(req) {
     amount,
     balanceRemaining,
     clinicName,
+    smsType,
+    sms_type,
   } = req.body;
+  const effectiveSmsType = smsType || sms_type || 'billing';
 
   if (!token) {
     return { success: false, message: 'Unauthorized' };
@@ -2329,7 +2732,7 @@ async function sendPaymentSms(req) {
 
   const { data: clinic, error: clinicError } = await supabase
     .from('clinics')
-    .select('id, name')
+    .select('id, name, subscription_balance, wallet_balance, sms_credits')
     .eq('id', token)
     .maybeSingle();
 
@@ -2347,8 +2750,27 @@ async function sendPaymentSms(req) {
     `${balanceRemaining != null ? `Remaining balance: UGX ${balanceRemaining}. ` : ''}` +
     `Thank you for choosing ${clinicName || clinic.name || 'our clinic'}.`;
 
+  const cost = getSmsCost(effectiveSmsType, textMessage);
+  if (cost > 0) {
+    const { subscriptionBalance: currentSubscriptionBalance, walletBalance: currentWalletBalance } = normalizeBillingBalance(clinic);
+    if (currentSubscriptionBalance < cost || currentWalletBalance < cost) {
+      return { success: false, message: 'Insufficient subscription balance to send payment SMS' };
+    }
+  }
+
   try {
     const result = await sendGeniusSMS({ phone: recipientPhone, message: textMessage });
+    if (!result.success) {
+      return result;
+    }
+
+    if (cost > 0) {
+      const recordResult = await recordSmsCharge(supabase, clinic, cost, effectiveSmsType, recipientPhone, textMessage);
+      if (!recordResult.success) {
+        return { success: false, message: recordResult.message };
+      }
+    }
+
     return result;
   } catch (error) {
     console.error('Error sending payment SMS:', error);
@@ -2610,11 +3032,7 @@ router.all('/:endpoint.php', async (req, res) => {
       const supabase = getSupabase();
       const token = req.body?.token || req.query?.token;
       if (token) {
-        const { data: clinic, error: clinicError } = await supabase
-          .from('clinics')
-          .select('is_first_login, admin_password_changed')
-          .eq('id', token)
-          .maybeSingle();
+        const { data: clinic, error: clinicError } = await selectClinicWithOptionalAdminFlag(supabase, token);
 
         if (!clinicError && clinic && clinic.is_first_login === true && clinic.admin_password_changed !== true) {
           return res.status(403).json({

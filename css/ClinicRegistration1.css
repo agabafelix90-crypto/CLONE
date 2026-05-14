@@ -1,10 +1,10 @@
-.registration-container {
+.-container {
   display: flex;
   min-height: 100vh;
   background-color: #f7f8fa; /* Light background for contrast */
 }
 
-.registration-left {
+.-left {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -15,7 +15,7 @@
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
-.registration-box {
+.-box {
   background-color: rgb(254, 251, 251);
   padding: 30px;
   border-radius: 8px;
@@ -29,31 +29,31 @@
   align-items: center;
 }
 
-.registration-title {
+.-title {
   font-size: 2.5rem;
   color: #333;
   margin-bottom: 30px;
   font-weight: 700; /* Slightly bolder title */
 }
 
-.registration-form {
+.-form {
   width: 100%;
   max-width: 400px;
 }
 
-.registration-form-group {
+.-form-group {
   margin-bottom: 20px;
   position: relative;
 }
 
-.registration-form-label {
+.-form-label {
   display: block;
   font-weight: bold;
   color: #333;
   margin-bottom: 8px;
 }
 
-.registration-form-input {
+.-form-input {
   width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
@@ -62,7 +62,7 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
 }
 
-.registration-form-input:focus {
+.-form-input:focus {
   border-color: #007BFF; /* Blue border on focus */
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5); /* Subtle shadow on focus */
 }
@@ -73,7 +73,7 @@
   align-items: center;
 }
 
-.password-input-container .registration-form-input {
+.password-input-container .-form-input {
   flex: 1;
   padding-right: 40px; /* Space for the eye icon */
   border-radius: 4px;
@@ -85,13 +85,13 @@
   cursor: pointer;
 }
 
-.registration-form-buttons {
+.-form-buttons {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.registration-btn {
+.-btn {
   width: 100%;
   padding: 12px;
   margin-top: 15px;
@@ -101,25 +101,25 @@
   transition: background-color 0.3s ease; /* Smooth background transition */
 }
 
-.registration-btn-submit {
+.-btn-submit {
   background-color: #4CAF50;
   color: white;
 }
 
-.registration-btn-submit:hover {
+.-btn-submit:hover {
   background-color: #45A049; /* Darker green on hover */
 }
 
-.registration-btn-cancel {
+.-btn-cancel {
   background-color: #007BFF;
   color: white;
 }
 
-.registration-btn-cancel:hover {
+.-btn-cancel:hover {
   background-color: #0069d9; /* Darker blue on hover */
 }
 
-.registration-right {
+.-right {
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -153,7 +153,7 @@
   margin: 10px 0 0 0;
 }
 
-.registration-image {
+.-image {
   position: absolute;
   top: 0;
   left: 0;
@@ -165,17 +165,17 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .registration-container {
+  .-container {
     flex-direction: column;
   }
 
-  .registration-left, .registration-right {
+  .-left, .-right {
     max-width: 100%;
     flex: none;
     padding: 20px;
   }
 
-  .registration-title {
+  .-title {
     font-size: 2rem;
   }
 

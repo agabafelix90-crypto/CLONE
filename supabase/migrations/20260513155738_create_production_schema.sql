@@ -27,6 +27,7 @@ CREATE TABLE clinics (
   is_first_login BOOLEAN DEFAULT true,
   setup_completed BOOLEAN DEFAULT false,
   welcome_shown BOOLEAN DEFAULT false,
+  admin_password_changed BOOLEAN DEFAULT false,
   -- SMS Settings
   enable_bill_payment_sms BOOLEAN DEFAULT false,
   enable_birthday_sms BOOLEAN DEFAULT false,
