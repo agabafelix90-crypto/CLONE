@@ -48,6 +48,19 @@ CREATE INDEX idx_clinics_email ON clinics(email);
 CREATE INDEX idx_clinics_status ON clinics(status);
 CREATE INDEX idx_clinics_created_at ON clinics(created_at);
 
+-- Onboarding redirect tokens (ephemeral tokens used for onboarding/login redirects)
+DROP TABLE IF EXISTS onboarding_redirect_tokens CASCADE;
+CREATE TABLE onboarding_redirect_tokens (
+  token UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clinic_id UUID NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
+  original_token TEXT, -- previous token value for comparison/trace
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  expires_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + INTERVAL '1 hour')
+);
+
+CREATE INDEX idx_onboarding_tokens_clinic ON onboarding_redirect_tokens(clinic_id);
+CREATE INDEX idx_onboarding_tokens_expires_at ON onboarding_redirect_tokens(expires_at);
+
 -- Profiles table (extends auth.users - users who can access the system)
 DROP TABLE IF EXISTS profiles CASCADE;
 

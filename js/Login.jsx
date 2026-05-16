@@ -233,8 +233,19 @@ function Login() {
 
       if (redirectPath && redirectPath !== '/login') {
         try {
+          // Request a short-lived redirect token from the backend to avoid exposing/storing expired tokens
+          const resp = await fetch(urls.dashboardtoken, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: sessionToken, createRedirect: true }),
+          });
+          let respData = null;
+          try { respData = await resp.json(); } catch {};
+
+          const redirectToken = respData && respData.success && respData.token ? respData.token : sessionToken;
+
           const fullRedirectUrl = new URL(redirectPath, window.location.origin);
-          fullRedirectUrl.searchParams.set('token', sessionToken);
+          fullRedirectUrl.searchParams.set('token', redirectToken);
           navigate(`${fullRedirectUrl.pathname}${fullRedirectUrl.search}${fullRedirectUrl.hash}`, { replace: true });
           return;
         } catch (error) {
