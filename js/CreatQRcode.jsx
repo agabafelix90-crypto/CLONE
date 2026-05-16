@@ -3,6 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { urls } from './config.dev';
+import { handleInvalidSession } from './authUtils';
 import { QRCodeCanvas } from 'qrcode.react';
 import { jsPDF } from "jspdf";
 
@@ -24,7 +25,7 @@ function CreatQRcode() {
       if (response.ok) {
         setClinicName(data.clinic_name);
       } else if (data.error === "Session expired") {
-        navigate('/login');
+        handleInvalidSession(navigate, window.location.pathname + window.location.search);
       } else {
         throw new Error('Failed to fetch clinic name');
       }

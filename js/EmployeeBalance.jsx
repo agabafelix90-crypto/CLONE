@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { urls } from './config.dev';
+import { saveEmployeeSessionActivity, clearEmployeeSessionActivity, handleInvalidSession } from './authUtils';
 
 // Import or define the nurse image (you'll need to add this image to your project)
 const NURSE_IMAGE_URL = "https://images.unsplash.com/photo-1551601651-2a8555f1a136?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
@@ -62,10 +63,13 @@ const EmployeeBalance = () => {
           setEmployeeName(data.employee_name);
           setEmployeeBalance(data.employee_balance || 0);
           setPendingWithdrawal(data.pending_withdrawal || false);
+          saveEmployeeSessionActivity();
         } else if (data.error === 'Session expired') {
-          toast.warning('Session expired');
-          navigate(`/dashboard?token=${data.clinic_session_token}`);
+          clearEmployeeSessionActivity();
+          toast.warning('Session expired, redirecting to login...');
+          handleInvalidSession(navigate, window.location.pathname + window.location.search);
         } else {
+          clearEmployeeSessionActivity();
           toast.error('Invalid session');
           navigate('/login');
         }
@@ -87,7 +91,7 @@ const EmployeeBalance = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (token) fetchTokenAndCheckSecurity();
-    }, 20 * 60 * 1000);
+    }, 10 * 60 * 1000);
     return () => clearInterval(interval);
   }, [token]);
 

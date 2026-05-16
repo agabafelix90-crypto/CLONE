@@ -18,6 +18,7 @@ import {
   faHistory
 } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, Link } from 'react-router-dom';
+import { handleInvalidSession } from './authUtils';
 import { resolveTheme, parseThemeFromSearch } from './themeUtils';
 import Topbar from './Topbar';
 import MissingDrugs from './MissingDrugs';
@@ -832,10 +833,10 @@ function GetDrugs() {
       } else {
         const errorData = await securityResponse.json();
         if (errorData.error === 'Session expired') {
-          navigate(`/dashboard?token=${errorData.clinic_session_token}`);
+          handleInvalidSession(navigate, window.location.pathname + window.location.search);
           return false;
         } else {
-          navigate('/login');
+          handleInvalidSession(navigate, window.location.pathname + window.location.search);
           return false;
         }
       }

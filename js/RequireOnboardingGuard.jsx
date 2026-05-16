@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { urls } from './config.dev';
-import { getTokenFromUrlOrSession, clearSessionToken, verifySession } from './authUtils';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { getTokenFromUrlOrSession, verifySession, handleInvalidSession } from './authUtils';
 
 const onboardingAllowedPaths = [
   '/onboarding',
@@ -29,13 +28,13 @@ const adminPasswordRequiredPaths = [
 
 function RequireOnboardingGuard() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [status, setStatus] = useState({ checking: true, allowAccess: false, redirectTo: '/login' });
 
   useEffect(() => {
     const token = getTokenFromUrlOrSession();
     if (!token) {
-      clearSessionToken();
-      setStatus({ checking: false, allowAccess: false, redirectTo: '/login' });
+      handleInvalidSession(navigate, location.pathname + location.search);
       return;
     }
 
@@ -47,8 +46,7 @@ function RequireOnboardingGuard() {
 
         if (!valid || !data?.clinic_session_token) {
           if (!isCancelled) {
-            clearSessionToken();
-            setStatus({ checking: false, allowAccess: false, redirectTo: '/login' });
+            handleInvalidSession(navigate, location.pathname + location.search);
           }
           return;
         }

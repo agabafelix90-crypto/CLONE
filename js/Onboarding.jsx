@@ -3,15 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { urls } from './config.dev';
-import { getTokenFromUrlOrSession, saveSessionToken } from './authUtils';
-
-const billingRules = [
-  'All ClinicPro charges are payable in UGX and must be issued with an official ClinicPro receipt.',
-  'Subscription wallet credit is preloaded once on first login as UGX 10,000 and may only be used for authorized clinic operational expenses.',
-  'Default admin access (agabafelix90@gmail.com / 12345) is permitted only on first login and must be changed immediately.',
-  'Admin must complete the onboarding guide before dashboard access is granted.',
-  'Billing statements are final and managed by clinic administration under ClinicPro policy.',
-];
+import { getTokenFromUrlOrSession, saveSessionToken, handleInvalidSession, isSessionExpiredResponse } from './authUtils';
 
 function Onboarding() {
   const navigate = useNavigate();
@@ -21,6 +13,7 @@ function Onboarding() {
     employee_count: 0,
     drug_count: 0,
     facilityConfigCount: 0,
+    canFinishOnboarding: false,
     clinic: '',
   });
   const [token, setToken] = useState('');
@@ -32,13 +25,24 @@ function Onboarding() {
   useEffect(() => {
     const tk = getTokenFromUrlOrSession();
     if (!tk) {
-      navigate('/login');
+      handleInvalidSession(navigate, window.location.pathname + window.location.search);
       return;
     }
-    saveSessionToken(tk);
+
     setToken(tk);
     fetchStatus(tk);
   }, [navigate]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      if (token) {
+        fetchStatus(token);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [token]);
 
   const fetchStatus = async (tk) => {
     try {
@@ -47,28 +51,36 @@ function Onboarding() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tk }),
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        navigate('/login');
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.success) {
+        if (isSessionExpiredResponse(res, data)) {
+          handleInvalidSession(navigate, window.location.pathname + window.location.search);
+          return;
+        }
+        toast.error(data?.message || data?.error || 'Session validation failed. Please log in again.');
+        handleInvalidSession(navigate, window.location.pathname + window.location.search);
         return;
       }
 
       if (!data.isFirstLogin) {
+        saveSessionToken(tk);
         navigate(`/dashboard?token=${tk}`);
         return;
       }
 
+      saveSessionToken(tk);
       setStatus({
         isFirstLogin: data.isFirstLogin === true,
         admin_password_changed: data.admin_password_changed === true,
         employee_count: Number(data.employee_count || 0),
         drug_count: Number(data.drug_count || 0),
-        facilityConfigCount: Number(data.facilityConfigCount || data.drug_count || 0),
+        facilityConfigCount: Number(data.facilityConfigCount ?? data.drug_count ?? 0),
+        canFinishOnboarding: data.canFinishOnboarding === true,
         clinic: data.clinic || '',
       });
     } catch (error) {
       console.error('Failed to load onboarding status:', error);
-      navigate('/login');
+      handleInvalidSession(navigate, window.location.pathname + window.location.search);
     }
   };
 
@@ -125,12 +137,16 @@ function Onboarding() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
       });
-      const data = await res.json();
-      if (res.ok && data.success) {
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success) {
         toast.success('Onboarding completed. Redirecting to dashboard...');
         navigate(`/dashboard?token=${token}`);
       } else {
-        toast.error(data.message || 'Complete all required setup steps before continuing.');
+        if (isSessionExpiredResponse(res, data)) {
+          handleInvalidSession(navigate, window.location.pathname + window.location.search);
+          return;
+        }
+        toast.error(data?.message || data?.error || 'Complete all required setup steps before continuing.');
       }
     } catch (error) {
       console.error('Finish onboarding error:', error);
@@ -148,7 +164,17 @@ function Onboarding() {
     navigate(`${path}?token=${token}`);
   };
 
-  const canComplete = status.admin_password_changed && status.employee_count > 0 && status.facilityConfigCount > 0;
+  const canComplete =
+    status.canFinishOnboarding ||
+    (status.admin_password_changed && status.employee_count > 0 && status.facilityConfigCount > 0);
+
+  const billingRules = [
+    'All ClinicPro charges are payable in UGX and must be issued with an official ClinicPro receipt.',
+    'Subscription wallet credit is preloaded once on first login as UGX 10,000 and may only be used for authorized clinic operational expenses.',
+    `Default admin access (${status.clinic || 'Admin'} / 12345) is permitted only on first login and must be changed immediately.`,
+    'Admin must complete the onboarding guide before dashboard access is granted.',
+    'Billing statements are final and managed by clinic administration under ClinicPro policy.',
+  ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#eef2ff', padding: '24px', fontFamily: 'Inter, sans-serif' }}>

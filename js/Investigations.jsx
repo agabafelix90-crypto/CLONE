@@ -12,6 +12,7 @@ function Investigations() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddingInvestigation, setIsAddingInvestigation] = useState(false);
   const [employeeName, setEmployeeName] = useState('');
+  const [clinicToken, setClinicToken] = useState(null);
   const [deleteInProgress, setDeleteInProgress] = useState(null);
   const navigate = useNavigate();
 
@@ -43,6 +44,7 @@ function Investigations() {
       const securityData = await securityResponse.json();
       if (securityData.message === 'Session valid') {
         setEmployeeName(securityData.employee_name);
+        setClinicToken(token);
       } else if (securityData.error === 'Session expired') {
         navigate(`/dashboard?token=${securityData.clinic_session_token}`);
       } else {
@@ -55,28 +57,39 @@ function Investigations() {
   };
 
   useEffect(() => {
-    fetchAllInvestigations();
+    if (!clinicToken) return undefined;
 
-    const interval = setInterval(fetchAllInvestigations, 5000);
+    const fetchLoop = async () => {
+      await fetchAllInvestigations();
+    };
+
+    fetchLoop();
+    const interval = window.setInterval(fetchLoop, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [clinicToken]);
 
-  const fetchAllInvestigations = () => {
-    fetch(urls.allinvestigations, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token: getTokenFromUrl() }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        const sortedInvestigations = data.sort((a, b) => a.name.localeCompare(b.name));
-        setAllInvestigations(sortedInvestigations);
-      })
-      .catch(error => {
-        console.error('Error fetching investigations:', error);
+  const fetchAllInvestigations = async () => {
+    const token = clinicToken || getTokenFromUrl();
+    if (!token) {
+      return;
+    }
+
+    try {
+      const response = await fetch(urls.allinvestigations, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
       });
+
+      const data = await response.json();
+      const investigations = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      const sortedInvestigations = investigations.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      setAllInvestigations(sortedInvestigations);
+    } catch (error) {
+      console.error('Error fetching investigations:', error);
+    }
   };
 
   const handleInputChange = e => {
@@ -101,7 +114,7 @@ function Investigations() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ...newInvestigation, token: getTokenFromUrl() }),
+      body: JSON.stringify({ ...newInvestigation, token: clinicToken || getTokenFromUrl() }),
     })
     .then(response => {
       if (!response.ok) {
@@ -141,7 +154,7 @@ function Investigations() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, token: clinicToken || getTokenFromUrl() }),
       })
       .then(response => {
         if (!response.ok) {

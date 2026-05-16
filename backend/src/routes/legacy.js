@@ -7,6 +7,8 @@ const { sendGeniusSMS } = require('../lib/smsService');
 const RSA_PRIVATE_KEY = process.env.RSA_PRIVATE_KEY || process.env.PRIVATE_KEY || null;
 const RSA_PRIVATE_KEY_PEM = RSA_PRIVATE_KEY ? RSA_PRIVATE_KEY.replace(/\\n/g, '\n') : null;
 
+// Legacy default admin email - kept for backward compatibility in authentication logic
+// User-facing messages now display the clinic name instead of this email
 const DEFAULT_ADMIN_EMAIL = 'agabafelix90@gmail.com';
 const DEFAULT_ADMIN_PASSWORD = '12345';
 const DEFAULT_INITIAL_WALLET_AMOUNT = 10000;
@@ -101,13 +103,58 @@ async function hashPassword(password) {
 
 async function countClinicSetupItems(token) {
   const supabase = getSupabase();
-  const tables = ['drugs', 'procedures', 'lab_tests', 'services'];
   let totalCount = 0;
 
-  for (const table of tables) {
+  try {
+    const { count: drugCount = 0, error: drugError } = await supabase
+      .from('drugs')
+      .select('id', { count: 'exact', head: true })
+      .eq('clinic_id', token);
+
+    if (!drugError) {
+      totalCount += Number(drugCount) || 0;
+    }
+  } catch (error) {
+    if (!isMissingTableError(error)) {
+      console.error('countClinicSetupItems drugs error:', error);
+    }
+  }
+
+  try {
+    const { count: templateCount = 0, error: templateError } = await supabase
+      .from('lab_test_templates')
+      .select('id', { count: 'exact', head: true })
+      .eq('clinic_id', token);
+
+    if (!templateError) {
+      totalCount += Number(templateCount) || 0;
+    }
+  } catch (error) {
+    if (!isMissingTableError(error)) {
+      console.error('countClinicSetupItems lab_test_templates error:', error);
+    }
+  }
+
+  try {
+    const { count: billingItemCount = 0, error: billingItemError } = await supabase
+      .from('billing_items')
+      .select('id', { count: 'exact', head: true })
+      .eq('clinic_id', token);
+
+    if (!billingItemError) {
+      totalCount += Number(billingItemCount) || 0;
+    }
+  } catch (error) {
+    if (!isMissingTableError(error)) {
+      console.error('countClinicSetupItems billing_items error:', error);
+    }
+  }
+
+  const legacyTables = ['procedures', 'lab_tests', 'radiology_tests', 'services'];
+  for (const legacyTable of legacyTables) {
     try {
       const { count = 0, error } = await supabase
-        .from(table)
+        .from(legacyTable)
         .select('id', { count: 'exact', head: true })
         .eq('clinic_id', token);
 
@@ -115,9 +162,8 @@ async function countClinicSetupItems(token) {
         totalCount += Number(count) || 0;
       }
     } catch (error) {
-      // ignore missing tables or unsupported tables during startup checks
       if (!isMissingTableError(error)) {
-        console.error(`countClinicSetupItems table ${table} error:`, error);
+        console.error(`countClinicSetupItems legacy table ${legacyTable} error:`, error);
       }
     }
   }
@@ -1071,19 +1117,37 @@ async function addContact(req) {
   };
 }
 
-async function fetchAvailableTests(req, tableNames) {
+function mapTestRecord(record, table) {
+  if (!record) return null;
+  const mapped = {
+    name: record.name || record.description || record.test_name || record.title || record.id,
+    price: Number(record.cost ?? record.amount ?? record.price ?? 0),
+  };
+
+  if (table === 'billing_items') {
+    mapped.category = record.category || 'lab';
+  }
+
+  return mapped;
+}
+
+async function fetchAvailableTests(req, tableNames, filters = {}) {
   const supabase = getSupabase();
   const token = getRequestToken(req);
   if (!token) {
     return [];
   }
 
+  const results = [];
+
   for (const table of tableNames) {
     try {
-      const { data, error } = await supabase
-        .from(table)
-        .select('*')
-        .eq('clinic_id', token);
+      let query = supabase.from(table).select('*').eq('clinic_id', token);
+      if (filters.category && table === 'billing_items') {
+        query = query.in('category', filters.category);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         if (isMissingTableError(error)) {
@@ -1093,12 +1157,15 @@ async function fetchAvailableTests(req, tableNames) {
         continue;
       }
 
-      if (Array.isArray(data) && data.length > 0) {
-        return data.map(item => ({
-          name: item.name || item.test_name || item.title || item.id,
-          price: item.price || item.cost || item.fee || 0,
-        }));
+      if (!Array.isArray(data) || data.length === 0) {
+        continue;
       }
+
+      const mapped = data
+        .map(item => mapTestRecord(item, table))
+        .filter(Boolean);
+
+      results.push(...mapped);
     } catch (error) {
       if (!isMissingTableError(error)) {
         console.error(`Error fetching tests from ${table}:`, error);
@@ -1106,15 +1173,108 @@ async function fetchAvailableTests(req, tableNames) {
     }
   }
 
-  return [];
+  return results.sort((a, b) => String(a.name).localeCompare(String(b.name)));
 }
 
 async function fetchAvailableLabTests(req) {
-  return fetchAvailableTests(req, ['lab_tests', 'procedures', 'services']);
+  return fetchAvailableTests(req, ['lab_test_templates', 'billing_items', 'lab_tests', 'procedures', 'services'], { category: ['lab', 'laboratory'] });
 }
 
 async function fetchAvailableRadiologyTests(req) {
-  return fetchAvailableTests(req, ['radiology_tests', 'procedures', 'services']);
+  return fetchAvailableTests(req, ['billing_items', 'radiology_tests', 'procedures', 'services'], { category: ['radiology'] });
+}
+
+async function inputInvestigation(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+  const { name, category, price } = req.body;
+
+  if (!token) {
+    return { success: false, message: 'Unauthorized' };
+  }
+
+  if (!name || !category || price === undefined || price === null) {
+    return { success: false, message: 'Missing investigation name, category, or price' };
+  }
+
+  const formattedCategory = String(category).trim().toLowerCase();
+  const amount = Number(price);
+  if (Number.isNaN(amount) || amount < 0) {
+    return { success: false, message: 'Invalid price for investigation' };
+  }
+
+  const { data, error } = await supabase.from('billing_items').insert([
+    {
+      clinic_id: token,
+      description: String(name).trim(),
+      category: formattedCategory,
+      amount,
+    },
+  ]);
+
+  if (error) {
+    console.error('Supabase inputInvestigation error:', error);
+    return { success: false, message: 'Failed to add investigation' };
+  }
+
+  return { success: true, investigation: data?.[0] || null };
+}
+
+async function allInvestigations(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+
+  if (!token) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('billing_items')
+    .select('id, description, category, amount')
+    .eq('clinic_id', token)
+    .in('category', ['lab', 'laboratory', 'radiology'])
+    .order('description', { ascending: true });
+
+  if (error) {
+    console.error('Supabase allInvestigations error:', error);
+    return [];
+  }
+
+  return (data || []).map(item => ({
+    investigation_id: item.id,
+    name: item.description,
+    category: item.category,
+    price: item.amount,
+  }));
+}
+
+async function deleteInvestigation(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+  const { name, category } = req.body;
+
+  if (!token) {
+    return { success: false, message: 'Unauthorized' };
+  }
+
+  if (!name || !category) {
+    return { success: false, message: 'Missing investigation name or category' };
+  }
+
+  const formattedCategory = String(category).trim().toLowerCase();
+  const { error } = await supabase
+    .from('billing_items')
+    .delete()
+    .eq('clinic_id', token)
+    .eq('description', String(name).trim())
+    .eq('category', formattedCategory);
+
+  if (error) {
+    console.error('Supabase deleteInvestigation error:', error);
+    return { success: false, message: 'Failed to delete investigation' };
+  }
+
+  return { success: true, message: 'Investigation deleted successfully' };
 }
 
 async function submitWalkinPatient(req) {
@@ -2990,6 +3150,9 @@ const endpointMap = {
   deleteEmployee: deleteEmployee,
   countappointments: countAppointments,
   addemployee: addEmployee,
+  inputInvestigation: inputInvestigation,
+  allinvestigations: allInvestigations,
+  deleteInvestigation: deleteInvestigation,
 };
 
 const authExemptEndpoints = new Set([

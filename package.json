@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview",
+    "serve": "node preview-server.js",
+    "serve:preview": "vite preview",
     "backend:start": "npm --prefix backend start",
     "backend:dev": "npm --prefix backend run dev"
   },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { urls } from './config.dev';
-import { getTokenFromUrlOrSession, clearSessionToken, verifySession } from './authUtils';
+import { getTokenFromUrlOrSession, clearSessionToken, verifySession, isEmployeeSessionActive, saveEmployeeSessionActivity, clearEmployeeSessionActivity } from './authUtils';
 
 /**
  * PermissionGuard checks if an employee has permission for the current route
@@ -9,6 +9,7 @@ import { getTokenFromUrlOrSession, clearSessionToken, verifySession } from './au
  */
 function PermissionGuard() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState({ checking: true, allowAccess: false, message: '', redirectTo: null });
 
@@ -56,6 +57,20 @@ function PermissionGuard() {
   };
 
   useEffect(() => {
+    const token = searchParams.get('token') || getTokenFromUrlOrSession();
+    if (!token) return;
+
+    const interval = setInterval(() => {
+      if (!isEmployeeSessionActive()) {
+        clearEmployeeSessionActivity();
+        navigate(`/dashboard?token=${token}`, { replace: true });
+      }
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [searchParams, navigate]);
+
+  useEffect(() => {
     const checkPermission = async () => {
       try {
         const token = searchParams.get('token') || getTokenFromUrlOrSession();
@@ -69,11 +84,11 @@ function PermissionGuard() {
 
         // Add a 5-second timeout to permission check
         const timeoutController = new AbortController();
-        const timeoutId = setTimeout(() => timeoutController.abort(), 5000);
+        const timeoutId = setTimeout(() => timeoutController.abort(), 10000);
 
         try {
           const { valid, data: securityData } = await Promise.race([
-            verifySession(token),
+            verifySession(token, timeoutController.signal),
             new Promise((_, reject) => timeoutController.signal.addEventListener('abort', () => reject(new Error('Permission check timeout'))))
           ]);
 
@@ -85,6 +100,19 @@ function PermissionGuard() {
         } finally {
           clearTimeout(timeoutId);
         }
+
+        if (!isEmployeeSessionActive()) {
+          clearEmployeeSessionActivity();
+          setStatus({
+            checking: false,
+            allowAccess: false,
+            message: 'Employee session expired',
+            redirectTo: `/dashboard?token=${token}`,
+          });
+          return;
+        }
+
+        saveEmployeeSessionActivity();
 
         // Get the required permission for this route
         const requiredPermission = routePermissionMap[location.pathname];

@@ -14,6 +14,11 @@ module.exports = defineConfig({
   server: {
     port: 5173
   },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    historyApiFallback: true
+  },
   define: {
     global: 'window',
     'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://jzfdxstpomdcoucywimy.supabase.co'),

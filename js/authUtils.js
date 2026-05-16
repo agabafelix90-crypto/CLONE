@@ -3,7 +3,10 @@ import { urls } from './config.dev';
 export const SESSION_TOKEN_KEY = 'clinic_session_token';
 export const LEGACY_TOKEN_KEY = 'token';
 export const SESSION_TOKEN_TIMESTAMP_KEY = 'clinic_session_token_timestamp';
-const SESSION_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
+export const EMPLOYEE_SESSION_TIMESTAMP_KEY = 'employee_session_timestamp';
+export const REDIRECT_AFTER_LOGIN_KEY = 'redirect_after_login';
+const CLINIC_SESSION_TTL_MS = 60 * 60 * 1000; // 1 hour storage retention for expired tokens
+const EMPLOYEE_SESSION_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 const sanitizeToken = (value) => {
   if (!value || typeof value !== 'string') return '';
@@ -15,14 +18,19 @@ const sanitizeToken = (value) => {
 export const getStoredToken = () => {
   try {
     const storedToken = sanitizeToken(sessionStorage.getItem(SESSION_TOKEN_KEY)) || sanitizeToken(localStorage.getItem(LEGACY_TOKEN_KEY));
-    const timestampValue = sessionStorage.getItem(SESSION_TOKEN_TIMESTAMP_KEY);
+    const timestampValue = sessionStorage.getItem(SESSION_TOKEN_TIMESTAMP_KEY) || localStorage.getItem(SESSION_TOKEN_TIMESTAMP_KEY);
     const timestamp = Number(timestampValue);
 
     if (!storedToken) {
       return '';
     }
 
-    if (Number.isFinite(timestamp) && Date.now() - timestamp > SESSION_TTL_MS) {
+    if (!Number.isFinite(timestamp)) {
+      clearSessionToken();
+      return '';
+    }
+
+    if (Date.now() - timestamp > CLINIC_SESSION_TTL_MS) {
       clearSessionToken();
       return '';
     }
@@ -38,11 +46,41 @@ export const saveSessionToken = (token) => {
   const cleanToken = sanitizeToken(token);
   if (!cleanToken) return;
   try {
+    const now = Date.now().toString();
     sessionStorage.setItem(SESSION_TOKEN_KEY, cleanToken);
     localStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
-    sessionStorage.setItem(SESSION_TOKEN_TIMESTAMP_KEY, Date.now().toString());
+    sessionStorage.setItem(SESSION_TOKEN_TIMESTAMP_KEY, now);
+    localStorage.setItem(SESSION_TOKEN_TIMESTAMP_KEY, now);
   } catch (error) {
     console.error('Unable to save session token:', error);
+  }
+};
+
+export const saveEmployeeSessionActivity = () => {
+  try {
+    sessionStorage.setItem(EMPLOYEE_SESSION_TIMESTAMP_KEY, Date.now().toString());
+  } catch (error) {
+    console.error('Unable to save employee session activity:', error);
+  }
+};
+
+export const isEmployeeSessionActive = () => {
+  try {
+    const timestampValue = sessionStorage.getItem(EMPLOYEE_SESSION_TIMESTAMP_KEY);
+    const timestamp = Number(timestampValue);
+    if (!Number.isFinite(timestamp)) return false;
+    return Date.now() - timestamp <= EMPLOYEE_SESSION_TTL_MS;
+  } catch (error) {
+    console.error('Unable to read employee session activity:', error);
+    return false;
+  }
+};
+
+export const clearEmployeeSessionActivity = () => {
+  try {
+    sessionStorage.removeItem(EMPLOYEE_SESSION_TIMESTAMP_KEY);
+  } catch (error) {
+    console.error('Unable to clear employee session activity:', error);
   }
 };
 
@@ -51,6 +89,8 @@ export const clearSessionToken = () => {
     sessionStorage.removeItem(SESSION_TOKEN_KEY);
     sessionStorage.removeItem(SESSION_TOKEN_TIMESTAMP_KEY);
     localStorage.removeItem(LEGACY_TOKEN_KEY);
+    localStorage.removeItem(SESSION_TOKEN_TIMESTAMP_KEY);
+    clearEmployeeSessionActivity();
   } catch (error) {
     console.error('Unable to clear session token:', error);
   }
@@ -68,6 +108,13 @@ export const clearTokenFromUrl = () => {
   }
 };
 
+export const isSessionExpiredResponse = (response, data) => {
+  if (!response) return false;
+  if (response.status === 401 || response.status === 403) return true;
+  const message = (data?.message || data?.error || '').toString().toLowerCase();
+  return message.includes('session expired') || message.includes('unauthorized');
+};
+
 export const getTokenFromUrlOrSession = ({ stripUrl = false } = {}) => {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -82,9 +129,46 @@ export const getTokenFromUrlOrSession = ({ stripUrl = false } = {}) => {
   }
 };
 
-export const handleInvalidSession = (navigate) => {
+export const saveRedirectAfterLogin = (path) => {
+  try {
+    if (!path || typeof path !== 'string') return;
+    sessionStorage.setItem(REDIRECT_AFTER_LOGIN_KEY, path);
+  } catch (error) {
+    console.error('Unable to save redirect path:', error);
+  }
+};
+
+export const getRedirectAfterLogin = () => {
+  try {
+    return sessionStorage.getItem(REDIRECT_AFTER_LOGIN_KEY) || '';
+  } catch (error) {
+    console.error('Unable to read redirect path:', error);
+    return '';
+  }
+};
+
+export const clearRedirectAfterLogin = () => {
+  try {
+    sessionStorage.removeItem(REDIRECT_AFTER_LOGIN_KEY);
+  } catch (error) {
+    console.error('Unable to clear redirect path:', error);
+  }
+};
+
+export const handleInvalidSession = (navigate, redirectPath = null) => {
+  clearTokenFromUrl();
   clearSessionToken();
-  navigate('/login');
+  clearEmployeeSessionActivity();
+  if (redirectPath) {
+    try {
+      const url = new URL(redirectPath, window.location.origin);
+      url.searchParams.delete('token');
+      saveRedirectAfterLogin(url.pathname + url.search + url.hash);
+    } catch (error) {
+      saveRedirectAfterLogin(redirectPath);
+    }
+  }
+  navigate('/login', { replace: true });
 };
 
 export const handleLogout = (navigate, redirectTo = '/login', replace = true) => {
@@ -106,7 +190,7 @@ export const handleLogout = (navigate, redirectTo = '/login', replace = true) =>
   }
 };
 
-export const verifySession = async (token) => {
+export const verifySession = async (token, signal) => {
   if (!token) {
     return { valid: false, error: 'No session token provided' };
   }
@@ -118,13 +202,19 @@ export const verifySession = async (token) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ token }),
+      signal,
     });
 
+    const data = await response.json().catch(() => null);
     if (!response.ok) {
-      return { valid: false, error: 'Session validation failed' };
+      const expired = isSessionExpiredResponse(response, data);
+      return {
+        valid: false,
+        data,
+        error: expired ? 'Session expired' : 'Session validation failed',
+      };
     }
 
-    const data = await response.json();
     const isValid = data?.message === 'Session valid' && !!data?.clinic_session_token;
 
     return {

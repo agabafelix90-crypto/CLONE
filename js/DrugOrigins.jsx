@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { urls } from './config.dev';
 import { useNavigate } from 'react-router-dom';
+import { resolveTheme } from './themeUtils';
 import UpdateStocksModal from './UpdateStocksModal';
 import Topbar from './Topbar';
 
@@ -624,6 +625,7 @@ function DrugOrigins() {
   const navigate = useNavigate();
   const params = new URLSearchParams(window.location.search);
   const urlToken = params.get('token');
+  const urlTheme = params.get('theme');
 
   // Get the active theme colors
   const theme = colors[currentTheme];

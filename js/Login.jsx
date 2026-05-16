@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { urls } from "./config.dev";
-import { saveSessionToken, clearSessionToken } from './authUtils';
+import { saveSessionToken, clearSessionToken, getRedirectAfterLogin, clearRedirectAfterLogin } from './authUtils';
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -227,6 +227,20 @@ function Login() {
       setCurrentSessionToken(sessionToken);
 
       toast.success("Login successful!", { position: "top-left" });
+
+      const redirectPath = getRedirectAfterLogin();
+      clearRedirectAfterLogin();
+
+      if (redirectPath && redirectPath !== '/login') {
+        try {
+          const fullRedirectUrl = new URL(redirectPath, window.location.origin);
+          fullRedirectUrl.searchParams.set('token', sessionToken);
+          navigate(`${fullRedirectUrl.pathname}${fullRedirectUrl.search}${fullRedirectUrl.hash}`, { replace: true });
+          return;
+        } catch (error) {
+          console.error('Invalid redirect path, falling back to dashboard:', error);
+        }
+      }
 
       if (responseData.isFirstLogin) {
         navigate(`/onboarding?token=${sessionToken}`);

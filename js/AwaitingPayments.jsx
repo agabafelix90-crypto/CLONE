@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { urls } from './config.dev';
 import { useNavigate } from 'react-router-dom';
+import { handleInvalidSession } from './authUtils';
 import Topbar from './Topbar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -97,8 +98,8 @@ function AwaitingPayments() {
 
           return () => clearInterval(intervalId);
         } else if (securityData.error === 'Session expired') {
-          toast.warning('Session expired, redirecting to the dashboard...');
-          navigate(`/dashboard?token=${securityData.clinic_session_token}`);
+          toast.warning('Session expired, redirecting to login...');
+          handleInvalidSession(navigate, window.location.pathname + window.location.search);
         } else {
           toast.error('Session invalid, redirecting to login...');
           navigate('/login');

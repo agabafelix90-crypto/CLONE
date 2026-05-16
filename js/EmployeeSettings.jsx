@@ -249,12 +249,12 @@ PQIDAQAB
 
   const handleMenuButtonClick = (pageName) => {
     const requestToken = token || getTokenFromUrlOrSession();
-    navigate(`/${pageName}/token=${requestToken}`);
+    navigate(`/${pageName}?token=${requestToken}`);
   };
 
   const handleBirthdaysButtonClick = () => {
     const requestToken = token || getTokenFromUrlOrSession();
-    navigate(`/birthdays/token=${requestToken}`);
+    navigate(`/birthdays?token=${requestToken}`);
   };
 
   const handleGrantPermissions = (employee) => {
