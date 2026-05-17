@@ -13,6 +13,11 @@ const DEFAULT_ADMIN_EMAIL = 'agabafelix90@gmail.com';
 const DEFAULT_ADMIN_PASSWORD = '12345';
 const DEFAULT_INITIAL_WALLET_AMOUNT = 10000;
 
+// Security Configuration - Medical System
+const SESSION_DURATION_DAYS = 14;           // Adjust as needed (7 or 30)
+const SESSION_EXTENSION_MINUTES = 60;       // Extend on activity
+const INACTIVITY_LOGOUT_HOURS = 12;
+
 let supabaseClient = null;
 
 const getSupabase = () => {
@@ -37,6 +42,13 @@ function isMissingColumnError(error) {
   if (!error || !error.message) return false;
   return /column .* of relation .* does not exist/i.test(error.message) ||
     /Could not find the ['"]?([^'"]+)['"]? column/i.test(error.message);
+}
+
+function getMissingColumnName(error) {
+  if (!error || !error.message) return null;
+  const match = error.message.match(/Could not find the ['"]?([^'"]+)['"]? column/i) ||
+    error.message.match(/column ['"]?([^'"]+)['"]? of relation .* does not exist/i);
+  return match ? match[1] : null;
 }
 
 async function updateClinicWithRetry(token, payload) {
@@ -73,6 +85,27 @@ function sanitizeToken(value) {
   return token.replace(/\s+/g, '');
 }
 
+// Security Headers Middleware
+function securityHeaders(req, res, next) {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  if (req.secure || process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Access-Token, X-Token');
+
+  next();
+}
+
+router.use(securityHeaders);
+
 function getRequestToken(req) {
   const authHeader = req?.headers?.authorization;
   const headerToken = typeof authHeader === 'string' ? authHeader.replace(/^Bearer\s+/i, '') : null;
@@ -83,6 +116,7 @@ function getRequestToken(req) {
 async function getClinicByToken(token) {
   if (!token) return null;
   const supabase = getSupabase();
+
   try {
     // First, try to find a clinic matching the token directly
     const { data: clinic, error: clinicError } = await supabase
@@ -95,31 +129,21 @@ async function getClinicByToken(token) {
       console.error('Supabase getClinicByToken error (direct lookup):', clinicError);
     }
 
-    if (clinic) return clinic;
+    const clinicRecord = clinic || null;
+    let clinicId = clinicRecord?.id || null;
 
-    // If not found, check onboarding_redirect_tokens for an ephemeral token
-    const { data: ot, error: otError } = await supabase
-      .from('onboarding_redirect_tokens')
-      .select('clinic_id, expires_at')
-      .eq('token', token)
-      .maybeSingle();
-
-    if (otError) {
-      console.error('Supabase getClinicByToken error (redirect token lookup):', otError);
-      return null;
-    }
-
-    if (!ot) return null;
-
-    // check expiration
-    if (ot.expires_at && new Date(ot.expires_at) < new Date()) {
-      return null;
+    // If not found, attempt to resolve an onboarding redirect token without consuming it
+    if (!clinicId) {
+      clinicId = await resolveOnboardingToken(token);
+      if (!clinicId) {
+        return null;
+      }
     }
 
     const { data: clinicById, error: clinicByIdError } = await supabase
       .from('clinics')
       .select('*')
-      .eq('id', ot.clinic_id)
+      .eq('id', clinicId)
       .maybeSingle();
 
     if (clinicByIdError) {
@@ -127,7 +151,41 @@ async function getClinicByToken(token) {
       return null;
     }
 
-    return clinicById || null;
+    const resolvedClinic = clinicById || clinicRecord;
+    if (!resolvedClinic) {
+      return null;
+    }
+
+    const now = new Date();
+    const lastActiveAt = resolvedClinic.last_active_at ? new Date(resolvedClinic.last_active_at) : null;
+    const sessionExpiresAt = resolvedClinic.session_expires_at ? new Date(resolvedClinic.session_expires_at) : null;
+
+    if (sessionExpiresAt && sessionExpiresAt < now) {
+      console.warn(`Expired session for clinic ${token}`);
+      return null;
+    }
+
+    if (lastActiveAt) {
+      const inactivityLimit = new Date(now.getTime() - INACTIVITY_LOGOUT_HOURS * 60 * 60 * 1000);
+      if (lastActiveAt < inactivityLimit) {
+        console.warn(`Inactive session expired for clinic ${token}`);
+        return null;
+      }
+    }
+
+    const newExpiresAt = new Date(now.getTime() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000);
+    const updatePayload = {
+      last_active_at: now.toISOString(),
+      session_expires_at: newExpiresAt.toISOString(),
+    };
+
+    await supabase
+      .from('clinics')
+      .update(updatePayload)
+      .eq('id', resolvedClinic.id)
+      .throwOnError(false);
+
+    return resolvedClinic;
   } catch (err) {
     console.error('getClinicByToken unexpected error:', err);
     return null;
@@ -137,16 +195,117 @@ async function getClinicByToken(token) {
 async function createOnboardingRedirectToken(clinicId, originalToken = null) {
   const supabase = getSupabase();
   try {
+    const crypto = require('crypto');
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
-    const payload = { clinic_id: clinicId, original_token: originalToken, expires_at: expiresAt };
+    
+    // Generate and verify a unique token
+    let token = null;
+    let isUnique = false;
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    while (!isUnique && attempts < maxAttempts) {
+      // Generate UUID client-side
+      token = crypto.randomUUID();
+      
+      // Check if token already exists
+      const { data: existingToken, error: checkError } = await supabase
+        .from('onboarding_redirect_tokens')
+        .select('token')
+        .eq('token', token)
+        .maybeSingle();
+      
+      if (!checkError && !existingToken) {
+        isUnique = true;
+      }
+      attempts++;
+    }
+    
+    if (!isUnique) {
+      console.error('Failed to generate unique token after', maxAttempts, 'attempts');
+      return clinicId;
+    }
+    
+    const payload = { token, clinic_id: clinicId, original_token: originalToken, expires_at: expiresAt };
     const { data, error } = await supabase.from('onboarding_redirect_tokens').insert([payload]).select('token').maybeSingle();
     if (error) {
       console.error('createOnboardingRedirectToken error:', error);
+      if (error.code === 'PGRST205' || (error.message && error.message.includes('Could not find the table'))) {
+        console.warn('Onboarding redirect token table missing, falling back to clinic session token');
+        return clinicId;
+      }
       return null;
     }
-    return data?.token || null;
+    console.log('New onboarding redirect token created:', { clinic_id: clinicId, token: data?.token, expires_at: expiresAt });
+    return data?.token || clinicId;
   } catch (err) {
     console.error('createOnboardingRedirectToken unexpected error:', err);
+    return clinicId;
+  }
+}
+
+async function resolveOnboardingToken(token) {
+  if (!token) return null;
+  const supabase = getSupabase();
+
+  try {
+    const { data, error } = await supabase
+      .from('onboarding_redirect_tokens')
+      .select('clinic_id, expires_at, used')
+      .eq('token', token)
+      .maybeSingle();
+
+    if (error) {
+      console.error('resolveOnboardingToken error:', error);
+      return null;
+    }
+
+    if (!data || data.used === true) return null;
+    if (data.expires_at && new Date(data.expires_at) < new Date()) return null;
+
+    return data.clinic_id;
+  } catch (err) {
+    console.error('resolveOnboardingToken unexpected error:', err);
+    return null;
+  }
+}
+
+async function consumeOnboardingToken(token) {
+  if (!token) return null;
+  const supabase = getSupabase();
+
+  try {
+    const { data, error } = await supabase
+      .rpc('consume_onboarding_token', { p_token: token });
+
+    if (error) {
+      console.error('consumeOnboardingToken error:', error);
+      if (isMissingTableError(error) || (error.message && error.message.toLowerCase().includes('function') && error.message.toLowerCase().includes('does not exist'))) {
+        // Fall back to direct token lookup if the RPC function or table is not present yet.
+        const { data: fallbackToken, error: fallbackError } = await supabase
+          .from('onboarding_redirect_tokens')
+          .select('clinic_id, expires_at')
+          .eq('token', token)
+          .maybeSingle();
+
+        if (fallbackError) {
+          console.error('Fallback onboarding redirect token lookup failed:', fallbackError);
+          return null;
+        }
+
+        if (!fallbackToken) return null;
+        if (fallbackToken.expires_at && new Date(fallbackToken.expires_at) < new Date()) return null;
+        return fallbackToken.clinic_id;
+      }
+      return null;
+    }
+
+    const result = Array.isArray(data) ? data[0] : data;
+    if (!result || result.valid !== true) return null;
+
+    return result.clinic_id;
+  } catch (err) {
+    console.error('consumeOnboardingToken unexpected error:', err);
     return null;
   }
 }
@@ -159,16 +318,20 @@ async function countClinicSetupItems(token) {
   const supabase = getSupabase();
   let totalCount = 0;
 
+  console.log(`[countClinicSetupItems] Starting count for clinic: ${token}`);
+
   try {
     const { count: drugCount = 0, error: drugError } = await supabase
       .from('drugs')
       .select('id', { count: 'exact', head: true })
       .eq('clinic_id', token);
 
+    console.log(`[countClinicSetupItems] Drugs - count: ${drugCount}, error: ${drugError?.message || 'none'}`);
     if (!drugError) {
       totalCount += Number(drugCount) || 0;
     }
   } catch (error) {
+    console.log(`[countClinicSetupItems] Drugs - caught error: ${error.message}`);
     if (!isMissingTableError(error)) {
       console.error('countClinicSetupItems drugs error:', error);
     }
@@ -180,10 +343,12 @@ async function countClinicSetupItems(token) {
       .select('id', { count: 'exact', head: true })
       .eq('clinic_id', token);
 
+    console.log(`[countClinicSetupItems] Lab templates - count: ${templateCount}, error: ${templateError?.message || 'none'}`);
     if (!templateError) {
       totalCount += Number(templateCount) || 0;
     }
   } catch (error) {
+    console.log(`[countClinicSetupItems] Lab templates - caught error: ${error.message}`);
     if (!isMissingTableError(error)) {
       console.error('countClinicSetupItems lab_test_templates error:', error);
     }
@@ -195,10 +360,12 @@ async function countClinicSetupItems(token) {
       .select('id', { count: 'exact', head: true })
       .eq('clinic_id', token);
 
+    console.log(`[countClinicSetupItems] Billing items - count: ${billingItemCount}, error: ${billingItemError?.message || 'none'}`);
     if (!billingItemError) {
       totalCount += Number(billingItemCount) || 0;
     }
   } catch (error) {
+    console.log(`[countClinicSetupItems] Billing items - caught error: ${error.message}`);
     if (!isMissingTableError(error)) {
       console.error('countClinicSetupItems billing_items error:', error);
     }
@@ -212,10 +379,12 @@ async function countClinicSetupItems(token) {
         .select('id', { count: 'exact', head: true })
         .eq('clinic_id', token);
 
+      console.log(`[countClinicSetupItems] ${legacyTable} - count: ${count}, error: ${error?.message || 'none'}`);
       if (!error) {
         totalCount += Number(count) || 0;
       }
     } catch (error) {
+      console.log(`[countClinicSetupItems] ${legacyTable} - caught error: ${error.message}`);
       if (!isMissingTableError(error)) {
         console.error(`countClinicSetupItems legacy table ${legacyTable} error:`, error);
       }
@@ -259,27 +428,17 @@ function isClinicAdminPasswordChanged(clinic) {
 }
 
 async function selectClinicWithOptionalAdminFlag(supabase, token) {
-  const baseFields = 'name, set_up, subscription_balance, welcome_shown, is_first_login, wallet_balance, wallet_currency';
+  const baseFields = 'name, email, welcome_shown, is_first_login, wallet_balance, wallet_currency';
   let { data: clinic, error } = await supabase
     .from('clinics')
-    .select(`${baseFields}, admin_password_changed, password, owners_info`)
+    .select(`${baseFields}, owners_info`)
     .eq('id', token)
     .maybeSingle();
-
-  if (error && error.message && error.message.includes('admin_password_changed')) {
-    const fallback = await supabase
-      .from('clinics')
-      .select(`${baseFields}, password, owners_info`)
-      .eq('id', token)
-      .maybeSingle();
-    clinic = fallback.data;
-    error = fallback.error;
-  }
 
   if (error && isMissingColumnError(error)) {
     const fallback = await supabase
       .from('clinics')
-      .select('name, set_up, welcome_shown, is_first_login, admin_password_changed, password, owners_info')
+      .select('name, email, is_first_login, owners_info')
       .eq('id', token)
       .maybeSingle();
     clinic = fallback.data;
@@ -563,6 +722,15 @@ async function addEmployee(req) {
       const missingColumn = match[1];
       if (!(missingColumn in payload)) {
         return { data: null, error: insertError };
+      }
+
+      if (missingColumn === 'password') {
+        return {
+          data: null,
+          error: new Error(
+            'Database schema is missing the employees.password column. Apply the backend schema migration before adding employee passwords.'
+          ),
+        };
       }
 
       console.log(`[ADD EMPLOYEE] Removing missing column: ${missingColumn}`);
@@ -1766,41 +1934,35 @@ async function markWelcomeShown(req) {
 async function finishOnboarding(req) {
   const supabase = getSupabase();
   const token = getRequestToken(req);
+  console.log('finishOnboarding request token:', token);
   if (!token) return { success: false, message: 'Unauthorized' };
 
   const clinicObj = await getClinicByToken(token);
-  if (!clinicObj || !clinicObj.id) return { success: false, message: 'Session expired' };
-
-  let { data: clinic, error: clinicError } = await supabase
-    .from('clinics')
-    .select('id, is_first_login, admin_password_changed, password, owners_info')
-    .eq('id', clinicObj.id)
-    .maybeSingle();
-
-  if (clinicError && clinicError.message && clinicError.message.includes('admin_password_changed')) {
-    const fallback = await supabase
-      .from('clinics')
-      .select('id, is_first_login, password, owners_info')
-      .eq('id', clinicObj.id)
-      .maybeSingle();
-    clinic = fallback.data;
-    clinicError = fallback.error;
+  console.log('finishOnboarding clinicObj:', clinicObj && clinicObj.id ? clinicObj.id : clinicObj, 'token:', token);
+  if (!clinicObj || !clinicObj.id) {
+    console.error('finishOnboarding failed to resolve clinic token:', token);
+    return { success: false, message: 'Session expired', redirectTo: '/login' };
   }
 
+  const clinicId = clinicObj.id; // Use resolved clinic ID from now on
+
+  const { data: clinic, error: clinicError } = await selectClinicWithOptionalAdminFlag(supabase, clinicId);
   if (clinicError || !clinic) {
-    return { success: false, message: 'Session expired' };
+    console.error('finishOnboarding clinic selection failed:', { clinicError, clinic });
+    return { success: false, message: 'Session expired', redirectTo: '/login' };
   }
 
   const isAdminPasswordChanged = isClinicAdminPasswordChanged(clinic);
+  console.log('finishOnboarding admin password changed:', isAdminPasswordChanged, 'clinic id:', clinicId);
   if (!isAdminPasswordChanged) {
     return { success: false, message: 'Please change the default admin password before completing setup.' };
   }
 
   const [{ count: employeeCount = 0 } = {}, { count: drugCount = 0 } = {}] = await Promise.all([
-    supabase.from('employees').select('id', { count: 'exact', head: true }).eq('clinic_id', token),
-    supabase.from('drugs').select('id', { count: 'exact', head: true }).eq('clinic_id', token),
+    supabase.from('employees').select('id', { count: 'exact', head: true }).eq('clinic_id', clinicId),
+    supabase.from('drugs').select('id', { count: 'exact', head: true }).eq('clinic_id', clinicId),
   ]);
-  const facilityConfigCount = await countClinicSetupItems(token);
+  const facilityConfigCount = await countClinicSetupItems(clinicId);
 
   if (Number(employeeCount) < 1) {
     return { success: false, message: 'Add at least one employee before you complete setup.' };
@@ -1810,17 +1972,43 @@ async function finishOnboarding(req) {
     return { success: false, message: 'Add at least one drug, procedure, or lab test before you complete setup.' };
   }
 
+  console.log('finishOnboarding counts:', {
+    employeeCount,
+    drugCount,
+    facilityConfigCount,
+  });
+
+  // Update clinic to mark onboarding as complete
   const { error: updateError } = await supabase
     .from('clinics')
     .update({ is_first_login: false, welcome_shown: true, updated_at: new Date().toISOString() })
-    .eq('id', token);
+    .eq('id', clinicId);
+
+  if (updateError) {
+    console.error('Supabase finishOnboarding update error:', updateError);
+  }
 
   if (updateError) {
     console.error('Supabase finishOnboarding error:', updateError);
-    return { success: false, message: 'Failed to complete onboarding.' };
+    return { success: false, message: 'Failed to complete onboarding.', redirectTo: '/onboarding' };
   }
 
-  return { success: true, message: 'Onboarding completed successfully.' };
+  // Consume the token if it's a redirect token (mark as used)
+  if (token !== clinicId) {
+    try {
+      await supabase.rpc('consume_onboarding_token', { p_token: token }).catch(() => null);
+    } catch (err) {
+      console.warn('Failed to consume token during finishOnboarding:', err);
+      // Don't fail the onboarding just because token consumption failed
+    }
+  }
+
+  // Generate a new session token for dashboard redirect
+  const dashboardToken = await createOnboardingRedirectToken(clinicId, clinicId);
+  const redirectTo = `/dashboard?token=${dashboardToken}`;
+
+  console.log('Onboarding finished for clinic:', clinicId, '- redirecting to:', redirectTo);
+  return { success: true, message: 'Onboarding completed successfully.', redirectTo };
 }
 
 async function fetchAdminData(req) {
@@ -1915,12 +2103,11 @@ async function verifySecurity(req) {
     return {
       success: false,
       message: 'Session expired',
-      error: 'Session expired',
+      error: 'Token required',
       clinic_session_token: null,
     };
   }
 
-  // Resolve the token (supports ephemeral onboarding redirect tokens)
   const clinicObj = await getClinicByToken(token);
   if (!clinicObj || !clinicObj.id) {
     return {
@@ -1936,15 +2123,21 @@ async function verifySecurity(req) {
     supabase.from('drugs').select('id', { count: 'exact', head: true }).eq('clinic_id', clinicObj.id),
   ]);
 
+  console.log(`[verifySecurity] Clinic: ${clinicObj.id}`);
+  console.log(`[verifySecurity] Employee count: ${employeeCount}`);
+  console.log(`[verifySecurity] Drug count: ${drugCount}`);
   const facilityConfigCount = await countClinicSetupItems(clinicObj.id);
+  console.log(`[verifySecurity] Facility config count: ${facilityConfigCount}`);
   const clinic = clinicObj;
 
   return {
     success: true,
     message: 'Session valid',
     clinic_session_token: clinicObj.id,
-    employee_name: 'Admin',
     clinic: clinic.name,
+    session_expires_at: clinic.session_expires_at || null,
+    last_active_at: clinic.last_active_at || null,
+    employee_name: 'Admin',
     district: 'Uganda',
     owners_contact: clinic.ownerscontact || clinic.owners_info?.contacts?.[0] || '',
     town: clinic.town || clinic.address?.town || clinic.address?.city || '',
@@ -1997,7 +2190,8 @@ async function dashboardToken(req) {
   if (createRedirect) {
     const redirectToken = await createOnboardingRedirectToken(clinic.id, token);
     if (!redirectToken) {
-      return { success: false, message: 'Failed to create redirect token', token: null };
+      console.warn('dashboardToken: redirect token creation failed, falling back to clinic session token');
+      return { success: true, token: clinic.id };
     }
     return { success: true, token: redirectToken };
   }
@@ -2008,17 +2202,59 @@ async function dashboardToken(req) {
   };
 }
 
+async function refreshToken(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+
+  if (!token) {
+    return { success: false, message: 'Token required' };
+  }
+
+  const clinic = await getClinicByToken(token);
+  if (!clinic || !clinic.id) {
+    return { success: false, message: 'Session expired' };
+  }
+
+  const createNewRedirect = req.body?.createRedirect === true;
+  let newToken = clinic.id;
+
+  if (createNewRedirect) {
+    newToken = await createOnboardingRedirectToken(clinic.id, clinic.id);
+  }
+
+  return {
+    success: true,
+    message: 'Token refreshed successfully',
+    clinic_session_token: newToken,
+    session_expires_at: clinic.session_expires_at,
+    last_active_at: new Date().toISOString(),
+  };
+}
+
 async function logout(req) {
   const token = getRequestToken(req);
 
   if (!token) {
     return {
-      success: false,
-      message: 'Token required',
+      success: true,
+      message: 'Logged out',
     };
   }
 
-  // Session is stateless for legacy compatibility; accept the logout and clear client state.
+  const supabase = getSupabase();
+
+  try {
+    await supabase
+      .from('clinics')
+      .update({ 
+        session_expires_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        last_active_at: new Date().toISOString(),
+      })
+      .eq('id', token);
+  } catch (err) {
+    console.warn('Logout session expiry failed (non-critical):', err.message);
+  }
+
   return {
     success: true,
     message: 'Logged out successfully',
@@ -2623,18 +2859,38 @@ async function code(req) {
     return { success: false, result: 'no', message: 'Session expired' };
   }
 
-  const { data: employeeRecord, error: employeeError } = await supabase
+  let employeeRecord = null;
+  let employeeError = null;
+
+  const employeeQuery = await supabase
     .from('employees')
     .select('id, login_code, password')
     .eq('clinic_id', token)
     .ilike('name', employee)
     .maybeSingle();
 
+  employeeRecord = employeeQuery.data;
+  employeeError = employeeQuery.error;
+
+  if (employeeError && isMissingColumnError(employeeError)) {
+    const fallbackQuery = await supabase
+      .from('employees')
+      .select('id, login_code')
+      .eq('clinic_id', token)
+      .ilike('name', employee)
+      .maybeSingle();
+
+    employeeRecord = fallbackQuery.data;
+    employeeError = fallbackQuery.error;
+  }
+
   if (employeeError || !employeeRecord) {
     return { success: false, result: 'no', message: 'Employee not found' };
   }
 
-  const isValidPassword = await verifyPassword(securityCode, employeeRecord.password);
+  const isValidPassword = employeeRecord.password
+    ? await verifyPassword(securityCode, employeeRecord.password)
+    : false;
   const isValidLoginCode = employeeRecord.login_code === securityCode;
 
   if (!isValidPassword && !isValidLoginCode) {
@@ -3188,6 +3444,7 @@ const endpointMap = {
   clearunconditionally: clearUnconditionally,
   birthdaycount: birthdayCount,
   dashboardtoken: dashboardToken,
+  refreshtoken: refreshToken,
   logout: logout,
   testsavailable: fetchAvailableLabTests,
   radiologytestsavailable: fetchAvailableRadiologyTests,
@@ -3288,3 +3545,46 @@ router.all('/:endpoint.php', async (req, res) => {
 });
 
 module.exports = router;
+
+// Cleanup job: delete expired onboarding redirect tokens periodically
+async function cleanupExpiredOnboardingTokens() {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .rpc('cleanup_expired_onboarding_tokens');
+
+    if (error) {
+      console.error('Cleanup function error:', error);
+      if (isMissingTableError(error) || (error.message && error.message.toLowerCase().includes('function') && error.message.toLowerCase().includes('does not exist'))) {
+        const now = new Date().toISOString();
+        // Delete expired tokens (expires_at < now) OR used tokens older than 7 days
+        const { data: deletedData, error: fallbackError } = await supabase
+          .from('onboarding_redirect_tokens')
+          .delete()
+          .or(`expires_at.lt.${now},and(used.eq.true,used_at.lt.${new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()})`);
+
+        if (fallbackError) {
+          console.error('Failed fallback cleanup of expired onboarding redirect tokens:', fallbackError);
+        } else {
+          console.log('Fallback cleanup: removed expired onboarding redirect tokens');
+        }
+        return;
+      }
+      return;
+    }
+
+    const deletedCount = Array.isArray(data) && data.length > 0 ? data[0].deleted_count : null;
+    console.log(`Cleanup: removed ${deletedCount !== null ? deletedCount : 'unknown'} expired onboarding redirect tokens (tokens older than 1 hour and used tokens older than 7 days)`);
+  } catch (err) {
+    console.error('Cleanup job error:', err);
+  }
+}
+
+function startOnboardingCleanupJob(intervalMs = 15 * 60 * 1000) {
+  // Run immediately then schedule
+  cleanupExpiredOnboardingTokens().catch(() => {});
+  const id = setInterval(() => cleanupExpiredOnboardingTokens().catch(() => {}), intervalMs);
+  return id;
+}
+
+module.exports.startOnboardingCleanupJob = startOnboardingCleanupJob;
