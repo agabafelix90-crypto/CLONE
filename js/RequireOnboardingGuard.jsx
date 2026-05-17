@@ -17,8 +17,6 @@ const onboardingAllowedPaths = [
 ];
 
 const adminPasswordRequiredPaths = [
-  '/employeesettings',
-  '/employee-settings',
   '/adddrug',
   '/labTests',
   '/radiology',

@@ -51,15 +51,79 @@ CREATE INDEX idx_clinics_created_at ON clinics(created_at);
 -- Onboarding redirect tokens (ephemeral tokens used for onboarding/login redirects)
 DROP TABLE IF EXISTS onboarding_redirect_tokens CASCADE;
 CREATE TABLE onboarding_redirect_tokens (
-  token UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  token UUID DEFAULT gen_random_uuid() UNIQUE NOT NULL,
   clinic_id UUID NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
   original_token TEXT, -- previous token value for comparison/trace
+  used BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  expires_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + INTERVAL '1 hour')
+  expires_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + INTERVAL '1 hour'),
+  used_at TIMESTAMP WITH TIME ZONE,
+  created_from_ip TEXT
 );
 
+CREATE INDEX idx_onboarding_tokens_token ON onboarding_redirect_tokens(token);
 CREATE INDEX idx_onboarding_tokens_clinic ON onboarding_redirect_tokens(clinic_id);
 CREATE INDEX idx_onboarding_tokens_expires_at ON onboarding_redirect_tokens(expires_at);
+CREATE INDEX idx_onboarding_tokens_expires_unused ON onboarding_redirect_tokens(expires_at, used) WHERE used = false;
+CREATE INDEX idx_onboarding_tokens_clinic_active ON onboarding_redirect_tokens(clinic_id, expires_at, used) WHERE used = false;
+
+ALTER TABLE onboarding_redirect_tokens ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "clinic_members_can_view_own_tokens"
+  ON onboarding_redirect_tokens
+  FOR SELECT
+  USING (
+    clinic_id IN (
+      SELECT clinic_id
+      FROM profiles
+      WHERE id = auth.uid() AND clinic_id IS NOT NULL
+    )
+  );
+
+CREATE POLICY "clinic_admins_can_create_tokens"
+  ON onboarding_redirect_tokens
+  FOR INSERT
+  WITH CHECK (
+    clinic_id IN (
+      SELECT clinic_id
+      FROM profiles
+      WHERE id = auth.uid()
+        AND clinic_id IS NOT NULL
+        AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "authenticated_users_can_mark_token_used"
+  ON onboarding_redirect_tokens
+  FOR UPDATE
+  USING (
+    clinic_id IN (
+      SELECT clinic_id
+      FROM profiles
+      WHERE id = auth.uid() AND clinic_id IS NOT NULL
+    )
+  )
+  WITH CHECK (
+    clinic_id IN (
+      SELECT clinic_id
+      FROM profiles
+      WHERE id = auth.uid() AND clinic_id IS NOT NULL
+    )
+  );
+
+CREATE POLICY "clinic_admins_can_delete_tokens"
+  ON onboarding_redirect_tokens
+  FOR DELETE
+  USING (
+    clinic_id IN (
+      SELECT clinic_id
+      FROM profiles
+      WHERE id = auth.uid()
+        AND clinic_id IS NOT NULL
+        AND role = 'admin'
+    )
+  );
 
 -- Profiles table (extends auth.users - users who can access the system)
 DROP TABLE IF EXISTS profiles CASCADE;

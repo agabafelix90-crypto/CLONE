@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { urls } from './config.dev';
 import { useNavigate } from 'react-router-dom';
 import { resolveTheme, parseThemeFromSearch } from './themeUtils';
+import { getAuthConfig, getVerifiedToken } from './authUtils';
 import html2pdf from 'html2pdf.js';
 import Topbar from './Topbar';
 
@@ -75,8 +76,7 @@ function Malariagraph() {
   const [graphAgeDisplay, setGraphAgeDisplay] = useState({ min: 0, max: 120 });
 
   const navigate = useNavigate();
-  const params = new URLSearchParams(window.location.search);
-  const tokenFromUrl = params.get('token');
+  const token = getVerifiedToken();
   const urlTheme = parseThemeFromSearch(window.location.search);
 
   // ── Theme ──────────────────────────────────────────────────────────────────
@@ -147,45 +147,39 @@ function Malariagraph() {
     tableWrapper: { background: theme.cardBg, border: `1px solid ${theme.cardBorder}`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' },
   };
 
-  // ── Token helper ───────────────────────────────────────────────────────────
-  const getToken = () => {
-    const p = new URLSearchParams(window.location.search);
-    return p.get('token') || localStorage.getItem('token');
-  };
-
   // ── Security check (runs once) ─────────────────────────────────────────────
   useEffect(() => {
-    const token = getToken();
     performSecurityCheck(token);
-  }, []);
+  }, [token]);
 
   // Theme fetch (runs once)
   useEffect(() => {
-    if (!tokenFromUrl) return;
+    if (!token) return;
     (async () => {
       try {
-        const res = await fetch(urls.security, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: tokenFromUrl }) });
+        const res = await fetch(urls.security, getAuthConfig({
+          method: 'POST',
+          body: JSON.stringify({ token }),
+        }));
         if (res.ok) {
           const data = await res.json();
           const themeColor = data.colour || '';
-            setCurrentTheme(resolveTheme(urlTheme, themeColor));
+          setCurrentTheme(resolveTheme(urlTheme, themeColor));
           setEmployeeName(data.employee_name || '');
           setClinicName(data.clinic || '');
         }
       } catch (e) { console.error(e); }
     })();
-  }, [tokenFromUrl]);
+  }, [token, urlTheme]);
 
   // ── Re-fetch when filters change (NO full page refresh) ───────────────────
   useEffect(() => {
-    const token = getToken();
     if (viewMode === 'statistics') fetchAllDiseasesStatistics(token);
-  }, [viewMode, statsStartDate, statsEndDate, statsAgeRange, selectedDiseaseId]);
+  }, [viewMode, statsStartDate, statsEndDate, statsAgeRange, selectedDiseaseId, token]);
 
   useEffect(() => {
-    const token = getToken();
     if (viewMode === 'bargraph') fetchBarGraphData(token);
-  }, [viewMode, graphStartDate, graphEndDate, graphAgeRange, selectedSex, selectedDiseaseId]);
+  }, [viewMode, graphStartDate, graphEndDate, graphAgeRange, selectedSex, selectedDiseaseId, token]);
 
   // Animate rows when disease stats update
   useEffect(() => {
@@ -199,7 +193,10 @@ function Malariagraph() {
   const performSecurityCheck = async (token) => {
     try {
       setLoading(true);
-      const res = await fetch(urls.security, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+      const res = await fetch(urls.security, getAuthConfig({
+        method: 'POST',
+        body: JSON.stringify({ token }),
+      }));
       if (res.ok) {
         const data = await res.json();
         if (data.message === 'Session valid') {
@@ -217,11 +214,10 @@ function Malariagraph() {
   const fetchAllDiseasesStatistics = async (token) => {
     try {
       setLoading(true);
-      const res = await fetch(urls.fetchalldiseasestatitics, {
+      const res = await fetch(urls.fetchalldiseasestatitics, getAuthConfig({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, startDate: statsStartDate, endDate: statsEndDate, ageRange: statsAgeRange, diseaseId: selectedDiseaseId || undefined }),
-      });
+      }));
       const data = await res.json();
       if (data.error) { setDataAvailable(false); return; }
       setPatientDetails(data.patient_details || []);
@@ -238,11 +234,10 @@ function Malariagraph() {
   const fetchBarGraphData = async (token) => {
     try {
       setLoading(true);
-      const res = await fetch(urls.diseasebargraph, {
+      const res = await fetch(urls.diseasebargraph, getAuthConfig({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, ageRange: graphAgeRange, sex: selectedSex, startDate: graphStartDate, endDate: graphEndDate, diseaseId: selectedDiseaseId || 1 }),
-      });
+      }));
       const data = await res.json();
       if (data.error) { setDataAvailable(false); return; }
       const counts = new Array(12).fill(0);
@@ -805,7 +800,7 @@ function Malariagraph() {
         input[type="date"]:focus,input[type="number"]:focus,select:focus{border-color:#3b82f6!important;box-shadow:0 0 0 3px rgba(59,130,246,.2)!important}
       `}</style>
 
-      <div style={{ width: '100%' }}><Topbar token={tokenFromUrl} themeColor={currentTheme} /></div>
+      <div style={{ width: '100%' }}><Topbar token={token} themeColor={currentTheme} /></div>
 
       <div style={{ display: 'flex', flex: 1, minHeight: 0, marginTop: '64px' }}>
 

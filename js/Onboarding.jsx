@@ -140,10 +140,19 @@ function Onboarding() {
       const data = await res.json().catch(() => null);
       if (res.ok && data?.success) {
         toast.success('Onboarding completed. Redirecting to dashboard...');
-        navigate(`/dashboard?token=${token}`);
+        // Use redirectTo from backend if provided, otherwise default to dashboard
+        const redirectPath = data.redirectTo || `/dashboard?token=${token}`;
+        setTimeout(() => navigate(redirectPath), 500); // Small delay to let success message show
       } else {
         if (isSessionExpiredResponse(res, data)) {
-          handleInvalidSession(navigate, window.location.pathname + window.location.search);
+          // Auto-redirect to previous page on session expiry
+          handleInvalidSession(navigate);
+          return;
+        }
+        // If redirectTo is provided (e.g., redirect to login on session expired), handle it
+        if (data?.redirectTo) {
+          toast.error(data?.message || 'Session expired. Redirecting to login...');
+          setTimeout(() => navigate(data.redirectTo), 1500);
           return;
         }
         toast.error(data?.message || data?.error || 'Complete all required setup steps before continuing.');
@@ -156,12 +165,24 @@ function Onboarding() {
     }
   };
 
+  const buildAuthenticatedPath = (path) => {
+    if (!token) return path;
+    const params = new URLSearchParams({ token });
+    return `${path}?${params.toString()}`;
+  };
+
   const handleQuickNavigate = (path) => {
     if (!token) {
       toast.error('Token missing. Please refresh the page and try again.');
       return;
     }
-    navigate(`${path}?token=${token}`);
+
+    const targetUrl = buildAuthenticatedPath(path);
+    if (typeof window !== 'undefined') {
+      window.location.assign(targetUrl);
+    } else {
+      navigate(targetUrl);
+    }
   };
 
   const canComplete =
@@ -216,7 +237,7 @@ function Onboarding() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
                   <button
-                    onClick={() => navigate(`/settings?token=${token}`)}
+                    onClick={() => handleQuickNavigate('/settings')}
                     style={{
                       borderRadius: '12px',
                       border: '1px solid #9d174d',
@@ -346,13 +367,13 @@ function Onboarding() {
               <h3 style={{ margin: '0 0 14px', fontSize: '18px', color: '#111827' }}>Quick actions</h3>
               <div style={{ display: 'grid', gap: '12px' }}>
                 <button
-                  onClick={() => navigate(`/employeesettings?token=${token}`)}
+                  onClick={() => handleQuickNavigate('/employeesettings')}
                   style={{ width: '100%', borderRadius: '12px', border: '1px solid #4338ca', background: '#ffffff', color: '#4338ca', padding: '14px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   Go to Employee Settings
                 </button>
                 <button
-                  onClick={() => navigate(`/settings?token=${token}`)}
+                  onClick={() => handleQuickNavigate('/settings')}
                   style={{ width: '100%', borderRadius: '12px', border: '1px solid #9d174d', background: '#ffffff', color: '#9d174d', padding: '14px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   Change Admin Password

@@ -63,6 +63,16 @@ app.get('/api/health', (req, res) => {
 app.use('/api/google', googleRouter);
 app.use('/', legacyRouter);
 
+// Start onboarding tokens cleanup job if available
+if (typeof legacyRouter.startOnboardingCleanupJob === 'function') {
+  try {
+    legacyRouter.startOnboardingCleanupJob();
+    console.log('Started onboarding redirect token cleanup job');
+  } catch (err) {
+    console.warn('Could not start onboarding cleanup job:', err);
+  }
+}
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({

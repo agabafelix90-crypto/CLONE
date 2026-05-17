@@ -1,33 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { urls } from './config.dev';
 import { useNavigate } from 'react-router-dom';
+import { getAuthConfig, getVerifiedToken } from './authUtils';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AnnualAsessment from './AnnualAsessment';
-import { useLocation } from "react-router-dom";
 import './Statistics.css';
-
-function getTokenFromUrlOrLocalStorage() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const tokenFromUrl = urlParams.get('token');
-  return tokenFromUrl || localStorage.getItem('token');
-}
 
 function Statistics() {
   const navigate = useNavigate();
+  const token = getVerifiedToken();
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [statisticsData, setStatisticsData] = useState(null);
-  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isAnnualAsessmentOpen, setIsAnnualAsessmentOpen] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const urlToken = params.get("token");
-    setToken(urlToken);
-  }, [location]);
 
   const openAnnualAsessment = () => {
     setIsAnnualAsessmentOpen(true);
@@ -39,13 +26,10 @@ function Statistics() {
 
   const performSecurityCheck = async (token) => {
     try {
-      const securityResponse = await fetch(urls.security, {
+      const securityResponse = await fetch(urls.security, getAuthConfig({
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ token }),
-      });
+      }));
 
       if (securityResponse.ok) {
         const securityData = await securityResponse.json();
@@ -74,13 +58,10 @@ function Statistics() {
         year: year,
       };
 
-      const response = await fetch(`${urls.statistics}`, {
+      const response = await fetch(`${urls.statistics}`, getAuthConfig({
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(payload),
-      });
+      }));
 
       if (response.ok) {
         const data = await response.json();
@@ -101,9 +82,8 @@ function Statistics() {
   };
 
   useEffect(() => {
-    const token = getTokenFromUrlOrLocalStorage();
     performSecurityCheck(token);
-  }, [month, year]);
+  }, [month, year, token]);
 
   const calculateTotals = () => {
     if (!statisticsData) return;
@@ -177,13 +157,10 @@ function Statistics() {
     };
   
     try {
-      const response = await fetch(`${urls.printstatistics}`, {
+      const response = await fetch(`${urls.printstatistics}`, getAuthConfig({
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(payload),
-      });
+      }));
   
       if (response.ok) {
         const blob = await response.blob();

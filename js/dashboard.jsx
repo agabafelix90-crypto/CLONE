@@ -907,7 +907,7 @@ PQIDAQAB
             const confirmed = window.confirm('Sorry, your subscription expired. Please press OK to proceed and make a payment.');
             if (confirmed) window.location.href = data.redirectUrl;
           } else {
-            toast.warning('Permission not granted. Please contact clinic pro customer care for help.');
+            toast.warning(data.message || 'Permission not granted. Please contact the administrator.');
           }
         } else {
           const errorData = await response.json();

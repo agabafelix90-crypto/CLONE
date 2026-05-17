@@ -3,6 +3,7 @@ import { urls } from './config.dev';
 import { useNavigate } from 'react-router-dom';
 import { resolveTheme, parseThemeFromSearch } from './themeUtils';
 import Topbar from './Topbar';
+import { getAuthConfig, getVerifiedToken } from './authUtils';
 
 // ─── DESIGN TOKENS ───────────────────────────────────────────────────────────
 const colors = {
@@ -503,8 +504,7 @@ function DispensedSoldDrugs() {
   const [useExpiryDate, setUseExpiryDate] = useState('no');
 
   const navigate = useNavigate();
-  const params = new URLSearchParams(window.location.search);
-  const tokenFromUrl = params.get('token');
+  const token = getVerifiedToken();
   const urlTheme = parseThemeFromSearch(window.location.search);
 
   // Get the active theme colors
@@ -576,13 +576,12 @@ function DispensedSoldDrugs() {
         if (searchDate) queryParams.append('date', searchDate);
         if (isFilterApplied && selectedEmployee) queryParams.append('employee', selectedEmployee);
 
-        const response = await fetch(`${urls.dispensedsold}?${queryParams.toString()}`, {
+        const requestConfig = getAuthConfig({
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token: token || tokenFromUrl }),
+          body: JSON.stringify({ token }),
         });
+
+        const response = await fetch(`${urls.dispensedsold}?${queryParams.toString()}`, requestConfig);
 
         const data = await response.json();
 
@@ -611,11 +610,11 @@ function DispensedSoldDrugs() {
       }
     };
 
-    const token = tokenFromUrl || localStorage.getItem('token');
-    performSecurityCheck(token).then((securityPassed) => {
-      if (securityPassed) fetchDispensedSoldData(token);
+    const authToken = getVerifiedToken();
+    performSecurityCheck(authToken).then((securityPassed) => {
+      if (securityPassed) fetchDispensedSoldData(authToken);
     });
-  }, [searchDate, isFilterApplied, selectedEmployee, navigate, tokenFromUrl, initialEmployees.length]);
+  }, [searchDate, isFilterApplied, selectedEmployee, navigate, initialEmployees.length, token]);
 
   // ── Avatar initials ───────────────────────────────────────────────────────
   const initials = (name) => {
@@ -1007,7 +1006,7 @@ function DispensedSoldDrugs() {
         }}>
           
           {/* Topbar with theme */}
-          <Topbar token={tokenFromUrl} themeColor={currentTheme} />
+          <Topbar token={token} themeColor={currentTheme} />
 
           {/* Secondary Header */}
           <div style={{

@@ -1,11 +1,19 @@
 import { urls } from './config.dev';
 
-export const SESSION_TOKEN_KEY = 'clinic_session_token';
+/*
+ * Token model and security notes:
+ * - Auth tokens are persisted only in localStorage under the legacy key 'token'.
+ * - sessionStorage is no longer used for auth token persistence.
+ * - URL tokens are accepted once on initial load and stripped from the address bar
+ *   when getTokenFromUrlOrSession({ stripUrl: true }) resolves them.
+ * - Application code must use centralized helpers instead of direct
+ *   localStorage.getItem('token') access.
+ * - Tokens must be cleared from both URL and storage on logout/invalid session.
+ */
+
 export const LEGACY_TOKEN_KEY = 'token';
-export const SESSION_TOKEN_TIMESTAMP_KEY = 'clinic_session_token_timestamp';
 export const EMPLOYEE_SESSION_TIMESTAMP_KEY = 'employee_session_timestamp';
 export const REDIRECT_AFTER_LOGIN_KEY = 'redirect_after_login';
-const CLINIC_SESSION_TTL_MS = 60 * 60 * 1000; // 1 hour storage retention for expired tokens
 const EMPLOYEE_SESSION_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 const sanitizeToken = (value) => {
@@ -17,25 +25,7 @@ const sanitizeToken = (value) => {
 
 export const getStoredToken = () => {
   try {
-    const storedToken = sanitizeToken(sessionStorage.getItem(SESSION_TOKEN_KEY)) || sanitizeToken(localStorage.getItem(LEGACY_TOKEN_KEY));
-    const timestampValue = sessionStorage.getItem(SESSION_TOKEN_TIMESTAMP_KEY) || localStorage.getItem(SESSION_TOKEN_TIMESTAMP_KEY);
-    const timestamp = Number(timestampValue);
-
-    if (!storedToken) {
-      return '';
-    }
-
-    if (!Number.isFinite(timestamp)) {
-      clearSessionToken();
-      return '';
-    }
-
-    if (Date.now() - timestamp > CLINIC_SESSION_TTL_MS) {
-      clearSessionToken();
-      return '';
-    }
-
-    return storedToken;
+    return sanitizeToken(localStorage.getItem(LEGACY_TOKEN_KEY));
   } catch (error) {
     console.error('Unable to read stored token:', error);
     return '';
@@ -46,11 +36,7 @@ export const saveSessionToken = (token) => {
   const cleanToken = sanitizeToken(token);
   if (!cleanToken) return;
   try {
-    const now = Date.now().toString();
-    sessionStorage.setItem(SESSION_TOKEN_KEY, cleanToken);
     localStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
-    sessionStorage.setItem(SESSION_TOKEN_TIMESTAMP_KEY, now);
-    localStorage.setItem(SESSION_TOKEN_TIMESTAMP_KEY, now);
   } catch (error) {
     console.error('Unable to save session token:', error);
   }
@@ -86,10 +72,7 @@ export const clearEmployeeSessionActivity = () => {
 
 export const clearSessionToken = () => {
   try {
-    sessionStorage.removeItem(SESSION_TOKEN_KEY);
-    sessionStorage.removeItem(SESSION_TOKEN_TIMESTAMP_KEY);
     localStorage.removeItem(LEGACY_TOKEN_KEY);
-    localStorage.removeItem(SESSION_TOKEN_TIMESTAMP_KEY);
     clearEmployeeSessionActivity();
   } catch (error) {
     console.error('Unable to clear session token:', error);
@@ -115,19 +98,75 @@ export const isSessionExpiredResponse = (response, data) => {
   return message.includes('session expired') || message.includes('unauthorized');
 };
 
-export const getTokenFromUrlOrSession = ({ stripUrl = false } = {}) => {
+export const getTokenFromUrlOrSession = ({ stripUrl = true } = {}) => {
   try {
     const params = new URLSearchParams(window.location.search);
     const urlToken = sanitizeToken(params.get('token'));
-    if (stripUrl && urlToken) {
-      clearTokenFromUrl();
+    if (urlToken) {
+      saveSessionToken(urlToken);
+      if (stripUrl) {
+        clearTokenFromUrl();
+      }
+      return urlToken;
     }
-    return urlToken || getStoredToken();
   } catch (error) {
     console.error('Unable to parse token from URL:', error);
-    return getStoredToken();
+  }
+
+  return getStoredToken();
+};
+
+export const getVerifiedToken = () => getTokenFromUrlOrSession({ stripUrl: true });
+
+export const getAuthConfig = (options = {}) => {
+  const token = getVerifiedToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return { ...options, headers };
+};
+
+export const createAuthenticatedRequest = (input, init = {}) => fetch(input, getAuthConfig(init));
+
+export const refreshSessionToken = async ({ createRedirect = false } = {}) => {
+  const token = getVerifiedToken();
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(urls.refreshtoken, getAuthConfig({
+      method: 'POST',
+      body: JSON.stringify({ token, createRedirect }),
+    }));
+
+    const data = await response.json().catch(() => null);
+    if (response.ok && data?.success && data.clinic_session_token) {
+      saveSessionToken(data.clinic_session_token);
+      return data;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Unable to refresh session token:', error);
+    return null;
   }
 };
+
+export const startSessionRefresher = (intervalMs = 30 * 60 * 1000) => {
+  const timerId = setInterval(async () => {
+    await refreshSessionToken();
+  }, intervalMs);
+  return () => clearInterval(timerId);
+};
+
+if (typeof window !== 'undefined') {
+  startSessionRefresher();
+}
 
 export const saveRedirectAfterLogin = (path) => {
   try {
@@ -168,7 +207,17 @@ export const handleInvalidSession = (navigate, redirectPath = null) => {
       saveRedirectAfterLogin(redirectPath);
     }
   }
-  navigate('/login', { replace: true });
+    // If no redirect path is provided, go back to the previous page instead of forcing login.
+    try {
+      if (!redirectPath && typeof navigate === 'function') {
+        navigate(-1);
+        return;
+      }
+    } catch (e) {
+      // Fallback to login page if history navigation fails
+    }
+
+    navigate('/login', { replace: true });
 };
 
 export const handleLogout = (navigate, redirectTo = '/login', replace = true) => {
@@ -216,6 +265,22 @@ export const verifySession = async (token, signal) => {
     }
 
     const isValid = data?.message === 'Session valid' && !!data?.clinic_session_token;
+
+    if (data?.clinic_session_token && data.clinic_session_token !== token) {
+      saveSessionToken(data.clinic_session_token);
+      try {
+        if (typeof window !== 'undefined') {
+          const currentUrl = new URL(window.location.href);
+          const urlToken = sanitizeToken(currentUrl.searchParams.get('token'));
+          if (urlToken && urlToken === token) {
+            currentUrl.searchParams.set('token', data.clinic_session_token);
+            window.history.replaceState({}, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
+          }
+        }
+      } catch (error) {
+        console.warn('Unable to normalize token URL after session verification:', error);
+      }
+    }
 
     return {
       valid: isValid,
