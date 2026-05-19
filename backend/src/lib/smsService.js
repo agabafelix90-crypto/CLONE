@@ -13,7 +13,7 @@ function normalizePhoneNumber(phone) {
 function getGeniusCredentials() {
   const username = process.env.GENIUS_SMS_USERNAME || 'Felix';
   const password = process.env.GENIUS_SMS_PASSWORD || '7THW82P9A3R3PuU';
-  const from = process.env.GENIUS_SMS_FROM || 'ClinicPro';
+  const from = process.env.GENIUS_SMS_FROM || 'MEDCORE';
 
   return { username, password, from };
 }

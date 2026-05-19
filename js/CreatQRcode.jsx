@@ -41,7 +41,7 @@ function CreatQRcode() {
     if (clinicName) {
       // Replace spaces with %20
       const formattedClinicName = clinicName.replace(/ /g, '%20');
-      const qrLink = `https://clinicprosystem.com/submitsuggestion/${formattedClinicName}`;
+      const qrLink = `https://MEDCORE.com/submitsuggestion/${formattedClinicName}`;
       setQrCode(qrLink);
     }
   };
@@ -171,3 +171,4 @@ const styles = {
 };
 
 export default CreatQRcode;
+

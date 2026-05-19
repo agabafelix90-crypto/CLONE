@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { urls } from './config.dev';
-import { getTokenFromUrlOrSession, saveSessionToken, handleLogout } from './authUtils';
+import { getTokenFromUrlOrSession, saveSessionToken, saveEmployeeSessionActivity, handleLogout } from './authUtils';
 import EmployeeOfTheMonth from './EmployeeOfTheMonth';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -176,7 +176,7 @@ const WelcomeModal = ({ onClose }) => (
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         marginBottom: '20px', borderBottom: '2px solid #001969', paddingBottom: '10px'
       }}>
-        <h2 style={{ margin: 0, color: '#001969' }}>Welcome to Clinic Pro System</h2>
+        <h2 style={{ margin: 0, color: '#001969' }}>Welcome to MEDCORE System</h2>
         <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#666' }}>
           <FontAwesomeIcon icon={faTimes} className="radiating-icon" style={{ color: '#666' }} />
         </button>
@@ -184,7 +184,7 @@ const WelcomeModal = ({ onClose }) => (
       <div>
         <div style={{ marginBottom: '20px' }}>
           <h3 style={{ color: '#001969' }}>🎉 Getting Started</h3>
-          <p>Welcome to your new Clinic Pro system! We're excited to help you streamline your clinic operations.</p>
+          <p>Welcome to your new MEDCORE System! We're excited to help you streamline your clinic operations.</p>
         </div>
         <div style={{ marginBottom: '20px' }}>
           <h3 style={{ color: '#001969' }}>🚀 Complete Setup Guide</h3>
@@ -237,7 +237,7 @@ const WelcomeModal = ({ onClose }) => (
           cursor: 'pointer', marginBottom: '10px'
         }}>Get Started</button>
         <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
-          For support contact: +256786747733 | DeepMind E-Systems
+          For support contact: +256700123457 | MEDCORE Systems
         </p>
       </div>
     </div>
@@ -796,6 +796,7 @@ PQIDAQAB
           if (permitResponse.ok) {
             const permitData = await permitResponse.json();
             if (permitData.result === 'yes') {
+              saveEmployeeSessionActivity();
               const loginToken = permitData.login_token;
               const routeMap = {
                 'access-laboratory':   `/access-laboratory/?token=${loginToken}&employee=${encodeURIComponent(selectedEmployee)}&theme=${selectedEmployeeTheme}`,
@@ -858,6 +859,7 @@ PQIDAQAB
           if (permitResponse.ok) {
             const permitData = await permitResponse.json();
             if (permitData.result === 'yes') {
+              saveEmployeeSessionActivity();
               const loginToken = permitData.login_token;
               navigate(`/${sidebarAction}/?token=${loginToken}&employee=${encodeURIComponent(selectedEmployee)}&theme=${sidebarEmployeeTheme}`);
             } else if (permitData.redirectUrl) {
@@ -906,12 +908,24 @@ PQIDAQAB
           } else if (data.redirectUrl) {
             const confirmed = window.confirm('Sorry, your subscription expired. Please press OK to proceed and make a payment.');
             if (confirmed) window.location.href = data.redirectUrl;
+          } else if (data.success === false) {
+            // Backend returned an error but with 200 status
+            const errorMsg = data.message || data.error || 'Invalid admin password. Please try again.';
+            toast.error(errorMsg);
           } else {
             toast.warning(data.message || 'Permission not granted. Please contact the administrator.');
           }
         } else {
-          const errorData = await response.json();
-          if (errorData.error === 'Invalid admin password') toast.error('Invalid admin password');
+          try {
+            const errorData = await response.json();
+            if (errorData.error === 'Invalid admin password') {
+              toast.error('Invalid admin password');
+            } else {
+              toast.error(errorData.message || errorData.error || 'Authentication failed');
+            }
+          } catch (e) {
+            toast.error('Invalid admin password');
+          }
         }
       } else {
         toast.error('Admin password cannot be empty. Please try again.');
@@ -1125,7 +1139,7 @@ PQIDAQAB
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <h2 style={{ fontSize: isMobile ? '1.1em' : '1.5em', margin: 0, color: '#ffffff' }}>
-          {isPharmacyMode ? 'PHARMACY MODE' : 'CLINIC PRO UG'}
+          {isPharmacyMode ? 'PHARMACY MODE' : 'MEDCORE UG'}
         </h2>
         {isMobile && (
           <button onClick={() => setIsMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '20px', cursor: 'pointer' }}>
@@ -1499,7 +1513,7 @@ PQIDAQAB
           </div>
 
           <footer style={{ marginTop: '20px', textAlign: 'center', color: '#6c757d', fontSize: isMobile ? '10px' : '14px', padding: '0 10px' }}>
-            This system was created by DeepMind E-Systems. For support or help contact +256786747733
+            This system was created by MEDCORE Systems. For support or help contact +256700123457
           </footer>
         </div>
 

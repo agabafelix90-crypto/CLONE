@@ -974,39 +974,45 @@ const AdminDashboard = () => {
     (async () => {
       setPermLoad(true);
       try {
-        const t = new URLSearchParams(window.location.search).get('token');
+        const queryToken = new URLSearchParams(window.location.search).get('token');
+        const t = sessionToken || queryToken;
         const r = await fetch(urls.fetchpermissions2, {
           method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ employeeName: selEmp.Name, token: t }),
         });
-        if (!r.ok) throw new Error();
-        const { permissions: p } = await r.json();
-        const m = {
-          Store: p.includes('store'),
-          selldrugs: p.includes('selldrugs'),
-          'access-laboratory': p.includes('access-laboratory'),
-          sales: p.includes('sales'),
-          'access-radiographer': p.includes('access-radiographer'),
-          'view costs spent on treating patient': p.includes('view costs spent on treating patient'),
-          makeOrderForDrugs: p.includes('makeorderfordrugs'),
-          clinicStatistics: p.includes('clinicstatistics'),
-          'access-doctors-room': p.includes('access-doctors-room'),
-          'access-nurse': p.includes('access-nurse'),
-          manageDrugs: p.includes('managedrugs'),
-          triage: p.includes('triage'),
-          manageLaboratory: p.includes('managelaboratory'),
-          'access-sales-details': p.includes('access-sales-details'),
-          'delete-sale': p.includes('delete-sale'),
-          familyPlanning: p.includes('familyplanning'),
-          manageServices: p.includes('manageservices'),
-          editBills: p.includes('editbills'),
-          'set-sales-expenses-categories': p.includes('set-sales-expenses-categories'),
-          sendwhatsappmessages: p.includes('sendwhatsappmessages'),
-        };
-        setPerms(prev => ({ ...prev, ...m }));
-        setSelAll(Object.values(m).every(Boolean));
-      } catch(e) { addToast('Error fetching permissions: ' + e.message, 'error'); }
-      finally { setPermLoad(false); }
+        const data = await r.json();
+        if (r.ok && data.success !== false && Array.isArray(data.permissions)) {
+          const p = data.permissions;
+          const m = {
+            Store: p.includes('store'),
+            selldrugs: p.includes('selldrugs'),
+            'access-laboratory': p.includes('access-laboratory'),
+            sales: p.includes('sales'),
+            'access-radiographer': p.includes('access-radiographer'),
+            'view costs spent on treating patient': p.includes('view costs spent on treating patient'),
+            makeOrderForDrugs: p.includes('makeorderfordrugs'),
+            clinicStatistics: p.includes('clinicstatistics'),
+            'access-doctors-room': p.includes('access-doctors-room'),
+            'access-nurse': p.includes('access-nurse'),
+            manageDrugs: p.includes('managedrugs'),
+            triage: p.includes('triage'),
+            manageLaboratory: p.includes('managelaboratory'),
+            'access-sales-details': p.includes('access-sales-details'),
+            'delete-sale': p.includes('delete-sale'),
+            familyPlanning: p.includes('familyplanning'),
+            manageServices: p.includes('manageservices'),
+            editBills: p.includes('editbills'),
+            'set-sales-expenses-categories': p.includes('set-sales-expenses-categories'),
+            sendwhatsappmessages: p.includes('sendwhatsappmessages'),
+          };
+          setPerms(prev => ({ ...prev, ...m }));
+          setSelAll(Object.values(m).every(Boolean));
+        } else {
+          throw new Error(data.message || 'Failed to fetch employee permissions');
+        }
+      } catch(e) {
+        addToast('Error fetching permissions: ' + (e.message || 'Unknown error'), 'error');
+      } finally { setPermLoad(false); }
     })();
   }, [showPerm, selEmp]);
 
@@ -1014,7 +1020,8 @@ const AdminDashboard = () => {
     if (!window.confirm(`Delete ${name}? This cannot be undone.`)) return;
     setDelIdx(idx);
     try {
-      const t = new URLSearchParams(window.location.search).get('token');
+      const queryToken = new URLSearchParams(window.location.search).get('token');
+      const t = sessionToken || queryToken;
       const r = await fetch(urls.deleteEmployee, {
         method:'DELETE', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ name, role, token: t }),
@@ -1029,7 +1036,8 @@ const AdminDashboard = () => {
     if (!neName.trim() || !neRole.trim()) { addToast('Please fill in both name and role.', 'warning'); return; }
     setAddBusy(true);
     try {
-      const t = new URLSearchParams(window.location.search).get('token');
+      const queryToken = new URLSearchParams(window.location.search).get('token');
+      const t = sessionToken || queryToken;
       const r = await fetch(urls.addemployee, {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ name: neName, role: neRole, employeePassword: nePassword, token: t }),
@@ -1052,19 +1060,31 @@ const AdminDashboard = () => {
   const doPerms = async () => {
     setPermBusy(true);
     try {
-      const t = new URLSearchParams(window.location.search).get('token');
+      const queryToken = new URLSearchParams(window.location.search).get('token');
+      const t = sessionToken || queryToken;
       const enc = new JSEncrypt(); enc.setPublicKey(PUB_KEY);
-      const r = await fetch(urls.updatepermissions, {
+      const response = await fetch(urls.updatepermissions, {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           employeeName: selEmp.Name, permissions: perms,
           token: t, loginCode: enc.encrypt(lcode.toString()),
         }),
       });
-      if (r.ok) { setShowPerm(false); setPerms(initPerms()); setLcode(''); setSelAll(false); addToast(`Permissions updated for ${selEmp.Name}.`, 'success'); }
-      else throw new Error('Update failed');
-    } catch(e) { addToast(e.message, 'error'); }
-    finally { setPermBusy(false); }
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setShowPerm(false);
+        setPerms(initPerms());
+        setLcode('');
+        setSelAll(false);
+        addToast(`Permissions updated for ${selEmp.Name}.`, 'success');
+      } else {
+        throw new Error(data.message || data.error || 'Failed to update permissions');
+      }
+    } catch(e) {
+      addToast('Update failed: ' + (e.message || 'Unknown error'), 'error');
+    } finally {
+      setPermBusy(false);
+    }
   };
 
   const toggleAll = () => { const n = !selAll; setSelAll(n); const u = {}; PERMS.forEach(p => { u[p.key] = n; }); setPerms(u); };
@@ -1161,7 +1181,7 @@ const AdminDashboard = () => {
             <FontAwesomeIcon icon={isPharm?faPills:faClipboardList} style={{ color:'#fff', fontSize:14 }}/>
           </div>
           <div>
-            <div style={{ fontFamily:'var(--font-h)', fontSize:13, fontWeight:400, color:'#fff', lineHeight:1.2 }}>{clinicName||(isPharm?'PHARMACY PRO':'CLINIC PRO')}</div>
+            <div style={{ fontFamily:'var(--font-h)', fontSize:13, fontWeight:400, color:'#fff', lineHeight:1.2 }}>{clinicName||(isPharm?'PHARMACY PRO':'MEDCORE')}</div>
             <div style={{ fontSize:9, color:'rgba(255,255,255,0.4)', letterSpacing:'0.5px', textTransform:'uppercase' }}>{district||'Uganda'}</div>
           </div>
         </div>
@@ -1416,7 +1436,7 @@ const AdminDashboard = () => {
           {view === 'dashboard' && <DashView/>}
           {view === 'employees' && <EmpView/>}
           <footer style={{ borderTop:'1px solid var(--border)', paddingTop:16, textAlign:'center', color:'var(--text-3)', fontSize:11.5 }}>
-            Created by <strong style={{ color:'var(--text-2)' }}>DeepMind E-Systems</strong> · Support: +256 786 747 733
+            Created by <strong style={{ color:'var(--text-2)' }}>MEDCORE Systems</strong> · Support: +256 700 123 457
           </footer>
         </main>
       </div>

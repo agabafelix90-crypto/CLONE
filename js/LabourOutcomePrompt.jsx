@@ -185,34 +185,37 @@ useEffect(() => {
   
 useEffect(() => {
   const fetchEmployees = async () => {
+    if (!tokenFromUrl) {
+      console.warn('No tokenFromUrl provided, skipping employee fetch');
+      return;
+    }
     setLoading(true);
     try {
-      const response = await fetch(urls.fetchemployees3, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ tokenFromUrl }),
-      });
+      // Use standardized fetchemployees2 endpoint which returns an array directly
+      const response = await fetch(`${urls.fetchemployees2}?token=${tokenFromUrl}`);
 
-      const data = await response.json();
-      if (data && data.employees) {
+      if (!response.ok) throw new Error('Failed to fetch employees');
+      
+      const employees = await response.json();
+      if (Array.isArray(employees) && employees.length > 0) {
+        // Map employees to Select options, using Name field
         setEmployees(
-          data.employees.map((employee) => ({
-            value: employee, // Storing the full employee object in value
-            label: employee, // Assuming the employee names are the values
+          employees.map((employee) => ({
+            value: employee.Name || employee.name || employee, // Handle different field names
+            label: employee.Name || employee.name || employee,
           }))
         );
       }
     } catch (error) {
       console.error('Error fetching employees:', error);
+      setEmployees([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
   };
 
   fetchEmployees();
-}, []);
+}, [tokenFromUrl]);
 
 const handleSelectChange = (selectedOptions) => {
   const selectedEmployeeIds = selectedOptions ? selectedOptions.map(option => option.value) : [];

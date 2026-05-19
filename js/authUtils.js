@@ -207,17 +207,19 @@ export const handleInvalidSession = (navigate, redirectPath = null) => {
       saveRedirectAfterLogin(redirectPath);
     }
   }
-    // If no redirect path is provided, go back to the previous page instead of forcing login.
-    try {
-      if (!redirectPath && typeof navigate === 'function') {
-        navigate(-1);
-        return;
-      }
-    } catch (e) {
-      // Fallback to login page if history navigation fails
+  // Always redirect to login to reset application state. Save redirect and then navigate.
+  try {
+    if (typeof navigate === 'function') {
+      navigate('/login', { replace: true });
+      return;
     }
+  } catch (e) {
+    // If router navigation fails, fall back to a hard redirect.
+  }
 
-    navigate('/login', { replace: true });
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
+  }
 };
 
 export const handleLogout = (navigate, redirectTo = '/login', replace = true) => {

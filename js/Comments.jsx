@@ -82,7 +82,7 @@ const Comments = ({ fileId, employeeName, token, onClose }) => {
         zIndex: 1000,
       }}
     >
-      <h2 style={{ textAlign: "center", color: "#007BFF" }}>Clinic Pro analysis about your prescription</h2>
+      <h2 style={{ textAlign: "center", color: "#007BFF" }}>MEDCORE analysis about your prescription</h2>
 
       {/* Display loading or error message */}
       {loading && (
@@ -97,7 +97,7 @@ const Comments = ({ fileId, employeeName, token, onClose }) => {
               animation: "spin 2s linear infinite",
             }}
           ></div>
-          <p>Clinic Pro AI thinking...</p>
+          <p>MEDCORE AI thinking...</p>
         </div>
       )}
       {error && <p style={{ color: "red", textAlign: "center" }}>Error: {error}</p>}
@@ -105,7 +105,7 @@ const Comments = ({ fileId, employeeName, token, onClose }) => {
       {/* Display AI response */}
       {aiResponse && (
         <div style={{ marginTop: "20px" }}>
-          <h3>Clinic Pro Response:</h3>
+          <h3>MEDCORE Response:</h3>
           <div style={{ maxHeight: "60vh", overflowY: "scroll" }}>
             <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
               {parseResponse(aiResponse.aiResponse)}
@@ -134,3 +134,4 @@ const Comments = ({ fileId, employeeName, token, onClose }) => {
 };
 
 export default Comments;
+

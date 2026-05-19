@@ -2113,7 +2113,7 @@ function Store() {
         fontSize: '12px',
         color: colors.textMuted
       }}>
-        This system was created by DeepMind E-Systems. For help or support contact +256786747733
+        This system was created by MEDCORE Systems. For help or support contact +256700123457
       </footer>
     </div>
   );

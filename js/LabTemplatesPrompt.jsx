@@ -102,9 +102,9 @@ const LabTemplatesPrompt = ({ token, onClose }) => {
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && Array.isArray(data.data)) {
-          // Filter out templates where employee_name is "Clinic Pro"
+          // Filter out templates where employee_name is "MEDCORE"
           const filteredTemplates = data.data.filter(template => 
-            template.employee_name !== 'Clinic Pro' && template.employee_name !== null
+            template.employee_name !== 'MEDCORE' && template.employee_name !== null
           );
           setTemplates(filteredTemplates);
         } else {

@@ -997,7 +997,7 @@ const Sales = () => {
             <div style={{ width: 45, height: 45, background: theme.activeNavBg, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, color: currentTheme === 'blue' ? '#fff' : theme.textPrimary, fontWeight: 700 }}>CP</div>
             {!sidebarCollapsed && (
               <div>
-                <div style={{ color: currentTheme === 'blue' ? '#fff' : theme.textPrimary, fontWeight: 700, fontSize: 16 }}>ClinicPro</div>
+                <div style={{ color: currentTheme === 'blue' ? '#fff' : theme.textPrimary, fontWeight: 700, fontSize: 16 }}>MEDCORE</div>
                 <div style={{ color: theme.sectionHeaderText, fontSize: 11, marginTop: 2 }}>Sales Management</div>
               </div>
             )}

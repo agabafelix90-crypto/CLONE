@@ -260,13 +260,13 @@ function SalesDetails() {
   };
 
   const isAutomaticEntry = (reason) => reason && (
-    reason.includes('Day shift opened automatically by Clinic-pro') ||
+    reason.includes('Day shift opened automatically by MEDCORE') ||
     reason.includes('Night shift was closed') ||
-    reason.includes('Shift closed automatically by Clinic-pro') ||
+    reason.includes('Shift closed automatically by MEDCORE') ||
     reason.includes('Starting Night shift') ||
     reason.includes('Starting Day shift') ||
-    reason.includes('Day shift opened by Clinic Pro') ||
-    reason.includes('Night shift opened by Clinic Pro')
+    reason.includes('Day shift opened by MEDCORE') ||
+    reason.includes('Night shift opened by MEDCORE')
   );
 
   const normalizeCategory = (category) => {
@@ -1241,7 +1241,7 @@ function SalesDetails() {
               <div style={{ width: '40px', height: '40px', background: theme.activeNavBg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0, color: theme.activeNavText, fontWeight: 'bold', boxShadow: '0 4px 10px rgba(37,99,235,0.3)' }}>CP</div>
               {!sidebarCollapsed && (
                 <div style={{ overflow: 'hidden' }}>
-                  <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '15px', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>ClinicPro</div>
+                  <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '15px', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>MEDCORE</div>
                   <div style={{ color: theme.sidebarTextMuted, fontSize: '10px', fontWeight: '500', marginTop: '2px', whiteSpace: 'nowrap' }}>Sales History</div>
                 </div>
               )}

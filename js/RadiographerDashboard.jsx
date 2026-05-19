@@ -651,7 +651,7 @@ const RadiographerDashboard = () => {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   }}>
-                    ClinicPro
+                    MEDCORE
                   </div>
                   <div style={{ 
                     color: theme.sidebarTextMuted, 

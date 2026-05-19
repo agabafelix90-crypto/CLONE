@@ -7,7 +7,7 @@ const AnnualAssessment = ({ token, onClose }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [clinicProAssessment, setClinicProAssessment] = useState(null);
+  const [MEDCOREAssessment, setMEDCOREAssessment] = useState(null);
   const [selectedMetrics, setSelectedMetrics] = useState({
     sales: true,
     expenses: true,
@@ -66,7 +66,7 @@ const AnnualAssessment = ({ token, onClose }) => {
       }
 
       const aiResponse = await response.json();
-      setClinicProAssessment(aiResponse);
+      setMEDCOREAssessment(aiResponse);
       setAnalysisReady(true);
     } catch (err) {
       setError(`Error with AI assessment: ${err.message}`);
@@ -353,7 +353,7 @@ const AnnualAssessment = ({ token, onClose }) => {
                       }}></div>
                     </>
                   ) : (
-                    "Generate Clinic Pro Analysis"
+                    "Generate MEDCORE Analysis"
                   )}
                 </button>
               )}
@@ -467,7 +467,7 @@ const AnnualAssessment = ({ token, onClose }) => {
             </div>
           )}
 
-          {viewMode === "analysis" && clinicProAssessment && (
+          {viewMode === "analysis" && MEDCOREAssessment && (
             <div style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
@@ -518,7 +518,7 @@ const AnnualAssessment = ({ token, onClose }) => {
                 </div>
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: formatResponse(clinicProAssessment.financialAnalysis),
+                    __html: formatResponse(MEDCOREAssessment.financialAnalysis),
                   }}
                   style={{
                     color: "#444",
@@ -577,7 +577,7 @@ const AnnualAssessment = ({ token, onClose }) => {
                 </div>
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: formatResponse(clinicProAssessment.employeeAnalysis),
+                    __html: formatResponse(MEDCOREAssessment.employeeAnalysis),
                   }}
                   style={{
                     color: "#444",
@@ -613,7 +613,7 @@ const AnnualAssessment = ({ token, onClose }) => {
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite"
               }}></div>
-              <div>Clinic Pro Intelligence analyzing data...</div>
+              <div>MEDCORE Intelligence analyzing data...</div>
               <div style={{ color: "#999", fontSize: "14px" }}>
                 This may take a moment...
               </div>

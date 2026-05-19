@@ -975,7 +975,7 @@ function TestResultModal({
               <div style={S.confirmRow}>
                 <span style={S.confirmLabel}>Classification</span>
                 <span style={S.confirmValMuted}>
-                  ✨ Clinic Pro AI will handle this automatically
+                  ✨ MEDCORE AI will handle this automatically
                 </span>
               </div>
             </div>

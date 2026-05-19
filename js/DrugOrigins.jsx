@@ -1092,7 +1092,7 @@ function DrugOrigins() {
             <div style={{ padding: '28px 24px' }}>
               <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '1.1rem', fontWeight: 800, color: theme.sidebarText }}>
                 <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: theme.accent, marginRight: '6px' }} />
-                ClinicPro
+                MEDCORE
               </h1>
             </div>
           </aside>

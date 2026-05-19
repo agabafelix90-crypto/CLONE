@@ -1135,7 +1135,7 @@ const EmployeeBalance = () => {
                           color: '#6b7280',
                           margin: 0,
                           textAlign: 'center',
-                        }}>Clinic Pro Rewards</p>
+                        }}>MEDCORE Rewards</p>
                       </div>
                     </div>
                   </div>
@@ -1154,7 +1154,7 @@ const EmployeeBalance = () => {
                       marginBottom: '24px',
                     }}>
                       Every patient you serve brings you closer to your next reward. 
-                      With Clinic Pro Cash Rewards, your dedication to healthcare 
+                      With MEDCORE Cash Rewards, your dedication to healthcare 
                       excellence is recognized and rewarded instantly.
                     </p>
                     

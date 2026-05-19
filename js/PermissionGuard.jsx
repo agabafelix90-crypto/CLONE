@@ -15,12 +15,12 @@ function PermissionGuard() {
 
   // Map routes to required permission names
   const routePermissionMap = {
-    '/store': 'Store',
+    '/store': 'store',
     '/selldrugs': 'selldrugs',
     '/sales': 'sales',
     '/cashier': 'sales',
-    '/manageDrugs': 'manageDrugs',
-    '/makeOrderForDrugs': 'makeOrderForDrugs',
+    '/manageDrugs': 'managedrugs',
+    '/makeOrderForDrugs': 'makeorderfordrugs',
     '/access-laboratory': 'access-laboratory',
     '/labTests': 'access-laboratory',
     '/lab': 'access-laboratory',
@@ -28,14 +28,14 @@ function PermissionGuard() {
     '/attend-to-new-patient': 'access-doctors-room',
     '/access-nurse': 'access-nurse',
     '/access-radiographer': 'access-radiographer',
-    '/manageServices': 'manageServices',
+    '/manageServices': 'manageservices',
     '/set-sales-expenses-categories': 'set-sales-expenses-categories',
-    '/clinicStatistics': 'clinicStatistics',
+    '/clinicStatistics': 'clinicstatistics',
     '/access-sales-details': 'access-sales-details',
     '/triage': 'triage',
-    '/familyPlanning': 'familyPlanning',
+    '/familyPlanning': 'familyplanning',
     '/maternity-dashboard': 'maternity-dashboard',
-    '/manageLaboratory': 'manageLaboratory',
+    '/manageLaboratory': 'managelaboratory',
     '/radiology': 'access-radiographer',
     '/credits': 'sales',
   };
@@ -114,8 +114,23 @@ function PermissionGuard() {
 
         saveEmployeeSessionActivity();
 
-        // Get the required permission for this route
-        const requiredPermission = routePermissionMap[location.pathname];
+        // Normalize paths and determine the required permission for this route
+        const normalizePath = (p = '') => (p || '').toString().replace(/\/+/g, '/').replace(/\/+$/,'').toLowerCase();
+        const normalizedPath = normalizePath(location.pathname);
+
+        let requiredPermission = null;
+        for (const [route, perm] of Object.entries(routePermissionMap)) {
+          const normRoute = normalizePath(route);
+          if (normalizedPath === normRoute || normalizedPath.startsWith(normRoute + '/')) {
+            requiredPermission = perm;
+            break;
+          }
+        }
+
+        // Normalize the required permission to match the normalized employee permissions
+        if (requiredPermission) {
+          requiredPermission = requiredPermission.toString().trim().toLowerCase();
+        }
 
         // If no specific permission mapping, allow access (public sections)
         if (!requiredPermission) {
@@ -123,11 +138,14 @@ function PermissionGuard() {
           return;
         }
 
-        // If no employee specified, allow access (backward compatibility with clinic-level operations)
+        // Require an `employee` parameter for permission-protected routes
         if (!employeeParam) {
-          // For employee-specific routes, should ideally require employee selection
-          // But for backward compatibility, allow access and let components handle it
-          setStatus({ checking: false, allowAccess: true, message: '' });
+          setStatus({
+            checking: false,
+            allowAccess: false,
+            message: 'Select an employee to access this section',
+            redirectTo: `/dashboard?token=${token}`,
+          });
           return;
         }
 

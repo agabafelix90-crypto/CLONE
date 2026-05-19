@@ -33,7 +33,7 @@ const ICONS = {
 };
 
 const openWhatsApp = (msg) =>
-  window.open(`https://wa.me/256703521101?text=${encodeURIComponent(msg)}`, '_blank');
+  window.open(`https://wa.me/256700123456?text=${encodeURIComponent(msg)}`, '_blank');
 
 // ── Overlay Panel (same pattern as LandingPage) ─────────────────────────────
 function OverlayPanel({ open, onClose, children, title }) {
@@ -54,7 +54,7 @@ function OverlayPanel({ open, onClose, children, title }) {
               <Icon path={ICONS.heart} size={16} color="#7ec8f7" />
             </div>
             <span style={{ fontFamily: "'Sora',sans-serif", fontWeight: 900, color: '#ffffff', fontSize: 17 }}>
-              ClinicPro<span style={{ color: '#7ec8f7' }}>System</span>{' '}
+              MEDCORE<span style={{ color: '#7ec8f7' }}>System</span>{' '}
               <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 400, fontSize: 14 }}>/ {title}</span>
             </span>
           </div>
@@ -147,7 +147,7 @@ const Pricing = () => {
             style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
            
             <span style={{ fontSize: 20, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px', fontFamily: "'Sora', sans-serif" }}>
-              ClinicPro<span style={{ color: '#7ec8f7' }}>System</span>
+              MEDCORE<span style={{ color: '#7ec8f7' }}>System</span>
             </span>
           </button>
 
@@ -221,9 +221,9 @@ const Pricing = () => {
           </p>
           <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
             {[
-              { icon: ICONS.phone, label: '+256 703 521 101', href: 'tel:+256703521101' },
-              { icon: ICONS.phone, label: '+256 786 747 733', href: 'tel:+256786747733' },
-              { icon: ICONS.mail,  label: 'clinicproug@gmail.com', href: 'mailto:clinicproug@gmail.com' },
+              { icon: ICONS.phone, label: '+256 700 123 456', href: 'tel:+256700123456' },
+              { icon: ICONS.phone, label: '+256 700 123 457', href: 'tel:+256700123457' },
+              { icon: ICONS.mail,  label: 'MEDCOREug@gmail.com', href: 'mailto:MEDCOREug@gmail.com' },
             ].map(({ icon, label, href }) => (
               <a key={label} href={href}
                 style={{ display: 'flex', alignItems: 'center', gap: 7, color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, textDecoration: 'none', transition: 'color 0.2s' }}
@@ -245,7 +245,7 @@ const Pricing = () => {
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 3, color: '#3a7bd5', textTransform: 'uppercase', marginBottom: 12 }}>Choose Your Plan</div>
           <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2.2rem)', fontWeight: 900, color: '#0a1e4a', letterSpacing: '-0.8px', marginBottom: 8, fontFamily: "'Sora',sans-serif" }}>
-            How do you want to run ClinicPro?
+            How do you want to run MEDCORE?
           </h2>
           <p style={{ color: '#4a5c82', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
             Pick the deployment that fits your clinic's infrastructure and budget.
@@ -343,9 +343,9 @@ const Pricing = () => {
                 </p>
                 <div style={{ display: 'flex', gap: 16, marginTop: 18, flexWrap: 'wrap' }}>
                   {[
-                    { icon: ICONS.phone, label: '+256 703 521 101', href: 'tel:+256703521101' },
-                    { icon: ICONS.phone, label: '+256 786 747 733', href: 'tel:+256786747733' },
-                    { icon: ICONS.mail,  label: 'clinicproug@gmail.com', href: 'mailto:clinicproug@gmail.com' },
+                    { icon: ICONS.phone, label: '+256 700 123 456', href: 'tel:+256700123456' },
+                    { icon: ICONS.phone, label: '+256 700 123 457', href: 'tel:+256700123457' },
+                    { icon: ICONS.mail,  label: 'MEDCOREug@gmail.com', href: 'mailto:MEDCOREug@gmail.com' },
                   ].map(({ icon, label, href }) => (
                     <a key={label} href={href} style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#7ec8f7', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
                       <Icon path={icon} size={15} color="#7ec8f7" /> {label}
@@ -353,7 +353,7 @@ const Pricing = () => {
                   ))}
                 </div>
               </div>
-              <button onClick={() => openWhatsApp("Hi! I'd like to know the setup and training fee for ClinicProSystem.")}
+              <button onClick={() => openWhatsApp("Hi! I'd like to know the setup and training fee for MEDCORE.")}
                 style={{ padding: '14px 28px', borderRadius: 12, border: 'none', background: '#ffffff', color: '#0a1e4a', fontWeight: 800, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -397,7 +397,7 @@ const Pricing = () => {
             {/* Other charges */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 48 }}>
               {[
-                { title: 'Flexible Balance System', icon: ICONS.zap,  body: 'Load any amount into your ClinicPro account — like mobile money airtime. The system auto-deducts daily usage fees. You receive low-balance alerts, and if your balance hits zero, the system pauses until you top up.' },
+                { title: 'Flexible Balance System', icon: ICONS.zap,  body: 'Load any amount into your MEDCORE account — like mobile money airtime. The system auto-deducts daily usage fees. You receive low-balance alerts, and if your balance hits zero, the system pauses until you top up.' },
                 { title: 'AI Features',             icon: ICONS.star, body: 'AI-powered report writing, drug suggestions, employee assessment, and more are currently included at no extra cost.' },
                 { title: 'Messaging Charges',       icon: ICONS.mail, body: 'SMS messages: UGX 100–150 per message. WhatsApp messages: UGX 300 per message. Charged only when messages are actually sent.' },
               ].map(({ title, icon, body }) => (
@@ -438,7 +438,7 @@ const Pricing = () => {
             </div>
 
             <div style={{ textAlign: 'center', marginTop: 40 }}>
-              <button onClick={() => openWhatsApp("I'm interested in the Online Subscription for ClinicProSystem. Can you tell me more?")}
+              <button onClick={() => openWhatsApp("I'm interested in the Online Subscription for MEDCORE. Can you tell me more?")}
                 style={{ padding: '16px 40px', borderRadius: 12, border: 'none', background: '#0a1e4a', color: '#ffffff', fontWeight: 800, fontSize: 16, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 10, boxShadow: '0 8px 32px rgba(10,30,74,0.25)', transition: 'transform 0.2s, box-shadow 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(10,30,74,0.35)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(10,30,74,0.25)'; }}>
@@ -524,7 +524,7 @@ const Pricing = () => {
             </div>
 
             <div style={{ textAlign: 'center' }}>
-              <button onClick={() => openWhatsApp("I'm interested in Offline Installation for ClinicProSystem. Can you provide more details?")}
+              <button onClick={() => openWhatsApp("I'm interested in Offline Installation for MEDCORE. Can you provide more details?")}
                 style={{ padding: '16px 40px', borderRadius: 12, border: 'none', background: '#0a1e4a', color: '#ffffff', fontWeight: 800, fontSize: 16, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 10, boxShadow: '0 8px 32px rgba(10,30,74,0.25)', transition: 'transform 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -538,12 +538,12 @@ const Pricing = () => {
       {/* ══ Value Props ══ */}
       <section style={{ padding: 'clamp(50px,8vw,80px) 5vw', background: '#ffffff', borderTop: '1px solid rgba(10,30,74,0.06)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <SectionHead tag="Why ClinicPro" title="What Sets Us Apart" />
+          <SectionHead tag="Why MEDCORE" title="What Sets Us Apart" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px,1fr))', gap: 22 }}>
             {[
               { title: 'Fair Pricing',         icon: ICONS.star,   body: 'Tiered pricing ensures larger facilities get better rates. Our active-user model means you never pay for unused licences.' },
               { title: 'Professional Support', icon: ICONS.shield,  body: 'Our team is quick to respond and always available when you need us. We pride ourselves on professional, timely service.' },
-              { title: 'Cutting-Edge AI',      icon: ICONS.zap,    body: 'Included AI capabilities and automated messaging put ClinicPro ahead of competitors at a fraction of the cost.' },
+              { title: 'Cutting-Edge AI',      icon: ICONS.zap,    body: 'Included AI capabilities and automated messaging put MEDCORE ahead of competitors at a fraction of the cost.' },
               { title: 'Flexible Options',     icon: ICONS.cloud,  body: 'Choose the deployment method that works best — cloud-based for convenience, or on-premises for full control.' },
             ].map(({ title, icon, body }) => (
               <div key={title}
@@ -567,10 +567,10 @@ const Pricing = () => {
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 640, margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-1px', margin: '0 0 16px', fontFamily: "'Sora',sans-serif" }}>Ready to Get Started?</h2>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, marginBottom: 36, lineHeight: 1.75 }}>
-            Contact our team for a personalised consultation and see how ClinicPro can work for your clinic.
+            Contact our team for a personalised consultation and see how MEDCORE can work for your clinic.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => openWhatsApp("I'd like to learn more about ClinicProSystem. Can we schedule a consultation?")}
+            <button onClick={() => openWhatsApp("I'd like to learn more about MEDCORE. Can we schedule a consultation?")}
               style={{ padding: '15px 32px', borderRadius: 12, border: 'none', background: '#ffffff', color: '#0a1e4a', fontWeight: 800, fontSize: 15, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 10, boxShadow: '0 8px 40px rgba(0,0,0,0.25)', transition: 'transform 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -597,7 +597,7 @@ const Pricing = () => {
                   <Icon path={ICONS.heart} size={15} color="#7ec8f7" />
                 </div>
                 <span style={{ fontSize: 17, fontWeight: 900, color: '#ffffff', fontFamily: "'Sora',sans-serif" }}>
-                  ClinicPro<span style={{ color: '#7ec8f7' }}>System</span>
+                  MEDCORE<span style={{ color: '#7ec8f7' }}>System</span>
                 </span>
               </button>
               <p style={{ fontSize: 13.5, color: '#445577', lineHeight: 1.8 }}>Modern AI-powered clinic management. Built for Uganda.</p>
@@ -619,9 +619,9 @@ const Pricing = () => {
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2.5, color: '#7ec8f7', textTransform: 'uppercase', marginBottom: 18 }}>Contact</div>
               <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.1 }}>
-                +256 703 521 101<br />+256 786 747 733<br />clinicproug@gmail.com
+                +256 700 123 456<br />+256 700 123 457<br />MEDCOREug@gmail.com
               </p>
-              <button onClick={() => openWhatsApp("Hi, I'd like to chat about ClinicProSystem.")}
+              <button onClick={() => openWhatsApp("Hi, I'd like to chat about MEDCORE.")}
                 style={{ marginTop: 16, padding: '10px 20px', borderRadius: 9, border: 'none', background: '#0a1e4a', color: '#ffffff', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, transition: 'background 0.2s', boxShadow: '0 2px 12px rgba(10,30,74,0.4)' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#142d6e'}
                 onMouseLeave={e => e.currentTarget.style.background = '#0a1e4a'}>
@@ -630,7 +630,7 @@ const Pricing = () => {
             </div>
           </div>
           <div style={{ paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <span style={{ fontSize: 13, color: '#2a3a55' }}>© 2025 ClinicProSystem. All rights reserved.</span>
+            <span style={{ fontSize: 13, color: '#2a3a55' }}>© 2025 MEDCORE. All rights reserved.</span>
             <span style={{ fontSize: 13, color: '#2a3a55' }}>Built with ❤ in Uganda</span>
           </div>
         </div>

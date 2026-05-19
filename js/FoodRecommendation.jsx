@@ -91,7 +91,7 @@ const FoodRecommendation = ({ fileId, employeeName, token, onClose }) => {
               animation: "spin 2s linear infinite",
             }}
           ></div>
-          <p>Clinic Pro AI is generating your food recommendations...</p>
+          <p>MEDCORE AI is generating your food recommendations...</p>
         </div>
       )}
       {error && <p style={{ color: "red", textAlign: "center" }}>Error: {error}</p>}
@@ -99,7 +99,7 @@ const FoodRecommendation = ({ fileId, employeeName, token, onClose }) => {
       {/* Display AI response */}
       {aiResponse && (
         <div style={{ marginTop: "20px" }}>
-          <h3>Clinic Pro Response:</h3>
+          <h3>MEDCORE Response:</h3>
           <div style={{ maxHeight: "60vh", overflowY: "scroll" }}>
             <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
               {parseResponse(aiResponse.aiResponse)} {/* Render the response as list items */}
@@ -128,3 +128,4 @@ const FoodRecommendation = ({ fileId, employeeName, token, onClose }) => {
 };
 
 export default FoodRecommendation;
+

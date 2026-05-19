@@ -190,11 +190,11 @@ function Onboarding() {
     (status.admin_password_changed && status.employee_count > 0 && status.facilityConfigCount > 0);
 
   const billingRules = [
-    'All ClinicPro charges are payable in UGX and must be issued with an official ClinicPro receipt.',
+    'All MEDCORE charges are payable in UGX and must be issued with an official MEDCORE receipt.',
     'Subscription wallet credit is preloaded once on first login as UGX 10,000 and may only be used for authorized clinic operational expenses.',
     `Default admin access (${status.clinic || 'Admin'} / 12345) is permitted only on first login and must be changed immediately.`,
     'Admin must complete the onboarding guide before dashboard access is granted.',
-    'Billing statements are final and managed by clinic administration under ClinicPro policy.',
+    'Billing statements are final and managed by clinic administration under MEDCORE policy.',
   ];
 
   return (
@@ -205,9 +205,9 @@ function Onboarding() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: '#4338ca', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: '24px' }}>CP</div>
             <div>
-              <h1 style={{ fontSize: '34px', marginBottom: '10px', color: '#111827' }}>Welcome to Clinic Pro System</h1>
+              <h1 style={{ fontSize: '34px', marginBottom: '10px', color: '#111827' }}>Welcome to MEDCORE System</h1>
               <p style={{ margin: 0, color: '#4b5563', fontSize: '16px', maxWidth: '760px' }}>
-                Complete the full first-time onboarding guide before accessing the normal dashboard. ClinicPro is enforcing strict first-login setup so your clinic is secure and ready to manage patients, inventory, and billing.
+                Complete the full first-time onboarding guide before accessing the normal dashboard. MEDCORE is enforcing strict first-login setup so your clinic is secure and ready to manage patients, inventory, and billing.
               </p>
             </div>
           </div>
@@ -218,7 +218,7 @@ function Onboarding() {
             <div style={{ padding: '26px', background: '#ffffff', borderRadius: '22px', boxShadow: '0 20px 60px rgba(15, 23, 42, 0.06)' }}>
               <h2 style={{ margin: '0 0 14px', fontSize: '22px', color: '#111827' }}>🎉 Getting Started</h2>
               <p style={{ color: '#374151', lineHeight: 1.75, marginBottom: '22px' }}>
-                Welcome to your new Clinic Pro system! We're excited to help you streamline your clinic operations.
+                Welcome to your new MEDCORE System! We're excited to help you streamline your clinic operations.
               </p>
 
               <h3 style={{ margin: '0 0 12px', fontSize: '18px', color: '#111827' }}>🚀 Complete Setup Guide</h3>
@@ -305,7 +305,7 @@ function Onboarding() {
               <p style={{ marginTop: '20px', color: '#475569', fontWeight: 600 }}>
                 Get Started
                 <br />
-                For support contact: <strong>+256786747733 | DeepMind E-Systems</strong>
+                For support contact: <strong>+256700123457 | MEDCORE Systems</strong>
               </p>
             </div>
           </div>
@@ -400,3 +400,4 @@ function Onboarding() {
 }
 
 export default Onboarding;
+

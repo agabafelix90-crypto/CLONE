@@ -136,20 +136,20 @@ function RadiologyResultModal({ patient, clinicDetails, token, onClose, totalRad
     return exams;
   };
 
-  // Organize templates by employee name, with "Clinic Pro" at the bottom
+  // Organize templates by employee name, with "MEDCORE" at the bottom
   const organizeTemplates = (templates) => {
-    const clinicProTemplates = [];
+    const MEDCORETemplates = [];
     const otherTemplates = [];
     
     templates.forEach(template => {
-      if (template.employee_name === 'Clinic Pro') {
-        clinicProTemplates.push(template);
+      if (template.employee_name === 'MEDCORE') {
+        MEDCORETemplates.push(template);
       } else {
         otherTemplates.push(template);
       }
     });
     
-    return [...otherTemplates, ...clinicProTemplates];
+    return [...otherTemplates, ...MEDCORETemplates];
   };
 
   // Fixed: Use debounced input handler to avoid interfering with typing

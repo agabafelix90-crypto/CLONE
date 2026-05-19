@@ -1362,7 +1362,7 @@ function Credits() {
             <div style={{ padding: '28px 24px' }}>
               <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: '1.1rem', fontWeight: 800, color: theme.sidebarText }}>
                 <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: theme.accent, marginRight: '6px' }} />
-                ClinicPro
+                MEDCORE
               </h1>
             </div>
           </aside>
@@ -1459,7 +1459,7 @@ function Credits() {
               </div>
               {!sidebarCollapsed && (
                 <div style={{ overflow: 'hidden' }}>
-                  <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '16px', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>ClinicPro</div>
+                  <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '16px', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>MEDCORE</div>
                   <div style={{ color: theme.sidebarTextMuted, fontSize: '11px', fontWeight: '500', marginTop: '2px', whiteSpace: 'nowrap' }}>Credits Management</div>
                 </div>
               )}

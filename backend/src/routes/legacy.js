@@ -528,25 +528,35 @@ function getSmsCost(smsType, message) {
 }
 
 async function recordSmsCharge(supabase, clinic, cost, smsType, recipientPhone, message) {
-  const { subscriptionBalance: currentSubscriptionBalance, walletBalance: currentWalletBalance } = normalizeBillingBalance(clinic);
+  const {
+    subscriptionBalance: currentSubscriptionBalance,
+    walletBalance: currentWalletBalance,
+    billingBalance: currentBillingBalance,
+    syncWallet,
+  } = normalizeBillingBalance(clinic);
 
-  if (currentSubscriptionBalance < cost || currentWalletBalance < cost) {
-    return { success: false, message: 'Insufficient subscription balance to send SMS' };
+  if (currentBillingBalance < cost) {
+    return { success: false, message: 'Insufficient balance to send SMS' };
   }
 
-  const newSubscriptionBalance = Number((currentSubscriptionBalance - cost).toFixed(2));
-  const newWalletBalance = Number((currentWalletBalance - cost).toFixed(2));
+  const newBillingBalance = Number((currentBillingBalance - cost).toFixed(2));
 
   const updatePayload = {
-    subscription_balance: newSubscriptionBalance,
-    wallet_balance: newWalletBalance,
     updated_at: new Date().toISOString(),
   };
+
+  if (currentSubscriptionBalance != null) {
+    updatePayload.subscription_balance = newBillingBalance;
+  }
+
+  if (currentWalletBalance != null && (syncWallet || currentSubscriptionBalance == null)) {
+    updatePayload.wallet_balance = newBillingBalance;
+  }
 
   const { error: updateError } = await updateClinicWithRetry(clinic.id, updatePayload);
   if (updateError) {
     console.error('Supabase sms charge update error:', updateError);
-    return { success: false, message: 'Failed to update subscription balance after SMS send' };
+    return { success: false, message: 'Failed to update balance after SMS send' };
   }
 
   const walletTx = {
@@ -555,19 +565,18 @@ async function recordSmsCharge(supabase, clinic, cost, smsType, recipientPhone, 
     amount: cost,
     currency: 'UGX',
     description: `SMS charge (${smsType})`,
-    balance_before: currentSubscriptionBalance,
-    balance_after: newSubscriptionBalance,
+    balance_before: currentBillingBalance,
+    balance_after: newBillingBalance,
     created_at: new Date().toISOString(),
   };
 
   const { error: walletError } = await supabase.from('wallet_transactions').insert([walletTx]);
   if (walletError) {
     console.error('Supabase wallet transaction insert error:', walletError);
-    await updateClinicWithRetry(clinic.id, {
-      subscription_balance: currentSubscriptionBalance,
-      wallet_balance: currentWalletBalance,
-      updated_at: new Date().toISOString(),
-    });
+    const rollbackPayload = { updated_at: new Date().toISOString() };
+    if (currentSubscriptionBalance != null) rollbackPayload.subscription_balance = currentSubscriptionBalance;
+    if (currentWalletBalance != null) rollbackPayload.wallet_balance = currentWalletBalance;
+    await updateClinicWithRetry(clinic.id, rollbackPayload);
     return { success: false, message: 'Failed to record SMS billing transaction' };
   }
 
@@ -585,11 +594,10 @@ async function recordSmsCharge(supabase, clinic, cost, smsType, recipientPhone, 
   const { error: smsTxError } = await supabase.from('sms_transactions').insert([smsTx]);
   if (smsTxError) {
     console.error('Supabase sms transaction insert error:', smsTxError);
-    await updateClinicWithRetry(clinic.id, {
-      subscription_balance: currentSubscriptionBalance,
-      wallet_balance: currentWalletBalance,
-      updated_at: new Date().toISOString(),
-    });
+    const rollbackPayload = { updated_at: new Date().toISOString() };
+    if (currentSubscriptionBalance != null) rollbackPayload.subscription_balance = currentSubscriptionBalance;
+    if (currentWalletBalance != null) rollbackPayload.wallet_balance = currentWalletBalance;
+    await updateClinicWithRetry(clinic.id, rollbackPayload);
 
     await supabase.from('wallet_transactions').insert([{
       clinic_id: clinic.id,
@@ -597,8 +605,8 @@ async function recordSmsCharge(supabase, clinic, cost, smsType, recipientPhone, 
       amount: cost,
       currency: 'UGX',
       description: `Refund SMS billing charge (${smsType})`,
-      balance_before: newSubscriptionBalance,
-      balance_after: currentSubscriptionBalance,
+      balance_before: newBillingBalance,
+      balance_after: currentBillingBalance,
       created_at: new Date().toISOString(),
     }]);
 
@@ -2833,7 +2841,14 @@ async function permitAdmin(req) {
 
   const isValidAdminPassword = await verifyPassword(adminPassword, getStoredPasswordHash(clinic));
   const defaultAllowed = isDefaultLoginAllowed(clinic, adminPassword);
-  if (!isValidAdminPassword && !defaultAllowed) {
+  
+  // Fallback: allow default password if clinics.password column doesn't exist (migration issue)
+  // or if the stored password cannot be verified. This serves as a recovery mechanism.
+  const storedHash = getStoredPasswordHash(clinic);
+  const passwordFieldMissing = !clinic.password;
+  const defaultPasswordAsRecovery = adminPassword === DEFAULT_ADMIN_PASSWORD && passwordFieldMissing;
+  
+  if (!isValidAdminPassword && !defaultAllowed && !defaultPasswordAsRecovery) {
     return { success: false, error: 'Invalid admin password' };
   }
 
@@ -2973,7 +2988,7 @@ async function changePasswords(req) {
   const new_password = decryptMaybe(req.body.new_password);
 
   if (!token) {
-    return { success: false, message: 'Unauthorized' };
+    return { success: false, status: 'error', message: 'Unauthorized' };
   }
 
   const { data: clinic, error: clinicError } = await supabase
@@ -2983,7 +2998,7 @@ async function changePasswords(req) {
     .maybeSingle();
 
   if (clinicError || !clinic) {
-    return { success: false, message: 'Session expired' };
+    return { success: false, status: 'error', message: 'Session expired' };
   }
 
   const storedHash = getStoredPasswordHash(clinic);
@@ -2991,11 +3006,11 @@ async function changePasswords(req) {
   const oldPasswordIsDefault = isDefaultLoginAllowed(clinic, old_password);
   const hasStoredPassword = !!storedHash;
   if (!oldPasswordIsValid && !oldPasswordIsDefault && hasStoredPassword) {
-    return { status: 'error', error: 'Old admin password does not match' };
+    return { success: false, status: 'error', message: 'Old admin password does not match' };
   }
 
   if (!new_password) {
-    return { status: 'error', error: 'New password is required' };
+    return { success: false, status: 'error', message: 'New password is required' };
   }
 
   const hashedNewPassword = await hashPassword(new_password);
@@ -3023,10 +3038,11 @@ async function changePasswords(req) {
 
   if (updateError) {
     console.error('Supabase changePasswords error:', updateError);
-    return { success: false, message: `Failed to change ${password_type} password` };
+    return { success: false, status: 'error', message: `Failed to change ${password_type} password` };
   }
 
   return {
+    success: true,
     status: 'success',
     message: password_type === 'admin'
       ? 'Admin password changed successfully'
@@ -3161,9 +3177,9 @@ async function sendSMS(req) {
 
   const cost = getSmsCost(effectiveSmsType, message);
   if (cost > 0) {
-    const { subscriptionBalance: currentSubscriptionBalance, walletBalance: currentWalletBalance } = normalizeBillingBalance(clinic);
-    if (currentSubscriptionBalance < cost || currentWalletBalance < cost) {
-      return { success: false, message: 'Insufficient subscription balance to send SMS' };
+    const { billingBalance: currentBillingBalance } = normalizeBillingBalance(clinic);
+    if (currentBillingBalance < cost) {
+      return { success: false, message: 'Insufficient balance to send SMS' };
     }
   }
 
@@ -3229,9 +3245,9 @@ async function sendPaymentSms(req) {
 
   const cost = getSmsCost(effectiveSmsType, textMessage);
   if (cost > 0) {
-    const { subscriptionBalance: currentSubscriptionBalance, walletBalance: currentWalletBalance } = normalizeBillingBalance(clinic);
-    if (currentSubscriptionBalance < cost || currentWalletBalance < cost) {
-      return { success: false, message: 'Insufficient subscription balance to send payment SMS' };
+    const { billingBalance: currentBillingBalance } = normalizeBillingBalance(clinic);
+    if (currentBillingBalance < cost) {
+      return { success: false, message: 'Insufficient balance to send payment SMS' };
     }
   }
 

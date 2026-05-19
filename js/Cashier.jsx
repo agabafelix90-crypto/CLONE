@@ -190,7 +190,7 @@ function Cashier() {
             {awaitingPatientsCount > 0 && <span className="cashier-badge">{awaitingPatientsCount}</span>}
           </button>
           <footer className="footer2">
-            This system was created by DeepMind E-Systems. For support or help contact +256786747733
+            This system was created by MEDCORE Systems. For support or help contact +256700123457
           </footer>
         </div>
       </div>
@@ -199,4 +199,5 @@ function Cashier() {
 }
 
 export default Cashier;
+
 

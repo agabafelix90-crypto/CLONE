@@ -14,10 +14,10 @@ function ClinicRegistration1() {
 
   return (
     <div className="clinic-registration-1">
-      <h2>Welcome to Clinic-Pro</h2>
+      <h2>Welcome to MEDCORE</h2>
       <p>Your Partner in Efficient Clinic Management</p>
       <p>
-        Clinic-Pro helps manage your clinic, facilitating seamless communication between doctors and other departments online.
+        MEDCORE helps manage your clinic, facilitating seamless communication between doctors and other departments online.
         Send lab requests, maintain sales records, schedule appointments, and keep track of patient birthdays.
       </p>
       <h3>Register and Let's Get Started!</h3>
@@ -42,3 +42,4 @@ function ClinicRegistration1() {
 }
 
 export default ClinicRegistration1;
+

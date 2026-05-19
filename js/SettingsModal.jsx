@@ -36,15 +36,12 @@ const SettingsModal = ({ token, onClose }) => {
         }),
       });
 
-      setLoading(false);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
       const data = await response.json();
 
-      if (data.status === "success") {
+      setLoading(false);
+
+      // Check for success using the success flag (more reliable than status)
+      if (data.success === true || data.status === "success") {
         setOldPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
@@ -59,15 +56,14 @@ const SettingsModal = ({ token, onClose }) => {
           return; // Exit early to prevent onClose
         }
 
-        alert('Password changed successfully.');
+        alert('Password changed successfully: ' + data.message);
         console.log('Password changed successfully:', data.message);
         onClose();
-      } else if (data.error === "Old password does not match") {
-        alert('Error: Old password does not match.');
-        console.error('Error changing password:', data.error);
       } else {
-        alert(`Error changing password: ${data.message || 'Unknown error'}`);
-        console.error('Error changing password:', data.message || 'Unknown error');
+        // Handle all error cases with a consistent message
+        const errorMessage = data.message || data.error || 'Unknown error occurred';
+        alert(`Error changing password: ${errorMessage}`);
+        console.error('Error changing password:', errorMessage);
       }
     } catch (error) {
       setLoading(false);

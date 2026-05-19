@@ -25,7 +25,7 @@ async function run() {
       description: 'Auto-created onboarding drug',
       dosage_form: 'tablet',
       strength: '10mg',
-      manufacturer: 'ClinicPro',
+      manufacturer: 'MEDCORE',
       cost_price: 1.00,
       selling_price: 2.00,
       status: 'active'
@@ -80,3 +80,4 @@ async function run() {
 }
 
 run();
+

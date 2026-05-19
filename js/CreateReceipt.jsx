@@ -8,7 +8,7 @@ function CreateReceipt() {
   const [clinicName] = useState('Sample Clinic Name');
   const [patientName] = useState('John Doe');
   const [paymentAmount] = useState(100); // Sample payment amount
-  const [qrCodeValue] = useState('https://clinicprosystem.com/feedback'); // Feedback link
+  const [qrCodeValue] = useState('https://MEDCORE.com/feedback'); // Feedback link
 
   const generateReceipt = () => {
     const doc = new jsPDF();
@@ -107,3 +107,4 @@ const styles = {
 };
 
 export default CreateReceipt;
+

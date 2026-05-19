@@ -259,6 +259,9 @@ PQIDAQAB
 
   const handleGrantPermissions = (employee) => {
     setSelectedEmployee(employee);
+    setSelectedPermissions({...initialPermissions});
+    setLoginCode('');
+    setSelectAll(false);
     setShowSendMessagePrompt(true);
   };
 
@@ -288,19 +291,21 @@ PQIDAQAB
         body: JSON.stringify({
           employeeName: selectedEmployee.Name,
           permissions: selectedPermissions,
-          token: token,
-          loginCode: encryptedLoginCode
+          token: requestToken,
+          loginCode: encryptedLoginCode,
         })
       });
 
-      if (response.ok) {
+      const responseData = await response.json();
+
+      if (responseData.success) {
         setShowSendMessagePrompt(false);
         setSelectedPermissions({...initialPermissions});
         setLoginCode('');
         setSelectAll(false);
         alert('Permissions updated successfully');
       } else {
-        throw new Error('Failed to update permissions');
+        throw new Error(responseData.message || 'Failed to update permissions');
       }
     } catch (error) {
       console.error('Error updating permissions:', error);
@@ -353,9 +358,11 @@ PQIDAQAB
             }),
           });
 
-          if (response.ok) {
-            const permissionsData = await response.json();
-            const fetchedPermissions = permissionsData.permissions;
+          const permissionsData = await response.json();
+
+          // Check for actual success in the response data, not just HTTP status
+          if (permissionsData.success !== false && permissionsData.permissions) {
+            const fetchedPermissions = permissionsData.permissions || [];
 
             const mappedPermissions = {
               Store: fetchedPermissions.includes('store'),
@@ -371,12 +378,13 @@ PQIDAQAB
               manageDrugs: fetchedPermissions.includes('managedrugs'),
               triage: fetchedPermissions.includes('triage'),
               manageLaboratory: fetchedPermissions.includes('managelaboratory'),
-              'access-sales-details': fetchedPermissions.includes('access-sales-details'), 
+              'access-sales-details': fetchedPermissions.includes('access-sales-details'),
               'delete-sale': fetchedPermissions.includes('delete-sale'),
               familyPlanning: fetchedPermissions.includes('familyplanning'),
               manageServices: fetchedPermissions.includes('manageservices'),
               editBills: fetchedPermissions.includes('editbills'),
-              'set-sales-expenses-categories': fetchedPermissions.includes('set-sales-expenses-categories') // New permission mapping
+              sendwhatsappmessages: fetchedPermissions.includes('sendwhatsappmessages'),
+              'set-sales-expenses-categories': fetchedPermissions.includes('set-sales-expenses-categories'),
             };
 
             setSelectedPermissions((prevPermissions) => ({
@@ -388,7 +396,7 @@ PQIDAQAB
             const allChecked = Object.values(mappedPermissions).every(value => value);
             setSelectAll(allChecked);
           } else {
-            throw new Error('Failed to fetch employee permissions');
+            throw new Error(permissionsData.message || 'Failed to fetch employee permissions');
           }
         } catch (error) {
           console.error('Error fetching permissions:', error);
@@ -761,7 +769,7 @@ PQIDAQAB
       )}
 
       <footer className="admin-footer">
-        This system was created by DeepMind E-Systems. All rights reserved.
+        This system was created by MEDCORE Systems. All rights reserved.
       </footer>
     </div>
   );

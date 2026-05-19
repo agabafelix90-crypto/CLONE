@@ -43,6 +43,9 @@ import Performance from './Performance';
 import Malariagraph from './Malariagraph';
 import AboutUs from './AboutUs';
 import AboutusPhones from './AboutusPhones';
+import TermsOfService from './TermsOfService';
+import PrivacyPolicy from './PrivacyPolicy';
+import ComplianceGuidelines from './ComplianceGuidelines';
 import SetSurvey from './SetSurvey';
 import Triage from './Triage';
 import MaternityDashboard from './MaternityDashboard';
@@ -117,6 +120,9 @@ function App() {
         <Route path="/aboutusphones" element={<AboutusPhones />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/pricingphones" element={<PricingPhones />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/compliance" element={<ComplianceGuidelines />} />
         <Route path="/onboarding" element={<Onboarding />} />
 
         <Route element={<RequireOnboardingGuard />}>

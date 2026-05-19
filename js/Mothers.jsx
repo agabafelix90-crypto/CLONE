@@ -729,7 +729,7 @@ function Mothers() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
                 <div style={{ width: '38px', height: '38px', background: theme.logoBg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', color: '#fff', fontSize: '13px', flexShrink: 0 }}>CP</div>
                 <div>
-                  <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '14px', whiteSpace: 'nowrap' }}>ClinicPro</div>
+                  <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '14px', whiteSpace: 'nowrap' }}>MEDCORE</div>
                   <div style={{ color: theme.sidebarTextMuted, fontSize: '10.5px', whiteSpace: 'nowrap' }}>Mothers Registry</div>
                 </div>
               </div>

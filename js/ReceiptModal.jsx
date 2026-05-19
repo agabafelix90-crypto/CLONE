@@ -140,8 +140,8 @@ const ReceiptModal = ({ receiptDetails = {}, onClose }) => {
           <div>Served by: ${employeeName}</div>
           <div>** THANK YOU **</div>
           <div>Goods sold are not returnable</div>
-          <div>Software by DeepMind E-Systems</div>
-          <div>0786747733</div>
+          <div>Software by MEDCORE Systems</div>
+          <div>Contact: +256 700 123 456</div>
         </div>
       </body>
       </html>

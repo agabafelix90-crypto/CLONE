@@ -51,8 +51,8 @@ function Login() {
   const MAX_ATTEMPTS = 5;
   const LOCKOUT_SECONDS = 30;
 
-  const attemptKey = useMemo(() => "clinicpro_login_attempts", []);
-  const lockKey = useMemo(() => "clinicpro_login_lock_until", []);
+  const attemptKey = useMemo(() => "MEDCORE_login_attempts", []);
+  const lockKey = useMemo(() => "MEDCORE_login_lock_until", []);
 
   const isLockedOut = () => {
     const lockUntil = Number(localStorage.getItem(lockKey));
@@ -325,7 +325,7 @@ function Login() {
           </h1>
 
           <p style={{ fontSize: "15px", margin: "0", color: "#6c757d" }}>
-            Sign in to your Clinic-Pro account
+            Sign in to your MEDCORE account
           </p>
         </div>
 

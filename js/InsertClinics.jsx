@@ -20,11 +20,11 @@ const InsertClinics = () => {
   // System status options
   const systemOptions = [
     { value: '', label: 'Select system status' },
-    { value: 'clinic_pro', label: 'Using Clinic Pro' },
+    { value: 'clinic_pro', label: 'Using MEDCORE' },
     { value: 'no_system', label: 'No System Yet' },
     { value: 'other_system', label: 'Using Another System' },
     { value: 'not_sure', label: 'Not Sure/Unknown' },
-    { value: 'interested', label: 'Interested in Clinic Pro' },
+    { value: 'interested', label: 'Interested in MEDCORE' },
   ];
 
   const handleChange = (e) => {
@@ -132,9 +132,9 @@ const InsertClinics = () => {
         <div style={styles.missionCard}>
           <div style={styles.missionIcon}>🎯</div>
           <div>
-            <h3 style={styles.missionTitle}>Our Mission: 1000 Clinics with Clinic Pro</h3>
+            <h3 style={styles.missionTitle}>Our Mission: 1000 Clinics with MEDCORE</h3>
             <p style={styles.missionText}>
-              We're on a mission to empower 1000 clinics with Clinic Pro - transforming healthcare 
+              We're on a mission to empower 1000 clinics with MEDCORE - transforming healthcare 
               management through technology, one clinic at a time.
             </p>
           </div>
@@ -211,7 +211,7 @@ const InsertClinics = () => {
             <div style={styles.statusIndicators}>
               {formData.systemStatus === 'clinic_pro' && (
                 <div style={styles.statusBadgeSuccess}>
-                  ✅ Already using Clinic Pro
+                  ✅ Already using MEDCORE
                 </div>
               )}
               {formData.systemStatus === 'no_system' && (
@@ -226,7 +226,7 @@ const InsertClinics = () => {
               )}
               {formData.systemStatus === 'interested' && (
                 <div style={styles.statusBadgePrimary}>
-                  💡 Interested in Clinic Pro - High potential!
+                  💡 Interested in MEDCORE - High potential!
                 </div>
               )}
             </div>

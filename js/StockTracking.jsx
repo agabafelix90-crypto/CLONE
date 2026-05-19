@@ -949,7 +949,7 @@ const StockTracking = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '34px', height: '34px', background: '#2563eb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: '#fff', fontWeight: '700' }}>CP</div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a', lineHeight: 1.2 }}>ClinicPro</div>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a', lineHeight: 1.2 }}>MEDCORE</div>
               <div style={{ fontSize: '10px', color: '#64748b' }}>{clinicName || employee?.clinic}</div>
             </div>
           </div>
@@ -1556,7 +1556,7 @@ const StockTracking = () => {
         <div style={{ padding: sidebarCollapsed ? '20px 10px' : '20px 16px', borderBottom: `2px solid ${theme.sidebarBorder}`, display: 'flex', flexDirection: sidebarCollapsed ? 'column' : 'row', alignItems: 'center', justifyContent: 'space-between', background: theme.filterSection, minHeight: sidebarCollapsed ? '120px' : '80px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, order: sidebarCollapsed ? 2 : 1, marginTop: sidebarCollapsed ? '12px' : 0 }}>
             <div style={{ width: '45px', height: '45px', background: theme.activeNavBg, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0, color: theme.activeNavText, fontWeight: 'bold', boxShadow: effectiveTheme === 'blue' ? '0 4px 10px rgba(37,99,235,0.3)' : '0 2px 8px rgba(0,0,0,0.1)' }}>CP</div>
-            {!sidebarCollapsed && <div style={{ overflow: 'hidden' }}><div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '16px', whiteSpace: 'nowrap' }}>ClinicPro</div><div style={{ color: theme.sidebarTextMuted, fontSize: '11px', fontWeight: '500', marginTop: '2px', whiteSpace: 'nowrap' }}>Stock Management</div></div>}
+            {!sidebarCollapsed && <div style={{ overflow: 'hidden' }}><div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '16px', whiteSpace: 'nowrap' }}>MEDCORE</div><div style={{ color: theme.sidebarTextMuted, fontSize: '11px', fontWeight: '500', marginTop: '2px', whiteSpace: 'nowrap' }}>Stock Management</div></div>}
           </div>
           <button className="collapse-btn" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} style={{ ...styles.collapseButton, width: '42px', height: '42px', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', order: sidebarCollapsed ? 1 : 2, marginLeft: sidebarCollapsed ? 0 : 'auto', flexShrink: 0 }} title={sidebarCollapsed ? 'Expand' : 'Collapse'}>{sidebarCollapsed ? '→' : '←'}</button>
         </div>

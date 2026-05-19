@@ -1565,7 +1565,7 @@ function DoctorsRoom() {
                 </button>
                 
                 <footer className="footer2">
-                    This software was created by DeepMind E-Systems. For support or help contact +256786747733 
+                    This software was created by MEDCORE Systems. For support or help contact +256700123457 
                 </footer>
             </div>
         </div>

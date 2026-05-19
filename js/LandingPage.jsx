@@ -48,7 +48,7 @@ const FEATURES = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Madam Getrude",  role: "LIFE-SURE MEDICARE",         initial: "G", text: "ClinicPro transformed our clinic management. Tracking appointments, sales and expenses has never been easier." },
+  { name: "Madam Getrude",  role: "LIFE-SURE MEDICARE",         initial: "G", text: "MEDCORE transformed our clinic management. Tracking appointments, sales and expenses has never been easier." },
   { name: "Madam Sarah",    role: "Kikajjo Health Center",      initial: "S", text: "The automated reminders and AI-powered features have saved us so much time and effort!" },
   { name: "Doctor Joshua",  role: "Asaba Medical Clinic",       initial: "J", text: "A fantastic tool that made our clinic run more smoothly. I highly recommend it to every clinic owner." },
 ];
@@ -66,7 +66,7 @@ const VALUES = [
   "Increased Patient Engagement","Improved Patient Trust",
 ];
 
-// ─── CP Logo ──────────────────────────────────────────────────────────────────
+// ─── MEDCORE Logo ─────────────────────────────────────────────────────────────
 const CPLogo = ({ size = 36, dark = false, navScrolled = false }) => {
   const bg = dark ? '#0a1e4a' : (navScrolled ? '#0a1e4a' : 'rgba(255,255,255,0.2)');
   const textColor = '#ffffff';
@@ -83,7 +83,7 @@ const CPLogo = ({ size = 36, dark = false, navScrolled = false }) => {
         fontFamily: "'Sora', sans-serif", fontWeight: 900,
         fontSize: size * 0.38, color: textColor, letterSpacing: '-0.5px',
         lineHeight: 1, userSelect: 'none',
-      }}>CP</span>
+      }}>MC</span>
       {/* subtle accent dot */}
       <div style={{
         position: 'absolute', bottom: size * 0.1, right: size * 0.1,
@@ -291,7 +291,7 @@ function OverlayPanel({ open, onClose, children, title }) {
         <div style={{ height: 64, background: '#0a1e4a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5vw', flexShrink: 0, boxShadow: '0 2px 24px rgba(10,30,74,0.3)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <CPLogo size={32} dark />
-            <span style={{ fontFamily: "'Sora',sans-serif", fontWeight: 900, color: '#ffffff', fontSize: 17 }}>ClinicPro<span style={{ color: '#7ec8f7' }}>System</span> <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 400, fontSize: 14 }}>/ {title}</span></span>
+            <span style={{ fontFamily: "'Sora',sans-serif", fontWeight: 900, color: '#ffffff', fontSize: 17 }}>MEDCORE<span style={{ color: '#7ec8f7' }}>System</span> <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 400, fontSize: 14 }}>/ {title}</span></span>
           </div>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ffffff', transition: 'background 0.2s' }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
@@ -330,7 +330,7 @@ const LandingPage = () => {
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
-  const openDemo = () => window.open("https://wa.me/256703521101?text=Hi!%20I'm%20interested%20in%20a%20demo.", "_blank");
+  const openDemo = () => window.open("https://wa.me/256700123456?text=Hi!%20I'm%20interested%20in%20a%20demo.", "_blank");
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: '#f8faff', color: '#0a1e4a', overflowX: 'hidden' }}>
@@ -351,7 +351,7 @@ const LandingPage = () => {
             <CPLogo size={36} navScrolled={true} />
             <div>
               <div style={{ fontSize: 19, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px', fontFamily: "'Sora', sans-serif", lineHeight: 1.1 }}>
-                ClinicPro<span style={{ color: 'rgba(255,255,255,0.6)' }}>System</span>
+                MEDCORE<span style={{ color: 'rgba(255,255,255,0.6)' }}>System</span>
               </div>
               
             </div>
@@ -400,7 +400,7 @@ const LandingPage = () => {
             Run Your Clinic<br /><span style={{ color: '#7ec8f7' }}>Smarter</span> with AI
           </h1>
           <p style={{ fontSize: 'clamp(1rem, 1.8vw, 1.2rem)', color: 'rgba(255,255,255,0.65)', maxWidth: 560, margin: '0 auto 52px', lineHeight: 1.8 }}>
-            ClinicProSystem automates patient records, billing, AI reports, appointment reminders and more — so your team can focus entirely on delivering great care.
+            MEDCORE automates patient records, billing, AI reports, appointment reminders and more — so your team can focus entirely on delivering great care.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/clinic-registration')}
@@ -443,9 +443,9 @@ const LandingPage = () => {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 3, color: '#3a7bd5', textTransform: 'uppercase', marginBottom: 14 }}>About the Platform</div>
-            <h2 style={{ fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 900, lineHeight: 1.18, letterSpacing: '-1px', margin: '0 0 20px', fontFamily: "'Sora', sans-serif", color: '#0a1e4a' }}>What is<br />ClinicProSystem?</h2>
+            <h2 style={{ fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 900, lineHeight: 1.18, letterSpacing: '-1px', margin: '0 0 20px', fontFamily: "'Sora', sans-serif", color: '#0a1e4a' }}>What is<br />MEDCORE?</h2>
             <p style={{ color: '#4a5c82', fontSize: 15.5, lineHeight: 1.8, marginBottom: 16 }}>
-              ClinicProSystem is a modern, AI-powered healthcare management platform designed to revolutionize the way clinics and medical facilities operate.
+              MEDCORE is a modern, AI-powered healthcare management platform designed to revolutionize the way clinics and medical facilities operate.
             </p>
             {expanded && (<p style={{ color: '#4a5c82', fontSize: 15.5, lineHeight: 1.8, marginBottom: 16 }}>With advanced AI capabilities, it optimizes everything from patient management and drug inventory tracking to lab test processing, radiology, maternity care, finance management, employee performance tracking, and patient feedback collection.</p>)}
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 8 }}>
@@ -509,7 +509,7 @@ const LandingPage = () => {
             <div style={{ position: 'sticky', top: 100 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 3, color: '#3a7bd5', textTransform: 'uppercase', marginBottom: 14 }}>Why Choose Us</div>
               <h2 style={{ fontSize: 'clamp(1.8rem,3vw,2.6rem)', fontWeight: 900, lineHeight: 1.18, letterSpacing: '-1px', margin: '0 0 20px', fontFamily: "'Sora', sans-serif", color: '#0a1e4a' }}><span style={{ color: '#3a7bd5' }}>20 Ways</span><br />We Add Value</h2>
-              <p style={{ color: '#4a5c82', fontSize: 15, lineHeight: 1.75, marginBottom: 28 }}>From financial stability to patient loyalty, ClinicPro touches every dimension of clinic life.</p>
+              <p style={{ color: '#4a5c82', fontSize: 15, lineHeight: 1.75, marginBottom: 28 }}>From financial stability to patient loyalty, MEDCORE touches every dimension of clinic life.</p>
               <button onClick={openDemo} style={{ padding: '14px 28px', borderRadius: 10, border: 'none', background: '#0a1e4a', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 20px rgba(10,30,74,0.25)', transition: 'background 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#142d6e'}
                 onMouseLeave={e => e.currentTarget.style.background = '#0a1e4a'}>
@@ -594,7 +594,7 @@ const LandingPage = () => {
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 700, height: 700, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 700, margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(2rem,4vw,3.4rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-1.5px', margin: '0 0 18px', fontFamily: "'Sora', sans-serif" }}>Ready to Transform<br /><span style={{ color: '#7ec8f7' }}>Your Clinic?</span></h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, marginBottom: 46, lineHeight: 1.75 }}>Join hundreds of clinics across Uganda already running smarter with ClinicProSystem. Setup takes minutes, not weeks.</p>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, marginBottom: 46, lineHeight: 1.75 }}>Join hundreds of clinics across Uganda already running smarter with MEDCORE. Setup takes minutes, not weeks.</p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/clinic-registration')}
               style={{ padding: '16px 36px', borderRadius: 12, border: 'none', background: '#ffffff', color: '#0a1e4a', fontWeight: 800, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 40px rgba(0,0,0,0.25)', transition: 'transform 0.2s' }}
@@ -620,7 +620,7 @@ const LandingPage = () => {
             <div style={{ flex: '1 1 240px', maxWidth: 300, textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 6 }}>
                 <CPLogo size={34} dark />
-                <span style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', fontFamily: "'Sora',sans-serif" }}>ClinicPro<span style={{ color: '#7ec8f7' }}>System</span></span>
+                <span style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', fontFamily: "'Sora',sans-serif" }}>MEDCORE<span style={{ color: '#7ec8f7' }}>System</span></span>
               </div>
               <div style={{ fontSize: 10, color: '#3a5580', fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Care. Smart. Digital.</div>
               <p style={{ fontSize: 14, color: '#445577', lineHeight: 1.8 }}>Modern AI-powered clinic management. Built for Uganda, trusted by hundreds of healthcare facilities.</p>
@@ -628,7 +628,7 @@ const LandingPage = () => {
             {/* Quick Links */}
             <div style={{ flex: '1 1 160px', maxWidth: 200, textAlign: 'center' }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2.5, color: '#7ec8f7', textTransform: 'uppercase', marginBottom: 20 }}>Quick Links</div>
-              {[['Pricing', () => setShowPricing(true)], ['About Us', () => setShowAbout(true)]].map(([l, fn]) => (
+              {[['Pricing', () => setShowPricing(true)], ['About Us', () => setShowAbout(true)], ['Privacy Policy', () => navigate('/privacy-policy')], ['Terms of Service', () => navigate('/terms-of-service')], ['Compliance', () => navigate('/compliance')]].map(([l, fn]) => (
                 <button key={l} onClick={fn} style={{ display: 'block', width: '100%', textAlign: 'center', fontSize: 14, color: '#445577', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 12px', transition: 'color 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.color = '#ffffff'}
                   onMouseLeave={e => e.currentTarget.style.color = '#445577'}>{l}</button>
@@ -640,7 +640,7 @@ const LandingPage = () => {
             {/* Contact */}
             <div style={{ flex: '1 1 200px', maxWidth: 260, textAlign: 'center' }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2.5, color: '#7ec8f7', textTransform: 'uppercase', marginBottom: 20 }}>Contact Us</div>
-              <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.2 }}>+256 703 521 101<br />+256 786 747 733<br />clinicproug@gmail.com</p>
+              <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.2 }}>+256 700 123 456<br />+256 700 123 457<br />support@medcore.africa</p>
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
                 <button onClick={openDemo}
                   style={{ padding: '11px 22px', borderRadius: 9, border: 'none', background: '#0a1e4a', color: '#ffffff', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'background 0.2s', boxShadow: '0 2px 12px rgba(10,30,74,0.4)' }}
@@ -652,7 +652,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div style={{ paddingTop: 28, display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
-            <span style={{ fontSize: 13, color: '#2a3a55' }}>© 2025 ClinicProSystem. All rights reserved.</span>
+            <span style={{ fontSize: 13, color: '#2a3a55' }}>© 2025 MEDCORE. All rights reserved.</span>
             <span style={{ fontSize: 13, color: '#2a3a55' }}>Built with ❤ in Uganda</span>
           </div>
         </div>

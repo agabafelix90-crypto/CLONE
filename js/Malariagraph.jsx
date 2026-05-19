@@ -813,7 +813,7 @@ function Malariagraph() {
               <div style={{ display:'flex', alignItems:'center', gap:'10px', animation:'fadeInUp .3s ease' }}>
                 <div style={{ width:'40px', height:'40px', background:theme.activeNavBg, borderRadius:'10px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', color:'#fff', fontWeight:'800', boxShadow:'0 4px 12px rgba(37,99,235,.3)', flexShrink:0 }}>CP</div>
                 <div>
-                  <div style={{ color:currentTheme==='blue'?'#fff':theme.textPrimary, fontWeight:'700', fontSize:'14px' }}>ClinicPro</div>
+                  <div style={{ color:currentTheme==='blue'?'#fff':theme.textPrimary, fontWeight:'700', fontSize:'14px' }}>MEDCORE</div>
                   <div style={{ color:theme.sectionHeaderText, fontSize:'10px', fontWeight:'500' }}>Disease Analytics</div>
                 </div>
               </div>

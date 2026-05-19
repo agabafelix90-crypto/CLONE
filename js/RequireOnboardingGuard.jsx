@@ -51,7 +51,8 @@ function RequireOnboardingGuard() {
 
         const isFirstLogin = data.isFirstLogin === true;
         const isAdminPasswordChanged = data.admin_password_changed === true;
-        const normalizedPath = location.pathname.toLowerCase();
+        const normalizePath = (p = '') => (p || '').toString().replace(/\/+/g, '/').replace(/\/+$/,'').toLowerCase();
+        const normalizedPath = normalizePath(location.pathname);
 
         if (isFirstLogin) {
           if (normalizedPath === '/onboarding') {
@@ -62,8 +63,8 @@ function RequireOnboardingGuard() {
           }
 
           if (!isAdminPasswordChanged && adminPasswordRequiredPaths.some((path) => {
-            const normalizedAllowedPath = path.toLowerCase();
-            return normalizedPath === normalizedAllowedPath || normalizedPath.startsWith(normalizedAllowedPath);
+            const normalizedAllowedPath = normalizePath(path);
+            return normalizedPath === normalizedAllowedPath || normalizedPath.startsWith(normalizedAllowedPath + '/');
           })) {
             if (!isCancelled) {
               setStatus({ checking: false, allowAccess: false, redirectTo: `/onboarding?token=${token}` });
@@ -72,8 +73,8 @@ function RequireOnboardingGuard() {
           }
 
           const allowedDuringOnboarding = onboardingAllowedPaths.some((allowedPath) => {
-            const normalizedAllowedPath = allowedPath.toLowerCase();
-            return normalizedPath === normalizedAllowedPath || normalizedPath.startsWith(normalizedAllowedPath);
+            const normalizedAllowedPath = normalizePath(allowedPath);
+            return normalizedPath === normalizedAllowedPath || normalizedPath.startsWith(normalizedAllowedPath + '/');
           });
 
           if (!allowedDuringOnboarding) {

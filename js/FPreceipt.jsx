@@ -143,8 +143,8 @@ function FPreceipt({ isOpen, onClose, details, token }) {
         
         <div class="footer">
           <div style="font-weight:700;">Thank you for your payment!</div>
-          <div>Software by DEEPMINDS E-Systems</div>
-          <div>Contact: 07786747733</div>
+          <div>Software by MEDCORE Systems</div>
+          <div>Contact: +256 700 123 456</div>
         </div>
       </body>
       </html>
@@ -280,7 +280,7 @@ function FPreceipt({ isOpen, onClose, details, token }) {
           borderTop: '1px solid #ddd',
           fontWeight: '600'
         }}>
-          <div>Software by DEEPMINDS E-Systems</div>
+          <div>Software by MEDCORES E-Systems</div>
         </div>
       </div>
     </div>

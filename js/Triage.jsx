@@ -660,7 +660,7 @@ const PatientSidebar = ({ patient, collapsed, onToggleCollapse, theme, onClose }
                     </div>
                     {!collapsed && (
                         <div style={{ overflow: 'hidden' }}>
-                            <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '16px', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>ClinicPro</div>
+                            <div style={{ color: theme.sidebarText, fontWeight: '700', fontSize: '16px', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>MEDCORE</div>
                             <div style={{ color: theme.sidebarTextMuted, fontSize: '11px', fontWeight: '500', marginTop: '2px', whiteSpace: 'nowrap' }}>Triage</div>
                         </div>
                     )}

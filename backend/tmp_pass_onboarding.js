@@ -84,7 +84,7 @@ const { supabase } = require('./src/lib/supabaseClient');
   if (!drugs || drugs.length === 0) {
     const { data: drugData, error: insertDrugError } = await supabase
       .from('drugs')
-      .insert([{ clinic_id: clinic.id, name: 'Default Drug', generic_name: 'Default', description: 'Onboarding default drug', dosage_form: 'tablet', strength: '10mg', manufacturer: 'ClinicPro', cost_price: 1.00, selling_price: 2.00, status: 'active' }])
+      .insert([{ clinic_id: clinic.id, name: 'Default Drug', generic_name: 'Default', description: 'Onboarding default drug', dosage_form: 'tablet', strength: '10mg', manufacturer: 'MEDCORE', cost_price: 1.00, selling_price: 2.00, status: 'active' }])
       .select('id')
       .maybeSingle();
     if (insertDrugError) {
@@ -99,3 +99,4 @@ const { supabase } = require('./src/lib/supabaseClient');
   console.log('Completed onboarding seed data.');
   process.exit(0);
 })();
+
