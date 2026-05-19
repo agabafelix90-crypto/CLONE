@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 215 35% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 35% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 35% 15%;
+
+    --primary: 168 65% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 25% 93%;
+    --secondary-foreground: 215 35% 15%;
+
+    --muted: 210 20% 95%;
+    --muted-foreground: 215 15% 50%;
+
+    --accent: 200 80% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 168 65% 38%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 215 35% 12%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 168 65% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 30% 18%;
+    --sidebar-accent-foreground: 210 20% 92%;
+    --sidebar-border: 215 30% 20%;
+    --sidebar-ring: 168 65% 45%;
+
+    /* Custom tokens */
+    --clinic-teal: 168 65% 38%;
+    --clinic-teal-light: 168 55% 92%;
+    --clinic-navy: 215 35% 15%;
+    --clinic-blue: 200 80% 45%;
+    --clinic-green: 145 60% 42%;
+    --clinic-orange: 25 90% 55%;
+    --clinic-gold: 40 85% 55%;
+    --gradient-hero: linear-gradient(135deg, hsl(168 65% 38%), hsl(200 80% 45%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(168 55% 97%));
+    --shadow-card: 0 4px 24px -4px hsl(215 35% 15% / 0.08);
+    --shadow-elevated: 0 12px 40px -8px hsl(215 35% 15% / 0.15);
+
+    /* Font families */
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .dark {
+    --background: 215 35% 8%;
+    --foreground: 210 20% 92%;
+    --card: 215 35% 12%;
+    --card-foreground: 210 20% 92%;
+    --popover: 215 35% 12%;
+    --popover-foreground: 210 20% 92%;
+    --primary: 168 65% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 30% 18%;
+    --secondary-foreground: 210 20% 92%;
+    --muted: 215 30% 15%;
+    --muted-foreground: 215 15% 55%;
+    --accent: 200 80% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 30% 20%;
+    --input: 215 30% 20%;
+    --ring: 168 65% 45%;
+
+    --sidebar-background: 215 35% 10%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 168 65% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 30% 16%;
+    --sidebar-accent-foreground: 210 20% 92%;
+    --sidebar-border: 215 30% 18%;
+    --sidebar-ring: 168 65% 45%;
+
+    --gradient-card: linear-gradient(145deg, hsl(215 35% 13%), hsl(215 35% 10%));
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
+    --shadow-elevated: 0 12px 40px -8px hsl(0 0% 0% / 0.4);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .glass-card {
+    background: hsl(0 0% 100% / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .dark .glass-card {
+    background: hsl(215 35% 12% / 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(215 30% 25% / 0.4);
+  }
+
+  .glass-sidebar {
+    background: hsl(215 35% 12% / 0.95);
+    backdrop-filter: blur(20px);
+  }
+
+  .dark .glass-sidebar {
+    background: hsl(215 35% 8% / 0.85);
+    backdrop-filter: blur(24px);
+    border-right: 1px solid hsl(215 30% 20% / 0.5);
+  }
+
+  .glass-elevated {
+    background: hsl(0 0% 100% / 0.7);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px -8px hsl(215 35% 15% / 0.1), inset 0 1px 0 hsl(0 0% 100% / 0.6);
+    border: 1px solid hsl(var(--border) / 0.4);
+  }
+
+  .dark .glass-elevated {
+    background: hsl(215 35% 13% / 0.6);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px -8px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(215 30% 25% / 0.3);
+    border: 1px solid hsl(215 30% 22% / 0.5);
+  }
+
+  .text-gradient {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .clinic-sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200;
+    color: hsl(var(--sidebar-foreground) / 0.7);
+  }
+
+  .clinic-sidebar-item:hover {
+    background: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-foreground));
+  }
+
+  .clinic-sidebar-item.active {
+    background: hsl(var(--sidebar-primary) / 0.15);
+    color: hsl(var(--sidebar-primary));
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
