@@ -485,7 +485,7 @@ function MobileDrawer({ open, onClose, activeSection, onSectionChange, currentTh
         </nav>
         <div style={{ padding: '16px', borderTop: `1px solid ${currentTheme === 'blue' ? '#1e3a8a' : '#e2e8f0'}` }}>
           <div style={{ color: currentTheme === 'blue' ? '#64748b' : '#94a3b8', fontSize: '10px', textAlign: 'center' }}>
-            MEDCORE Systems · +256700123457
+            MEDCORE Systems · +2567526488447
           </div>
         </div>
       </div>
@@ -3843,7 +3843,7 @@ function Store() {
         fontSize: '11px',
         color: theme.textMuted
       }}>
-        This system was created by MEDCORE Systems. For help or support contact +256700123457
+        This system was created by MEDCORE Systems. For help or support contact +2567526488447
       </footer>
     </div>
   );

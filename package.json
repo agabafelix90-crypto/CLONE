@@ -33,6 +33,7 @@
     "jsencrypt": "^3.0.0-rc.1",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.533.0",
+    "framer-motion": "^6.0.0",
     "print-js": "^1.6.0",
     "qrcode.react": "^1.0.0",
     "react": "^17.0.2",

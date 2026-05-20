@@ -2113,7 +2113,7 @@ function Store() {
         fontSize: '12px',
         color: colors.textMuted
       }}>
-        This system was created by MEDCORE Systems. For help or support contact +256700123457
+        This system was created by MEDCORE Systems. For help or support contact +2567526488447
       </footer>
     </div>
   );

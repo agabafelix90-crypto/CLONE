@@ -187,7 +187,7 @@ function EditFileModal({ fileId, token, employeeName, clinicalNotes: initialClin
                 </button>
 
                 <footer style={{ marginTop: '20px', fontSize: '12px', textAlign: 'center', color: '#666' }}>
-                    This software was created by MEDCORE Systems. For support or help contact +256700123457
+                    This software was created by MEDCORE Systems. For support or help contact +2567526488447
                 </footer>
             </div>
         </div>

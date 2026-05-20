@@ -445,7 +445,7 @@ const Receipt = ({
     yPos += 3;
     
     doc.setFontSize(5);
-    doc.text('Software by MEDCORE Systems | Tel: +256 700 123 456', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('Software by MEDCORE Systems | Tel: +256 752 648844', pageWidth / 2, yPos, { align: 'center' });
     
     // Save and open PDF
     doc.save('payment_receipt.pdf');
@@ -629,7 +629,7 @@ const Receipt = ({
     yPos += 4;
     
     doc.setFontSize(7);
-    doc.text('Software by MEDCORE Systems | Tel: +256 700 123 456', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('Software by MEDCORE Systems | Tel: +256 752 648844', pageWidth / 2, yPos, { align: 'center' });
     
     // Save and open PDF
     doc.save('payment_receipt.pdf');
@@ -995,7 +995,7 @@ const Receipt = ({
                 Goods/services once sold are not returnable
               </div>
               <div>
-                Software by MEDCORE Systems | Tel: +256 700 123 456
+                Software by MEDCORE Systems | Tel: +256 752 648844
               </div>
             </div>
           </div>

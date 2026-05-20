@@ -237,7 +237,7 @@ const WelcomeModal = ({ onClose }) => (
           cursor: 'pointer', marginBottom: '10px'
         }}>Get Started</button>
         <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
-          For support contact: +256700123457 | MEDCORE Systems
+          For support contact: +2567526488447 | MEDCORE Systems
         </p>
       </div>
     </div>
@@ -1513,7 +1513,7 @@ PQIDAQAB
           </div>
 
           <footer style={{ marginTop: '20px', textAlign: 'center', color: '#6c757d', fontSize: isMobile ? '10px' : '14px', padding: '0 10px' }}>
-            This system was created by MEDCORE Systems. For support or help contact +256700123457
+            This system was created by MEDCORE Systems. For support or help contact +2567526488447
           </footer>
         </div>
 

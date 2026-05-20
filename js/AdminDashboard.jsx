@@ -1436,7 +1436,7 @@ const AdminDashboard = () => {
           {view === 'dashboard' && <DashView/>}
           {view === 'employees' && <EmpView/>}
           <footer style={{ borderTop:'1px solid var(--border)', paddingTop:16, textAlign:'center', color:'var(--text-3)', fontSize:11.5 }}>
-            Created by <strong style={{ color:'var(--text-2)' }}>MEDCORE Systems</strong> · Support: +256 700 123 457
+            Created by <strong style={{ color:'var(--text-2)' }}>MEDCORE Systems</strong> · Support: +256 782 547057
           </footer>
         </main>
       </div>

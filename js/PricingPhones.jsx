@@ -33,7 +33,7 @@ const ICONS = {
 };
 
 const openWhatsApp = (msg) =>
-  window.open(`https://wa.me/256700123456?text=${encodeURIComponent(msg)}`, '_blank');
+  window.open(`https://wa.me/2567526488446?text=${encodeURIComponent(msg)}`, '_blank');
 
 // ── List item ───────────────────────────────────────────────────────────────
 function ListItem({ text, positive = true }) {
@@ -361,8 +361,8 @@ const Pricing = () => {
           </p>
           <div className="hero-contact" style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
             {[
-              { icon: ICONS.phone, label: '+256 700 123 456', href: 'tel:+256700123456' },
-              { icon: ICONS.phone, label: '+256 700 123 457', href: 'tel:+256700123457' },
+              { icon: ICONS.phone, label: '+256 752 648844', href: 'tel:+2567526488446' },
+              { icon: ICONS.phone, label: '+256 782 547057', href: 'tel:+2567526488447' },
               { icon: ICONS.mail,  label: 'MEDCOREug@gmail.com', href: 'mailto:MEDCOREug@gmail.com' },
             ].map(({ icon, label, href }) => (
               <a key={label} href={href}
@@ -479,8 +479,8 @@ const Pricing = () => {
                 </p>
                 <div style={{ display: 'flex', gap: 16, marginTop: 18, flexWrap: 'wrap' }}>
                   {[
-                    { icon: ICONS.phone, label: '+256 700 123 456', href: 'tel:+256700123456' },
-                    { icon: ICONS.phone, label: '+256 700 123 457', href: 'tel:+256700123457' },
+                    { icon: ICONS.phone, label: '+256 752 648844', href: 'tel:+2567526488446' },
+                    { icon: ICONS.phone, label: '+256 782 547057', href: 'tel:+2567526488447' },
                     { icon: ICONS.mail,  label: 'MEDCOREug@gmail.com', href: 'mailto:MEDCOREug@gmail.com' },
                   ].map(({ icon, label, href }) => (
                     <a key={label} href={href} style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#7ec8f7', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
@@ -749,7 +749,7 @@ const Pricing = () => {
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2.5, color: '#7ec8f7', textTransform: 'uppercase', marginBottom: 18 }}>Contact</div>
               <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.1 }}>
-                +256 700 123 456<br />+256 700 123 457<br />MEDCOREug@gmail.com
+                +256 752 648844<br />+256 782 547057<br />MEDCOREug@gmail.com
               </p>
               <button onClick={() => openWhatsApp("Hi, I'd like to chat about MEDCORE.")}
                 style={{ marginTop: 16, padding: '10px 20px', borderRadius: 9, border: 'none', background: '#0a1e4a', color: '#ffffff', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, transition: 'background 0.2s', boxShadow: '0 2px 12px rgba(10,30,74,0.4)', minHeight: 44 }}

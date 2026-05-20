@@ -305,7 +305,7 @@ function Onboarding() {
               <p style={{ marginTop: '20px', color: '#475569', fontWeight: 600 }}>
                 Get Started
                 <br />
-                For support contact: <strong>+256700123457 | MEDCORE Systems</strong>
+                For support contact: <strong>+2567526488447 | MEDCORE Systems</strong>
               </p>
             </div>
           </div>

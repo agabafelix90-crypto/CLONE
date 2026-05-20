@@ -141,7 +141,7 @@ const ReceiptModal = ({ receiptDetails = {}, onClose }) => {
           <div>** THANK YOU **</div>
           <div>Goods sold are not returnable</div>
           <div>Software by MEDCORE Systems</div>
-          <div>Contact: +256 700 123 456</div>
+          <div>Contact: +256 752 648844</div>
         </div>
       </body>
       </html>

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import Pricing from './Pricing';
 import AboutUs from './AboutUs';
+import LandingNav from './LandingNav';
 
 // ─── Inline SVG Icon ──────────────────────────────────────────────────────────
 const Icon = ({ path, size = 20, color = 'currentColor' }) => (
@@ -48,9 +49,12 @@ const FEATURES = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Madam Getrude",  role: "LIFE-SURE MEDICARE",         initial: "G", text: "MEDCORE transformed our clinic management. Tracking appointments, sales and expenses has never been easier." },
-  { name: "Madam Sarah",    role: "Kikajjo Health Center",      initial: "S", text: "The automated reminders and AI-powered features have saved us so much time and effort!" },
-  { name: "Doctor Joshua",  role: "Asaba Medical Clinic",       initial: "J", text: "A fantastic tool that made our clinic run more smoothly. I highly recommend it to every clinic owner." },
+  { name: "Dr. Mukasa Brian",  role: "Medical Director, Kampala Medical Centre", initial: "DM", text: "MediCoreSystem has completely transformed how we manage patient records. Everything is digital, fast, and reliable. Our efficiency improved by 60%!" },
+  { name: "Nakato Florence",   role: "Clinic Owner, Grace Health Clinic, Jinja",      initial: "NF", text: "I used to struggle with tracking drug inventory and patient debts. MediCore handles it all automatically — even sends SMS reminders to patients!" },
+  { name: "Ssempijja Ronald",  role: "Lab Technician, Mbarara Regional Hospital",       initial: "SR", text: "The lab module is a game changer. Results are recorded and shared instantly. No more lost paperwork or delays. Highly recommend it!" },
+  { name: "Auma Patricia",    role: "Head Nurse, Lira Community Health Centre",      initial: "AP", text: "Managing maternity records and antenatal visits is now so easy. MediCore even reminds mothers of their next appointment via SMS!" },
+  { name: "Opio Samuel",      role: "Administrator, Gulu Family Clinic",            initial: "OS", text: "We went from paper files to a fully digital system in one week. The AI report writing feature alone saves us hours every day!" },
+  { name: "Nambi Harriet",    role: "Cashier, Entebbe Wellness Centre",             initial: "NH", text: "Billing and receipts are now automatic. Patients get their receipts instantly and I can track every shilling. MediCore is a lifesaver!" },
 ];
 
 const VALUES = [
@@ -310,7 +314,6 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [activeT, setActiveT] = useState(0);
-  const [navScrolled, setNavScrolled] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
 
@@ -324,13 +327,8 @@ const LandingPage = () => {
     const t = setInterval(() => setActiveT(i => (i + 1) % TESTIMONIALS.length), 5500);
     return () => clearInterval(t);
   }, []);
-  useEffect(() => {
-    const fn = () => setNavScrolled(window.scrollY > 30);
-    window.addEventListener('scroll', fn);
-    return () => window.removeEventListener('scroll', fn);
-  }, []);
 
-  const openDemo = () => window.open("https://wa.me/256700123456?text=Hi!%20I'm%20interested%20in%20a%20demo.", "_blank");
+  const openDemo = () => window.open("https://wa.me/2567526488446?text=Hi!%20I'm%20interested%20in%20a%20demo.", "_blank");
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: '#f8faff', color: '#0a1e4a', overflowX: 'hidden' }}>
@@ -343,41 +341,8 @@ const LandingPage = () => {
         <AboutUs />
       </OverlayPanel>
 
-      {/* ══ NAV ══ */}
-      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200, height: 68, background: '#0a1e4a', display: 'flex', alignItems: 'center', padding: '0 5vw', boxShadow: navScrolled ? '0 4px 32px rgba(6,12,31,0.45)' : 'none', transition: 'box-shadow 0.35s' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: 1200, margin: '0 auto' }}>
-          {/* Logo + name + slogan */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <CPLogo size={36} navScrolled={true} />
-            <div>
-              <div style={{ fontSize: 19, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px', fontFamily: "'Sora', sans-serif", lineHeight: 1.1 }}>
-                MEDCORE<span style={{ color: 'rgba(255,255,255,0.6)' }}>System</span>
-              </div>
-              
-            </div>
-          </div>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            {[['Pricing', () => setShowPricing(true)], ['About Us', () => setShowAbout(true)]].map(([label, fn]) => (
-              <button key={label} onClick={fn}
-                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)', fontWeight: 600, fontSize: 14, cursor: 'pointer', padding: '8px 14px', borderRadius: 8, transition: 'all 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}>{label}</button>
-            ))}
-            <button onClick={() => navigate('/login')}
-              style={{ background: 'none', border: '1.5px solid rgba(255,255,255,0.3)', color: '#ffffff', fontWeight: 700, fontSize: 14, cursor: 'pointer', padding: '8px 18px', borderRadius: 8, marginLeft: 4, transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}>
-              Log in
-            </button>
-            <button onClick={() => navigate('/clinic-registration')}
-              style={{ background: '#ffffff', border: 'none', color: '#0a1e4a', fontWeight: 800, fontSize: 14, cursor: 'pointer', padding: '9px 20px', borderRadius: 9, marginLeft: 4, transition: 'opacity 0.2s', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-              Register Free
-            </button>
-          </nav>
-        </div>
-      </header>
+      <LandingNav />
+      <div id="pricing" style={{ position: 'relative', top: '-72px' }} />
 
       {/* ══ HERO ══ */}
       <section style={{ minHeight: '100vh', background: 'linear-gradient(150deg, #071430 0%, #0a1e4a 45%, #1a3d82 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '120px 5vw 0', position: 'relative', overflow: 'hidden' }}>
@@ -439,7 +404,7 @@ const LandingPage = () => {
       <Wave color="#f8faff" />
 
       {/* ══ ABOUT SNIPPET ══ */}
-      <section style={{ padding: 'clamp(60px,9vw,110px) 5vw', background: '#f8faff' }}>
+      <section id="about" style={{ padding: 'clamp(60px,9vw,110px) 5vw', background: '#f8faff' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 3, color: '#3a7bd5', textTransform: 'uppercase', marginBottom: 14 }}>About the Platform</div>
@@ -470,7 +435,7 @@ const LandingPage = () => {
       </section>
 
       {/* ══ FEATURES ══ */}
-      <section style={{ padding: 'clamp(60px,9vw,110px) 5vw', background: '#ffffff' }}>
+      <section id="features" style={{ padding: 'clamp(60px,9vw,110px) 5vw', background: '#ffffff' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 3, color: '#3a7bd5', textTransform: 'uppercase', marginBottom: 14 }}>Capabilities</div>
@@ -531,7 +496,7 @@ const LandingPage = () => {
       </section>
 
       {/* ══ TESTIMONIALS ══ */}
-      <section style={{ padding: 'clamp(60px,9vw,110px) 5vw', background: '#ffffff' }}>
+      <section id="testimonials" style={{ padding: 'clamp(60px,9vw,110px) 5vw', background: '#ffffff' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 3, color: '#3a7bd5', textTransform: 'uppercase', marginBottom: 14 }}>Testimonials</div>
@@ -613,7 +578,7 @@ const LandingPage = () => {
       </section>
 
       {/* ══ FOOTER ══ */}
-      <footer style={{ background: '#06121f', padding: 'clamp(60px,8vw,90px) 5vw 36px' }}>
+      <footer id="contact" style={{ background: '#06121f', padding: 'clamp(60px,8vw,90px) 5vw 36px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 48, paddingBottom: 56, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             {/* Brand */}
@@ -640,7 +605,7 @@ const LandingPage = () => {
             {/* Contact */}
             <div style={{ flex: '1 1 200px', maxWidth: 260, textAlign: 'center' }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2.5, color: '#7ec8f7', textTransform: 'uppercase', marginBottom: 20 }}>Contact Us</div>
-              <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.2 }}>+256 700 123 456<br />+256 700 123 457<br />support@medcore.africa</p>
+              <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.2 }}>+256 752 648844<br />+256 782 547057<br />support@medcore.africa</p>
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
                 <button onClick={openDemo}
                   style={{ padding: '11px 22px', borderRadius: 9, border: 'none', background: '#0a1e4a', color: '#ffffff', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'background 0.2s', boxShadow: '0 2px 12px rgba(10,30,74,0.4)' }}

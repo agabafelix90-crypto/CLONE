@@ -1,1 +1,0 @@
-CREATE POLICY "Authenticated users can delete inventory" ON public.pharmacy_inventory FOR DELETE TO authenticated USING (true);

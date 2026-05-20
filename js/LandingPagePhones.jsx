@@ -28,7 +28,7 @@ const TESTIMONIALS = [
 const LandingPagePhones = () => {
   const navigate = useNavigate();
 
-  const openDemo = () => window.open('https://wa.me/256700123456?text=Hi!%20I%20am%20interested%20in%20a%20MEDCORE%20demo.', '_blank');
+  const openDemo = () => window.open('https://wa.me/2567526488446?text=Hi!%20I%20am%20interested%20in%20a%20MEDCORE%20demo.', '_blank');
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: '#f8faff', minHeight: '100vh', color: '#0a1e4a' }}>
@@ -47,7 +47,7 @@ const LandingPagePhones = () => {
         <section style={{ background: '#ffffff', borderRadius: 28, padding: '26px 18px', boxShadow: '0 18px 60px rgba(14,38,83,0.08)' }}>
           <div style={{ fontSize: 14, color: '#3a7bd5', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Built for clinics in Uganda</div>
           <h1 style={{ fontSize: '2rem', margin: '0 0 18px', lineHeight: 1.08 }}>Manage patients, billing and appointments with MEDCORE.</h1>
-          <p style={{ color: '#556a8a', marginBottom: 22, lineHeight: 1.7 }}>Everything your clinic needs in one mobile-friendly platform — from patient records to automated health reminders and financial reports.</p>
+          <p style={{ color: '#556a8a', marginBottom: 22, lineHeight: 1.7 }}>Everything your clinic needs in one mobile-friendly platform ï¿½ from patient records to automated health reminders and financial reports.</p>
           <div style={{ display: 'grid', gap: 12 }}>
             <button onClick={() => navigate('/clinic-registration')} style={{ border: 'none', borderRadius: 14, background: '#0a1e4a', color: '#ffffff', padding: '16px', fontSize: 15, fontWeight: 700 }}>Start Free Trial</button>
             <button onClick={openDemo} style={{ border: '1.5px solid #0a1e4a', borderRadius: 14, background: 'transparent', padding: '16px', fontSize: 15, fontWeight: 700, color: '#0a1e4a', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Icon path={ICONS.whatsapp} size={18} color='#0a1e4a' /> Book WhatsApp Demo</button>
@@ -96,7 +96,7 @@ const LandingPagePhones = () => {
           <div style={{ display: 'grid', gap: 12 }}>
             <button onClick={() => navigate('/clinic-registration')} style={{ border: 'none', borderRadius: 14, background: '#ffffff', color: '#0a1e4a', padding: '16px', fontWeight: 800 }}>Register Free</button>
             <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
-              Contact: +256 700 123 456<br />support@medcore.africa
+              Contact: +256 752 648844<br />support@medcore.africa
             </div>
           </div>
         </section>

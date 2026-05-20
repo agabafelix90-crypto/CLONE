@@ -222,7 +222,7 @@ function InvestigationReceiptModal({ isOpen, onClose, details, token }) {
         <div class="footer">
           <div style="font-weight:700;">Thank you for your payment!</div>
           <div>Software by MEDCORE Systems</div>
-          <div>Contact: +256 700 123 456</div>
+          <div>Contact: +256 752 648844</div>
         </div>
       </body>
       </html>
