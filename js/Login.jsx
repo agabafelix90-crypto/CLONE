@@ -194,13 +194,15 @@ function Login() {
 
       if (!response.ok || !responseData?.success) {
         const locked = registerFailedAttempt();
+        const errorMessage =
+          responseData?.message || responseData?.error || 'Login failed. Check your credentials.';
         if (locked) {
           toast.error(
             `Too many failed attempts. Locked for ${LOCKOUT_SECONDS} seconds.`,
             { position: "top-left" }
           );
         } else {
-          toast.error("Login failed. Check your credentials.", {
+          toast.error(errorMessage, {
             position: "top-left",
           });
         }
@@ -351,6 +353,7 @@ function Login() {
                 type="text"
                 name="clinicName"
                 placeholder="Enter clinic name or email"
+                autoComplete="username"
                 value={formData.clinicName}
                 onChange={handleChange}
                 style={{
@@ -374,7 +377,8 @@ function Login() {
                 marginTop: "4px",
                 marginBottom: "0"
               }}>
-                Use your clinic name or registered email address
+                Use your clinic name or registered email address.
+                If your clinic name is shared by another facility, please login with your registered email.
               </p>
             </div>
 
@@ -513,7 +517,7 @@ function Login() {
                 icon={faCheckCircle}
                 style={{ color: primaryColor }}
               />
-              <span>Session token stored securely (not in URL)</span>
+              <span>24/7 System Availability</span>
             </div>
 
             <div

@@ -11,10 +11,10 @@ import { urls } from './config.dev';
  * - Tokens must be cleared from both URL and storage on logout/invalid session.
  */
 
-export const LEGACY_TOKEN_KEY = 'token';
+export const LEGACY_TOKEN_KEY = 'clinic_auth_token';
 export const EMPLOYEE_SESSION_TIMESTAMP_KEY = 'employee_session_timestamp';
 export const REDIRECT_AFTER_LOGIN_KEY = 'redirect_after_login';
-const EMPLOYEE_SESSION_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const EMPLOYEE_SESSION_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 const sanitizeToken = (value) => {
   if (!value || typeof value !== 'string') return '';
@@ -25,6 +25,9 @@ const sanitizeToken = (value) => {
 
 export const getStoredToken = () => {
   try {
+    // Prefer sessionStorage (short-lived) but fall back to localStorage for compatibility
+    const fromSession = sanitizeToken(sessionStorage.getItem(LEGACY_TOKEN_KEY));
+    if (fromSession) return fromSession;
     return sanitizeToken(localStorage.getItem(LEGACY_TOKEN_KEY));
   } catch (error) {
     console.error('Unable to read stored token:', error);
@@ -32,11 +35,13 @@ export const getStoredToken = () => {
   }
 };
 
-export const saveSessionToken = (token) => {
+export const saveSessionToken = (token, { persistToLocal = false } = {}) => {
   const cleanToken = sanitizeToken(token);
   if (!cleanToken) return;
   try {
-    localStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
+    sessionStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
+    // Optional compatibility persistence for older clients/tests
+    if (persistToLocal) localStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
   } catch (error) {
     console.error('Unable to save session token:', error);
   }
@@ -72,6 +77,7 @@ export const clearEmployeeSessionActivity = () => {
 
 export const clearSessionToken = () => {
   try {
+    sessionStorage.removeItem(LEGACY_TOKEN_KEY);
     localStorage.removeItem(LEGACY_TOKEN_KEY);
     clearEmployeeSessionActivity();
   } catch (error) {
@@ -124,30 +130,35 @@ export const getAuthConfig = (options = {}) => {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  return { ...options, headers };
+
+  // If we have a token use Authorization header. Otherwise rely on cookies and send credentials.
+  const credentials = options.credentials ?? (token ? 'same-origin' : 'include');
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  return { ...options, headers, credentials };
 };
 
 export const createAuthenticatedRequest = (input, init = {}) => fetch(input, getAuthConfig(init));
 
 export const refreshSessionToken = async ({ createRedirect = false } = {}) => {
-  const token = getVerifiedToken();
-  if (!token) {
-    return null;
-  }
-
+  // Attempt refresh via cookie-based endpoint. Server should set HttpOnly cookie or return a new short-lived token.
   try {
     const response = await fetch(urls.refreshtoken, getAuthConfig({
       method: 'POST',
-      body: JSON.stringify({ token, createRedirect }),
+      body: JSON.stringify({ createRedirect }),
     }));
 
     const data = await response.json().catch(() => null);
-    if (response.ok && data?.success && data.clinic_session_token) {
-      saveSessionToken(data.clinic_session_token);
+
+    if (response.ok && data?.success) {
+      // Server may provide a clinic_session_token (for non-cookie flows) or rely on HttpOnly cookie.
+      if (data.clinic_session_token) saveSessionToken(data.clinic_session_token);
       return data;
+    }
+
+    // If server indicates session expired, clear local state.
+    if (isSessionExpiredResponse(response, data)) {
+      handleInvalidSession();
     }
 
     return null;
@@ -157,11 +168,18 @@ export const refreshSessionToken = async ({ createRedirect = false } = {}) => {
   }
 };
 
-export const startSessionRefresher = (intervalMs = 30 * 60 * 1000) => {
+let _refresherCleanup = null;
+export const startSessionRefresher = (intervalMs = 20 * 60 * 1000) => {
+  if (_refresherCleanup) return _refresherCleanup;
+
   const timerId = setInterval(async () => {
-    await refreshSessionToken();
+    if (isEmployeeSessionActive()) {
+      await refreshSessionToken();
+    }
   }, intervalMs);
-  return () => clearInterval(timerId);
+
+  _refresherCleanup = () => clearInterval(timerId);
+  return _refresherCleanup;
 };
 
 if (typeof window !== 'undefined') {
@@ -242,17 +260,14 @@ export const handleLogout = (navigate, redirectTo = '/login', replace = true) =>
 };
 
 export const verifySession = async (token, signal) => {
-  if (!token) {
-    return { valid: false, error: 'No session token provided' };
-  }
-
+  // If a token was provided, validate it explicitly. If not, rely on cookie-based validation by sending credentials.
   try {
+    const payload = token ? { token } : {};
     const response = await fetch(urls.security, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: token ? 'same-origin' : 'include',
       signal,
     });
 
@@ -266,22 +281,10 @@ export const verifySession = async (token, signal) => {
       };
     }
 
-    const isValid = data?.message === 'Session valid' && !!data?.clinic_session_token;
+    const isValid = data?.message === 'Session valid' || !!data?.clinic_session_valid;
 
-    if (data?.clinic_session_token && data.clinic_session_token !== token) {
+    if (data?.clinic_session_token) {
       saveSessionToken(data.clinic_session_token);
-      try {
-        if (typeof window !== 'undefined') {
-          const currentUrl = new URL(window.location.href);
-          const urlToken = sanitizeToken(currentUrl.searchParams.get('token'));
-          if (urlToken && urlToken === token) {
-            currentUrl.searchParams.set('token', data.clinic_session_token);
-            window.history.replaceState({}, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
-          }
-        }
-      } catch (error) {
-        console.warn('Unable to normalize token URL after session verification:', error);
-      }
     }
 
     return {

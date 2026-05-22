@@ -15,16 +15,16 @@ const ComplianceGuidelines = () => {
           MoH Digital Health Compliance
         </h1>
         <p style={{ color: '#486581', marginBottom: 32, fontSize: 15 }}>
-          MediCoreSystem Compliance with Uganda Ministry of Health Guidelines for Digital Health Solutions.
+          MediCore System Compliance with Uganda Ministry of Health Guidelines for Digital Health Solutions.
         </p>
 
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>1. Registration Status</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            MediCoreSystem is registered with the Digital Health Subcommittee (DHSC) under the Health Information Innovation and Research Technical Working Group (HIIRE TWG).
+            MediCore System is registered with the Digital Health Subcommittee (DHSC) under the Health Information Innovation and Research Technical Working Group (HIIRE TWG).
           </p>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            Additionally, as an Information Technology solution, MediCoreSystem complies with the National Information Technology Policy for Uganda (2010), which provides the foundational framework for IT development in the country.
+            Additionally, as an Information Technology solution, MediCore System complies with the National Information Technology Policy for Uganda (2010), which provides the foundational framework for IT development in the country.
           </p>
           <ul style={{ color: '#486581', lineHeight: 1.8, paddingLeft: 20 }}>
             <li>Registration ID: [To be assigned by DHSC]</li>
@@ -81,7 +81,7 @@ const ComplianceGuidelines = () => {
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>3. Data Localization Plan</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            Recognizing the importance of data sovereignty under the guidelines, MediCoreSystem is committed to local data hosting:
+            Recognizing the importance of data sovereignty under the guidelines, MediCore System is committed to local data hosting:
           </p>
           <ul style={{ color: '#486581', lineHeight: 1.8, paddingLeft: 20 }}>
             <li>Local data center strategy aligned with Uganda ICT policy</li>
@@ -93,7 +93,7 @@ const ComplianceGuidelines = () => {
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>4. Integration with National Systems</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            MediCoreSystem is designed to integrate seamlessly with:</p>
+            MediCore System is designed to integrate seamlessly with:</p>
           <ul style={{ color: '#486581', lineHeight: 1.8, paddingLeft: 20 }}>
             <li>DHIS2 for HMIS reporting</li>
             <li>National patient identifier schemes</li>
@@ -106,7 +106,7 @@ const ComplianceGuidelines = () => {
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
             For compliance-related inquiries:</p>
           <ul style={{ color: '#486581', lineHeight: 1.8, paddingLeft: 20 }}>
-            <li>Email: compliance@medicoresystem.com</li>
+            <li>Email: compliance@MediCore System.com</li>
             <li>Phone: +256 752 648 844</li>
             <li>Address: Kampala, Uganda</li>
           </ul>
@@ -114,7 +114,7 @@ const ComplianceGuidelines = () => {
 
         <div style={{ background: '#f0f6ff', borderRadius: 18, border: '1px solid #d9e8ff', padding: 24, marginTop: 18 }}>
           <p style={{ margin: 0, color: '#102a43', fontWeight: 700 }}>
-            MediCoreSystem is committed to continuous compliance with Uganda's National ICT Policy 2022 and the Ministry of Health digital health guidelines.
+            MediCore System is committed to continuous compliance with Uganda's National ICT Policy 2022 and the Ministry of Health digital health guidelines.
           </p>
         </div>
       </div>

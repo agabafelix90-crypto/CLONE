@@ -22,7 +22,7 @@ const LandingNav = () => {
           <div className="h-14 w-14 rounded-xl bg-primary/10 border border-primary/20 p-1.5 flex items-center justify-center shadow-sm landing-nav__logo">
             <img src={logo} alt="MediCore" className="h-full w-full object-contain" />
           </div>
-          <span className="font-heading text-xl font-bold text-foreground">MediCoreSystem</span>
+          <span className="font-heading text-xl font-bold text-foreground">MediCore System</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 landing-nav__links">

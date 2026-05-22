@@ -18,7 +18,7 @@ const PrivacyPolicy = () => {
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>1. Introduction</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            MediCoreSystem ("we," "our," or "us") is committed to protecting your privacy and ensuring compliance with Uganda's Data Protection and Privacy Act 2019 and the National ICT Policy 2022. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our healthcare management platform.
+            MediCore System ("we," "our," or "us") is committed to protecting your privacy and ensuring compliance with Uganda's Data Protection and Privacy Act 2019 and the National ICT Policy 2022. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our healthcare management platform.
           </p>
         </section>
 
@@ -105,7 +105,7 @@ const PrivacyPolicy = () => {
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
             If you have any questions about this Privacy Policy, please contact us at:</p>
           <ul style={{ color: '#486581', lineHeight: 1.8, paddingLeft: 20 }}>
-            <li>Email: info@medicoresystem.com</li>
+            <li>Email: info@MediCore System.com</li>
             <li>Phone: +256 752 648 844</li>
             <li>Address: Kampala, Uganda</li>
           </ul>

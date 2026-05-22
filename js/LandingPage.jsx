@@ -49,7 +49,7 @@ const FEATURES = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Dr. Mukasa Brian",  role: "Medical Director, Kampala Medical Centre", initial: "DM", text: "MediCoreSystem has completely transformed how we manage patient records. Everything is digital, fast, and reliable. Our efficiency improved by 60%!" },
+  { name: "Dr. Mukasa Brian",  role: "Medical Director, Kampala Medical Centre", initial: "DM", text: "MediCore System has completely transformed how we manage patient records. Everything is digital, fast, and reliable. Our efficiency improved by 60%!" },
   { name: "Nakato Florence",   role: "Clinic Owner, Grace Health Clinic, Jinja",      initial: "NF", text: "I used to struggle with tracking drug inventory and patient debts. MediCore handles it all automatically — even sends SMS reminders to patients!" },
   { name: "Ssempijja Ronald",  role: "Lab Technician, Mbarara Regional Hospital",       initial: "SR", text: "The lab module is a game changer. Results are recorded and shared instantly. No more lost paperwork or delays. Highly recommend it!" },
   { name: "Auma Patricia",    role: "Head Nurse, Lira Community Health Centre",      initial: "AP", text: "Managing maternity records and antenatal visits is now so easy. MediCore even reminds mothers of their next appointment via SMS!" },
@@ -605,7 +605,7 @@ const LandingPage = () => {
             {/* Contact */}
             <div style={{ flex: '1 1 200px', maxWidth: 260, textAlign: 'center' }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 2.5, color: '#7ec8f7', textTransform: 'uppercase', marginBottom: 20 }}>Contact Us</div>
-              <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.2 }}>+256 752 648844<br />+256 782 547057<br />support@medcore.africa</p>
+              <p style={{ fontSize: 14, color: '#445577', lineHeight: 2.2 }}>+256 752 648844<br />+256 782 547057<br />agabafelix90@gmail.com</p>
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
                 <button onClick={openDemo}
                   style={{ padding: '11px 22px', borderRadius: 9, border: 'none', background: '#0a1e4a', color: '#ffffff', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'background 0.2s', boxShadow: '0 2px 12px rgba(10,30,74,0.4)' }}

@@ -96,7 +96,7 @@ const LandingPagePhones = () => {
           <div style={{ display: 'grid', gap: 12 }}>
             <button onClick={() => navigate('/clinic-registration')} style={{ border: 'none', borderRadius: 14, background: '#ffffff', color: '#0a1e4a', padding: '16px', fontWeight: 800 }}>Register Free</button>
             <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
-              Contact: +256 752 648844<br />support@medcore.africa
+              Contact: +256 752 648844<br />agabafelix90@gmail.com
             </div>
           </div>
         </section>

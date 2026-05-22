@@ -16,14 +16,14 @@ const TermsOfService = () => {
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>1. Acceptance of Terms</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            By accessing and using MediCoreSystem ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use the Service.
+            By accessing and using MediCore System ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use the Service.
           </p>
         </section>
 
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>2. Description of Service</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            MediCoreSystem is a comprehensive healthcare management platform designed to assist clinics and healthcare facilities in managing patient records, appointments, pharmacy operations, laboratory data, and other healthcare-related functions. The service is provided in compliance with Uganda's National ICT Policy 2022 and relevant healthcare regulations.
+            MediCore System is a comprehensive healthcare management platform designed to assist clinics and healthcare facilities in managing patient records, appointments, pharmacy operations, laboratory data, and other healthcare-related functions. The service is provided in compliance with Uganda's National ICT Policy 2022 and relevant healthcare regulations.
           </p>
         </section>
 
@@ -57,7 +57,7 @@ const TermsOfService = () => {
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>6. Intellectual Property</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            The Service and its original content, features, and functionality are and will remain the exclusive property of MediCoreSystem and its licensors. The service is protected by copyright, trademark, and other laws.
+            The Service and its original content, features, and functionality are and will remain the exclusive property of MediCore System and its licensors. The service is protected by copyright, trademark, and other laws.
           </p>
         </section>
 
@@ -78,7 +78,7 @@ const TermsOfService = () => {
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>9. Limitation of Liability</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            In no event shall MediCoreSystem be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or related to your use of the service.
+            In no event shall MediCore System be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or related to your use of the service.
           </p>
         </section>
 
@@ -101,7 +101,7 @@ const TermsOfService = () => {
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
             If you have any questions about these Terms, please contact us at:</p>
           <ul style={{ color: '#486581', lineHeight: 1.8, paddingLeft: 20 }}>
-            <li>Email: legal@medicoresystem.com</li>
+            <li>Email: legal@MediCore System.com</li>
             <li>Phone: +256 752 648 844</li>
             <li>Address: Kampala, Uganda</li>
           </ul>
@@ -110,7 +110,7 @@ const TermsOfService = () => {
         <section>
           <h2 style={{ fontSize: '1.25rem', color: '#102a43', marginBottom: 12, fontWeight: 700 }}>13. Compliance with Ugandan Regulations</h2>
           <p style={{ color: '#486581', lineHeight: 1.8 }}>
-            MediCoreSystem is developed and operated in compliance with Uganda's National ICT Policy 2022, promoting digital transformation, cybersecurity, inclusivity, and fair competition in the healthcare sector.
+            MediCore System is developed and operated in compliance with Uganda's National ICT Policy 2022, promoting digital transformation, cybersecurity, inclusivity, and fair competition in the healthcare sector.
           </p>
         </section>
       </div>

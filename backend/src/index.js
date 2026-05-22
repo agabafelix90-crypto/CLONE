@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+
+// Load environment variables early so routes can use them.
+dotenv.config();
+
 const legacyRouter = require('./routes/legacy');
 const googleRouter = require('./routes/google');
 const genericRouter = require('./routes/generic');
-
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;

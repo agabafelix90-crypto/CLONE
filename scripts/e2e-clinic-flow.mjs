@@ -1,0 +1,67 @@
+import { chromium } from "playwright";
+const BASE = "http://localhost:5173";
+const ADMIN_PASSWORD = "12345";
+async function main() {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    console.log("1. Login...");
+    await page.goto(`${BASE}/login`, { waitUntil: "networkidle" });
+    await page.getByPlaceholder(/clinic name|email/i).fill("Test Clinic");
+    await page.getByPlaceholder(/password/i).fill("1234");
+    await page.getByRole("button", { name: /sign in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 30000 });
+    console.log("2. Admin settings...");
+    await page.getByText(/settings.*admin/i).click();
+    await page.locator('input[type="password"]').last().fill(ADMIN_PASSWORD);
+    await page.getByRole("button", { name: /access admin/i }).click();
+    await page.waitForURL(/admin-dashboard|settings/, { timeout: 20000 });
+    console.log("3. Add ASIO...");
+    await page.getByRole("button", { name: /employee settings/i }).click();
+    await page.getByRole("button", { name: /add employee/i }).click();
+    await page.getByPlaceholder(/full name|john/i).fill("ASIO");
+    await page.getByPlaceholder(/pharmacist|role/i).fill("PHARMACIST");
+    await page.locator('input[type="password"]').last().fill("123");
+    await page.getByRole("button", { name: /^add employee$/i }).click();
+    await page.waitForTimeout(2500);
+    console.log("4. Permissions...");
+    await page.locator("tr", { hasText: "ASIO" }).getByRole("button", { name: /manage/i }).click();
+    await page.locator("#sa").check();
+    await page.getByPlaceholder(/1234/i).fill("123");
+    await page.getByRole("button", { name: /update permissions/i }).click();
+    await page.waitForTimeout(2500);
+    console.log("5. Dashboard...");
+    await page.getByRole("button", { name: /back to dashboard/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 20000 });
+    console.log("6. ASIO + Triage...");
+    await page.getByRole("button", { name: /^ASIO$/i }).click();
+    await page.getByRole("button", { name: /^triage$/i }).click();
+    await page.getByLabel(/security code/i).fill("123");
+    await page.getByRole("button", { name: /verify|confirm|proceed|continue/i }).click();
+    await page.waitForURL(/triage/, { timeout: 20000 });
+    console.log("7. Patient...");
+    await page.getByPlaceholder(/first name/i).fill("Test");
+    await page.getByPlaceholder(/last name/i).fill("Patient");
+    await page.getByPlaceholder(/phone/i).first().fill("0700123456");
+    await page.locator("input[type=number]").first().fill("30");
+    const selects = page.locator("select");
+    if (await selects.count() >= 1) await selects.nth(0).selectOption({ index: 1 });
+    if (await selects.count() >= 2) await selects.nth(1).selectOption({ index: 1 });
+    await page.getByPlaceholder(/address/i).fill("Kampala");
+    await page.getByRole("button", { name: /proceed to triage/i }).click();
+    await page.waitForTimeout(2000);
+    await page.locator("#doctor").check();
+    await page.locator("#consultation").check();
+    await page.locator("#routine").check();
+    await page.locator('input[name="consultationFee"]').nth(1).check();
+    await page.getByRole("button", { name: /complete triage/i }).click();
+    await page.waitForTimeout(3000);
+    await page.screenshot({ path: "scripts/e2e-result.png", fullPage: true });
+    console.log("Done");
+  } catch (e) {
+    await page.screenshot({ path: "scripts/e2e-error.png", fullPage: true }).catch(() => {});
+    console.error("Error:", e.message);
+    process.exitCode = 1;
+  } finally { await browser.close(); }
+}
+main();

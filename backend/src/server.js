@@ -4,11 +4,13 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
+
+// Load environment variables early so routes can use them.
+dotenv.config();
+
 const legacyRouter = require('./routes/legacy');
 const googleRouter = require('./routes/google');
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -34,6 +36,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // Security middleware for all environments
 app.use(helmet({

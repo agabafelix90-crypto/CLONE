@@ -12,6 +12,7 @@ const RSA_PRIVATE_KEY_PEM = RSA_PRIVATE_KEY ? RSA_PRIVATE_KEY.replace(/\\n/g, '\
 const DEFAULT_ADMIN_EMAIL = 'agabafelix90@gmail.com';
 const DEFAULT_ADMIN_PASSWORD = '12345';
 const DEFAULT_INITIAL_WALLET_AMOUNT = 10000;
+const TOKEN_UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 // Security Configuration - Medical System
 const SESSION_DURATION_DAYS = 14;           // Adjust as needed (7 or 30)
@@ -55,12 +56,14 @@ async function updateClinicWithRetry(token, payload) {
   const supabase = getSupabase();
   let updatePayload = { ...payload };
 
+  let lastError = null;
   for (let attempt = 0; attempt < 5; attempt++) {
     const { error } = await supabase.from('clinics').update(updatePayload).eq('id', token);
     if (!error) {
       return { error: null };
     }
 
+    lastError = error;
     if (!error.message) {
       return { error };
     }
@@ -74,15 +77,36 @@ async function updateClinicWithRetry(token, payload) {
     delete updatePayload[missingColumn];
   }
 
-  const { error } = await supabase.from('clinics').update(updatePayload).eq('id', token);
-  return { error };
+  return { error: lastError || new Error('Failed to update clinic after retries') };
 }
 
 function sanitizeToken(value) {
   if (!value || typeof value !== 'string') return null;
   const token = value.trim();
   if (!token || token === 'null' || token === 'undefined') return null;
-  return token.replace(/\s+/g, '');
+  const cleanedToken = token.replace(/\s+/g, '');
+  return TOKEN_UUID_REGEX.test(cleanedToken) ? cleanedToken : null;
+}
+
+async function updateClinicSessionTimestamps(clinicId, now = new Date()) {
+  if (!clinicId) return false;
+  const supabase = getSupabase();
+  const newExpiresAt = new Date(now.getTime() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000);
+
+  const { error } = await supabase
+    .from('clinics')
+    .update({
+      last_active_at: now.toISOString(),
+      session_expires_at: newExpiresAt.toISOString(),
+    })
+    .eq('id', clinicId);
+
+  if (error) {
+    console.error('Failed to update clinic session timestamps:', error);
+    return false;
+  }
+
+  return true;
 }
 
 // Security Headers Middleware
@@ -97,7 +121,9 @@ function securityHeaders(req, res, next) {
   }
 
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || '*');
+  // Echo incoming origin to allow credentialed requests from the frontend
+  const allowedOrigin = req.headers.origin || process.env.FRONTEND_URL || '*';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Access-Token, X-Token');
 
@@ -108,9 +134,12 @@ router.use(securityHeaders);
 
 function getRequestToken(req) {
   const authHeader = req?.headers?.authorization;
-  const headerToken = typeof authHeader === 'string' ? authHeader.replace(/^Bearer\s+/i, '') : null;
+  const headerToken = typeof authHeader === 'string' ? sanitizeToken(authHeader.replace(/^Bearer\s+/i, '')) : null;
   const alternateToken = sanitizeToken(req?.headers?.['x-access-token'] || req?.headers?.['x-token'] || null);
-  return sanitizeToken(req?.body?.token || req?.query?.token || headerToken || alternateToken || null);
+  // Also accept cookie-based session token if present (HttpOnly cookie set by server)
+  const cookieTokenName = process.env.SESSION_COOKIE_NAME || 'clinic_session';
+  const cookieToken = sanitizeToken(req?.cookies?.[cookieTokenName] || null);
+  return sanitizeToken(req?.body?.token || req?.query?.token || headerToken || alternateToken || cookieToken || null);
 }
 
 async function getClinicByToken(token) {
@@ -179,12 +208,7 @@ async function getClinicByToken(token) {
       session_expires_at: newExpiresAt.toISOString(),
     };
 
-    await supabase
-      .from('clinics')
-      .update(updatePayload)
-      .eq('id', resolvedClinic.id)
-      .throwOnError(false);
-
+    await updateClinicSessionTimestamps(resolvedClinic.id, now);
     return resolvedClinic;
   } catch (err) {
     console.error('getClinicByToken unexpected error:', err);
@@ -695,7 +719,7 @@ async function addEmployee(req) {
     return { success: false, message: 'Session expired' };
   }
 
-  const login_code = loginCode || Math.random().toString(36).slice(-8);
+  const login_code = loginCode || crypto.randomBytes(4).toString('hex');
 
   const insertPayload = {
     clinic_id: token,
@@ -1692,6 +1716,10 @@ async function registerClinic(req) {
     return { success: false, message: 'Clinic name and password are required' };
   }
 
+  if (clinicData.password.length < 8) {
+    return { success: false, message: 'Password must be at least 8 characters long' };
+  }
+
   if (decryptedConfirmPassword && clinicData.password !== decryptedConfirmPassword) {
     return { success: false, message: 'Password and confirm password do not match' };
   }
@@ -1792,35 +1820,26 @@ async function registerClinic(req) {
 
 async function loginClinic(req) {
   const supabase = getSupabase();
-  const { clinicName } = req.body;
+  const rawClinicName = String(req.body.clinicName || req.body.name || req.body.clinic_name || req.body.email || '').trim();
+  const emailInput = String(req.body.email || '').trim();
   const password = decryptMaybe(req.body.password);
 
-  if (!clinicName || !password) {
+  if (!rawClinicName || !password) {
     return { success: false, message: 'Clinic name and password are required' };
   }
 
-  console.log(`[LOGIN] Attempting login with clinicName=${clinicName}`);
+  const isEmailLogin = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawClinicName) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput);
+  const loginIdentifier = isEmailLogin ? (emailInput || rawClinicName) : rawClinicName;
 
-  // Try to find clinic by name first
+  console.log(`[LOGIN] Attempting login with identifier=${loginIdentifier}`);
+
   let clinic = null;
-  const { data: clinicByName, error: nameError } = await supabase
-    .from('clinics')
-    .select('*')
-    .eq('name', clinicName)
-    .maybeSingle();
 
-  if (nameError) {
-    console.error('[LOGIN] Supabase name query error:', nameError);
-    return { success: false, message: 'Login failed.' };
-  }
-
-  clinic = clinicByName;
-
-  if (!clinic) {
+  if (isEmailLogin) {
     const { data: clinicByEmail, error: emailError } = await supabase
       .from('clinics')
       .select('*')
-      .eq('email', clinicName)
+      .ilike('email', loginIdentifier)
       .maybeSingle();
 
     if (emailError) {
@@ -1829,6 +1848,31 @@ async function loginClinic(req) {
     }
 
     clinic = clinicByEmail;
+  }
+
+  if (!clinic) {
+    const { data: clinicsByName, error: nameError } = await supabase
+      .from('clinics')
+      .select('*')
+      .ilike('name', rawClinicName)
+      .limit(3);
+
+    if (nameError) {
+      console.error('[LOGIN] Supabase name query error:', nameError);
+      return { success: false, message: 'Login failed.' };
+    }
+
+    if (Array.isArray(clinicsByName)) {
+      if (clinicsByName.length === 1) {
+        clinic = clinicsByName[0];
+      } else if (clinicsByName.length > 1) {
+        console.warn('[LOGIN] Multiple clinics found with the same name:', rawClinicName);
+        return {
+          success: false,
+          message: 'Multiple clinics found with this name. Please login using your registered email address.',
+        };
+      }
+    }
   }
 
   if (!clinic) {
@@ -1852,6 +1896,21 @@ async function loginClinic(req) {
   }
 
   await ensureInitialWalletSetup(clinic);
+
+  try {
+    const now = new Date();
+    const newExpiresAt = new Date(now.getTime() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000);
+    await supabase
+      .from('clinics')
+      .update({
+        last_active_at: now.toISOString(),
+        session_expires_at: newExpiresAt.toISOString(),
+      })
+      .eq('id', clinic.id)
+      .throwOnError(false);
+  } catch (err) {
+    console.error('[LOGIN] Failed to update session timestamps:', err);
+  }
 
   return {
     success: true,
@@ -2718,7 +2777,8 @@ async function fetchPermissions(req) {
 
 async function fetchPermissions2(req) {
   const supabase = getSupabase();
-  const { employeeName, token } = req.body;
+  const employeeName = req.body.employeeName ? String(req.body.employeeName).trim() : '';
+  const token = req.body.token;
 
   if (!token || !employeeName) {
     return {
@@ -2788,7 +2848,8 @@ async function fetchPermissions2(req) {
 
 async function permit(req) {
   const supabase = getSupabase();
-  const { employee, action, token } = req.body;
+  const employee = req.body.employee ? String(req.body.employee).trim() : '';
+  const { action, token } = req.body;
 
   if (!token || !employee) {
     return { success: false, result: 'no', message: 'Unauthorized or missing data' };
@@ -2857,7 +2918,8 @@ async function permitAdmin(req) {
 
 async function code(req) {
   const supabase = getSupabase();
-  const { employee, action, token } = req.body;
+  const employee = req.body.employee ? String(req.body.employee).trim() : '';
+  const { action, token } = req.body;
   const securityCode = decryptMaybe(req.body.securityCode);
 
   if (!token || !employee || !securityCode) {
@@ -2919,6 +2981,9 @@ async function updatePermissions(req) {
   const supabase = getSupabase();
   const { employeeName, permissions, token, loginCode } = req.body;
 
+  // Support receiving encrypted `securityCode` (frontend uses `securityCode`) or `loginCode`.
+  const providedSecurity = decryptMaybe(req.body.securityCode || req.body.loginCode || req.body.logincode || '');
+
   if (!token || !employeeName) {
     return { success: false, message: 'Unauthorized or missing employee name' };
   }
@@ -2976,6 +3041,25 @@ async function updatePermissions(req) {
         return { success: false, message: 'Failed to update permissions' };
       }
     }
+  }
+
+  // If a security/login code was provided, update the employee password column (hashed)
+  try {
+    if (providedSecurity && providedSecurity.toString().trim().length > 0) {
+      const hashed = await hashPassword(providedSecurity.toString());
+      const { error: pwError } = await supabase
+        .from('employees')
+        .update({ password: hashed })
+        .eq('id', employee.id);
+
+      if (pwError) {
+        console.error('Failed to update employee password:', pwError);
+        return { success: false, message: 'Failed to update employee password' };
+      }
+    }
+  } catch (err) {
+    console.error('Error updating employee password:', err);
+    return { success: false, message: 'Failed to update employee password' };
   }
 
   return { success: true, message: 'Permissions updated successfully' };
@@ -3494,6 +3578,7 @@ const authExemptEndpoints = new Set([
   'registerClinic',
   'security',
   'dashboardToken',
+  'dashboardtoken',
 ]);
 
 router.all('/:endpoint.php', async (req, res) => {
@@ -3553,6 +3638,31 @@ router.all('/:endpoint.php', async (req, res) => {
 
   try {
     const result = await handler(req);
+
+    // If handler returned a clinic session token, set it as an HttpOnly cookie for cookie-based auth.
+    try {
+      const cookieTokenName = process.env.SESSION_COOKIE_NAME || 'clinic_session';
+      const cookieValue = result?.clinic_session_token || result?.sessionToken || null;
+      if (cookieValue) {
+        const maxAge = (typeof SESSION_DURATION_DAYS === 'number' ? SESSION_DURATION_DAYS : 14) * 24 * 60 * 60 * 1000;
+        res.cookie(cookieTokenName, cookieValue, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge,
+          path: '/',
+        });
+      }
+
+      // Clear cookie on explicit logout
+      if (req.params.endpoint === 'logout') {
+        const cookieTokenName = process.env.SESSION_COOKIE_NAME || 'clinic_session';
+        res.clearCookie(cookieTokenName, { path: '/' });
+      }
+    } catch (cookieErr) {
+      console.warn('Failed to set session cookie:', cookieErr && cookieErr.message ? cookieErr.message : cookieErr);
+    }
+
     res.json(result);
   } catch (error) {
     console.error(`Error handling /${endpoint}.php:`, error);

@@ -8,7 +8,8 @@
     "serve": "node preview-server.js",
     "serve:preview": "vite preview",
     "backend:start": "npm --prefix backend start",
-    "backend:dev": "npm --prefix backend run dev"
+    "backend:dev": "npm --prefix backend run dev",
+    "start:all": "npx concurrently \"npm run dev\" \"npm --prefix backend run dev\""
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",
@@ -26,6 +27,7 @@
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
     "font-awesome": "^4.7.0",
+    "framer-motion": "^6.0.0",
     "helmet": "^8.1.0",
     "html-to-draftjs": "^1.5.0",
     "html2canvas": "^1.4.1",
@@ -33,7 +35,6 @@
     "jsencrypt": "^3.0.0-rc.1",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.533.0",
-    "framer-motion": "^6.0.0",
     "print-js": "^1.6.0",
     "qrcode.react": "^1.0.0",
     "react": "^17.0.2",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
+    "playwright": "^1.60.0",
     "vite": "^5.4.1"
   }
 }

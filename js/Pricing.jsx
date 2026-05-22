@@ -221,8 +221,8 @@ const Pricing = () => {
           </p>
           <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
             {[
-              { icon: ICONS.phone, label: '+256 752 648844', href: 'tel:+2567526488446' },
-              { icon: ICONS.phone, label: '+256 782 547057', href: 'tel:+2567526488447' },
+              { icon: ICONS.phone, label: '+256 752 648844', href: 'tel:+256752648844' },
+              { icon: ICONS.phone, label: '+256 782 547057', href: 'tel:+256752648844' },
               { icon: ICONS.mail,  label: 'MEDCOREug@gmail.com', href: 'mailto:MEDCOREug@gmail.com' },
             ].map(({ icon, label, href }) => (
               <a key={label} href={href}
@@ -343,8 +343,8 @@ const Pricing = () => {
                 </p>
                 <div style={{ display: 'flex', gap: 16, marginTop: 18, flexWrap: 'wrap' }}>
                   {[
-                    { icon: ICONS.phone, label: '+256 752 648844', href: 'tel:+2567526488446' },
-                    { icon: ICONS.phone, label: '+256 782 547057', href: 'tel:+2567526488447' },
+                    { icon: ICONS.phone, label: '+256 752 648844', href: 'tel:+256752648844' },
+                    { icon: ICONS.phone, label: '+256 782 547057', href: 'tel:+256752648844' },
                     { icon: ICONS.mail,  label: 'MEDCOREug@gmail.com', href: 'mailto:MEDCOREug@gmail.com' },
                   ].map(({ icon, label, href }) => (
                     <a key={label} href={href} style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#7ec8f7', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>

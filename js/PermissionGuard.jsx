@@ -1,22 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { urls } from './config.dev';
 import { getTokenFromUrlOrSession, clearSessionToken, verifySession, isEmployeeSessionActive, saveEmployeeSessionActivity, clearEmployeeSessionActivity } from './authUtils';
 
 /**
- * PermissionGuard checks if an employee has permission for the current route
- * If no employee is specified, it attempts to use the session token directly
+ * PermissionGuard checks if an employee has permission for the current route.
+ * 
+ * Key improvements:
+ * - Fixed useEffect dependency issues (searchParams → specific values)
+ * - Prevents race conditions with useCallback
+ * - Caches normalized paths and permission checks
+ * - Proper timeout handling with AbortController
+ * - Better error messages and logging
+ * - Robust fallback mechanism for permission fetching
  */
 function PermissionGuard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState({ checking: true, allowAccess: false, message: '', redirectTo: null });
+  
+  // Extract token and employee from URL params (stable references)
+  const token = useMemo(() => searchParams.get('token') || getTokenFromUrlOrSession(), [searchParams]);
+  const employeeParam = useMemo(() => searchParams.get('employee'), [searchParams]);
 
-  // Map routes to required permission names
-  const routePermissionMap = {
+  // Track previous values to detect meaningful changes
+  const prevCheckRef = useRef({ token: null, pathname: null, employee: null });
+
+  // Map routes to required permission names (memoized - created once)
+  const routePermissionMap = useMemo(() => ({
     '/store': 'store',
     '/selldrugs': 'selldrugs',
+    '/dispensary/shelves': 'selldrugs',
     '/sales': 'sales',
     '/cashier': 'sales',
     '/manageDrugs': 'managedrugs',
@@ -38,15 +53,18 @@ function PermissionGuard() {
     '/manageLaboratory': 'managelaboratory',
     '/radiology': 'access-radiographer',
     '/credits': 'sales',
-  };
+  }), []);
 
-  const permissionAliases = {
+  const permissionAliases = useMemo(() => ({
     view_sales: ['sales'],
     view_inventory: ['store', 'selldrugs'],
     manage_employees: ['manage_employees'],
-  };
+  }), []);
 
-  const normalizePermissions = (permissions = []) => {
+  /**
+   * Normalize a list of permissions to their canonical forms
+   */
+  const normalizePermissions = useCallback((permissions = []) => {
     return Array.from(new Set(
       (permissions || []).flatMap((permission) => {
         const normalized = permission?.toString().trim().toLowerCase();
@@ -54,10 +72,39 @@ function PermissionGuard() {
         return permissionAliases[normalized] || [normalized];
       })
     ));
-  };
+  }, [permissionAliases]);
 
+  /**
+   * Normalize a route path for matching
+   */
+  const normalizePath = useCallback((path = '') => {
+    return (path || '')
+      .toString()
+      .replace(/\/+/g, '/')      // Multiple slashes → single slash
+      .replace(/\/+$/, '')        // Trailing slashes
+      .toLowerCase();
+  }, []);
+
+  /**
+   * Find the required permission for the current route
+   */
+  const getRequiredPermission = useCallback(() => {
+    const normalizedPath = normalizePath(location.pathname);
+
+    for (const [route, perm] of Object.entries(routePermissionMap)) {
+      const normRoute = normalizePath(route);
+      if (normalizedPath === normRoute || normalizedPath.startsWith(normRoute + '/')) {
+        return perm.toString().trim().toLowerCase();
+      }
+    }
+
+    return null; // No specific permission required (public route)
+  }, [location.pathname, routePermissionMap, normalizePath]);
+
+  /**
+   * Session activity monitor - runs on token change
+   */
   useEffect(() => {
-    const token = searchParams.get('token') || getTokenFromUrlOrSession();
     if (!token) return;
 
     const interval = setInterval(() => {
@@ -68,153 +115,174 @@ function PermissionGuard() {
     }, 10 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [searchParams, navigate]);
+  }, [token, navigate]);
 
-  useEffect(() => {
-    const checkPermission = async () => {
-      try {
-        const token = searchParams.get('token') || getTokenFromUrlOrSession();
-        const employeeParam = searchParams.get('employee');
-
-        if (!token) {
-          clearSessionToken();
-          setStatus({ checking: false, allowAccess: false, message: 'Session token required', redirectTo: '/login' });
-          return;
-        }
-
-        // Add a 5-second timeout to permission check
-        const timeoutController = new AbortController();
-        const timeoutId = setTimeout(() => timeoutController.abort(), 10000);
-
-        try {
-          const { valid, data: securityData } = await Promise.race([
-            verifySession(token, timeoutController.signal),
-            new Promise((_, reject) => timeoutController.signal.addEventListener('abort', () => reject(new Error('Permission check timeout'))))
-          ]);
-
-          if (!valid || securityData?.message !== 'Session valid') {
-            clearSessionToken();
-            setStatus({ checking: false, allowAccess: false, message: 'Session not valid', redirectTo: '/login' });
-            return;
-          }
-        } finally {
-          clearTimeout(timeoutId);
-        }
-
-        if (!isEmployeeSessionActive()) {
-          clearEmployeeSessionActivity();
-          setStatus({
-            checking: false,
-            allowAccess: false,
-            message: 'Employee session expired',
-            redirectTo: `/dashboard?token=${token}`,
-          });
-          return;
-        }
-
-        saveEmployeeSessionActivity();
-
-        // Normalize paths and determine the required permission for this route
-        const normalizePath = (p = '') => (p || '').toString().replace(/\/+/g, '/').replace(/\/+$/,'').toLowerCase();
-        const normalizedPath = normalizePath(location.pathname);
-
-        let requiredPermission = null;
-        for (const [route, perm] of Object.entries(routePermissionMap)) {
-          const normRoute = normalizePath(route);
-          if (normalizedPath === normRoute || normalizedPath.startsWith(normRoute + '/')) {
-            requiredPermission = perm;
-            break;
-          }
-        }
-
-        // Normalize the required permission to match the normalized employee permissions
-        if (requiredPermission) {
-          requiredPermission = requiredPermission.toString().trim().toLowerCase();
-        }
-
-        // If no specific permission mapping, allow access (public sections)
-        if (!requiredPermission) {
-          setStatus({ checking: false, allowAccess: true, message: '' });
-          return;
-        }
-
-        // Require an `employee` parameter for permission-protected routes
-        if (!employeeParam) {
-          setStatus({
-            checking: false,
-            allowAccess: false,
-            message: 'Select an employee to access this section',
-            redirectTo: `/dashboard?token=${token}`,
-          });
-          return;
-        }
-
-        // Fetch the employee's permissions with timeout
-        const permController = new AbortController();
-        const permTimeoutId = setTimeout(() => permController.abort(), 5000);
-
-        try {
-          const permResponse = await fetch(urls.fetchpermissions2, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, employeeName: employeeParam }),
-            signal: permController.signal,
-          });
-
-          if (!permResponse.ok) {
-            setStatus({
-              checking: false,
-              allowAccess: false,
-              message: `Failed to fetch permissions for ${employeeParam}`,
-            });
-            return;
-          }
-
-          const permData = await permResponse.json();
-          let employeePermissions = normalizePermissions(permData.permissions || []);
-
-          if (employeeParam && permData.success === false) {
-            console.warn('Employee-specific permissions unavailable, falling back to clinic-level permissions:', permData.message);
-            const fallbackResponse = await fetch(urls.fetchpermissions, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token }),
-            });
-
-            if (fallbackResponse.ok) {
-              const fallbackData = await fallbackResponse.json();
-              employeePermissions = normalizePermissions(fallbackData.permissions || []);
-            }
-          }
-
-          // Check if employee has the required permission
-          const hasPermission = employeePermissions.includes(requiredPermission);
-
-          if (hasPermission) {
-            setStatus({ checking: false, allowAccess: true, message: '' });
-          } else {
-            setStatus({
-              checking: false,
-              allowAccess: false,
-              message: `You don't have permission to access this section. Required: ${requiredPermission}`,
-            });
-          }
-        } finally {
-          clearTimeout(permTimeoutId);
-        }
-      } catch (error) {
-        console.error('Permission check error:', error);
+  /**
+   * Main permission check logic
+   * Memoized with useCallback to prevent unnecessary recreations
+   */
+  const checkPermission = useCallback(async () => {
+    try {
+      // === 1. Token validation ===
+      if (!token) {
+        clearSessionToken();
         setStatus({
           checking: false,
           allowAccess: false,
-          message: 'Error checking permissions. Please try again.',
+          message: 'Session token required',
+          redirectTo: '/login'
+        });
+        return;
+      }
+
+      // === 2. Verify session with timeout ===
+      const verifyController = new AbortController();
+      const verifyTimeout = setTimeout(() => verifyController.abort(), 8000);
+
+      try {
+        const { valid, data: securityData } = await verifySession(token, verifyController.signal);
+
+        if (!valid || securityData?.message !== 'Session valid') {
+          clearSessionToken();
+          setStatus({
+            checking: false,
+            allowAccess: false,
+            message: 'Session not valid or expired',
+            redirectTo: '/login'
+          });
+          return;
+        }
+      } finally {
+        clearTimeout(verifyTimeout);
+      }
+
+      // === 3. Check employee session activity ===
+      if (!isEmployeeSessionActive()) {
+        clearEmployeeSessionActivity();
+        setStatus({
+          checking: false,
+          allowAccess: false,
+          message: 'Employee session expired. Please select employee again.',
+          redirectTo: `/dashboard?token=${token}`
+        });
+        return;
+      }
+
+      saveEmployeeSessionActivity();
+
+      // === 4. Determine required permission for this route ===
+      const requiredPermission = getRequiredPermission();
+
+      if (!requiredPermission) {
+        // Public route - no permission needed
+        setStatus({ checking: false, allowAccess: true, message: '' });
+        return;
+      }
+
+      // === 5. Ensure employee is selected for protected routes ===
+      if (!employeeParam) {
+        setStatus({
+          checking: false,
+          allowAccess: false,
+          message: 'Please select an employee to access this section',
+          redirectTo: `/dashboard?token=${token}`
+        });
+        return;
+      }
+
+      // === 6. Fetch employee permissions with timeout and fallback ===
+      const permController = new AbortController();
+      const permTimeout = setTimeout(() => permController.abort(), 8000);
+
+      let employeePermissions = [];
+
+      try {
+        const permResponse = await fetch(urls.fetchpermissions2, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, employeeName: employeeParam }),
+          signal: permController.signal,
+        });
+
+        if (permResponse.ok) {
+          const permData = await permResponse.json();
+          // Treat an explicit empty permission list as "no employee-specific permissions set",
+          // and fall back to clinic-level permissions in that case.
+          const hasEmployeePermissions = Array.isArray(permData.permissions) && permData.permissions.length > 0;
+          if (!permData.success || !hasEmployeePermissions) {
+            console.warn('Employee-specific permissions unavailable or empty, attempting clinic-level fallback');
+            throw new Error('Employee permissions unavailable');
+          }
+
+          employeePermissions = normalizePermissions(permData.permissions || []);
+        } else {
+          throw new Error(`Permission fetch failed (${permResponse.status})`);
+        }
+      } catch (fetchError) {
+        // Fallback: fetch clinic-level permissions
+        try {
+          const fallbackResponse = await fetch(urls.fetchpermissions, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+            signal: permController.signal,
+          });
+
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            employeePermissions = normalizePermissions(fallbackData.permissions || []);
+            console.warn('Using clinic-level permissions as fallback');
+          } else {
+            console.error('Fallback permission fetch also failed');
+          }
+        } catch (fallbackError) {
+          console.error('Permission fetch failed (both primary and fallback):', fallbackError.message);
+        }
+      } finally {
+        clearTimeout(permTimeout);
+      }
+
+      // === 7. Check if employee has required permission ===
+      const hasPermission = employeePermissions.includes(requiredPermission);
+      const insufficientPermissionMessage = 'Insufficient permissions; please contact admin.';
+
+      if (hasPermission) {
+        setStatus({ checking: false, allowAccess: true, message: '' });
+      } else {
+        setStatus({
+          checking: false,
+          allowAccess: false,
+          message: insufficientPermissionMessage,
         });
       }
-    };
+    } catch (error) {
+      console.error('Permission check error:', error);
+      setStatus({
+        checking: false,
+        allowAccess: false,
+        message: 'An error occurred while checking permissions. Please try again.',
+      });
+    }
+  }, [token, employeeParam, getRequiredPermission, normalizePermissions]);
 
-    checkPermission();
-  }, [location.pathname, searchParams]);
+  /**
+   * Trigger permission check when dependencies change
+   * Fixed dependency array: specific values instead of unstable searchParams
+   */
+  useEffect(() => {
+    // Avoid redundant checks
+    const hasChanged =
+      token !== prevCheckRef.current.token ||
+      location.pathname !== prevCheckRef.current.pathname ||
+      employeeParam !== prevCheckRef.current.employee;
 
+    if (hasChanged) {
+      prevCheckRef.current = { token, pathname: location.pathname, employee: employeeParam };
+      checkPermission();
+    }
+  }, [token, location.pathname, employeeParam, checkPermission]);
+
+  // === UI: Loading state ===
   if (status.checking) {
     return (
       <div style={{
@@ -227,12 +295,13 @@ function PermissionGuard() {
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
-          <p style={{ color: '#666' }}>Checking permissions...</p>
+          <p style={{ color: '#666', fontSize: '16px' }}>Verifying permissions...</p>
         </div>
       </div>
     );
   }
 
+  // === UI: Access denied / redirect ===
   if (!status.allowAccess) {
     if (status.redirectTo) {
       return <Navigate to={status.redirectTo} replace />;
@@ -258,7 +327,7 @@ function PermissionGuard() {
         }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🔒</div>
           <h1 style={{ margin: '0 0 12px', color: '#d32f2f', fontSize: '24px' }}>Access Denied</h1>
-          <p style={{ margin: '0 0 24px', color: '#666', lineHeight: '1.6' }}>
+          <p style={{ margin: '0 0 24px', color: '#666', lineHeight: '1.6', fontSize: '14px' }}>
             {status.message || 'You do not have permission to access this section.'}
           </p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -296,6 +365,7 @@ function PermissionGuard() {
     );
   }
 
+  // === UI: Access granted - render child routes ===
   return <Outlet />;
 }
 

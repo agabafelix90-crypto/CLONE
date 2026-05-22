@@ -640,45 +640,34 @@ function Topbar({ token }) {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-        try {
-            const now = new Date();
-            const kampalaTime = new Date(
-                now.toLocaleString("en-US", { timeZone: "Africa/Kampala" })
-            );
+      try {
+        const response = await fetch(urls.appointments, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
 
-            const hours = kampalaTime.getHours();
-            if (hours >= 21 || hours < 6) {
-                console.log("It is between 9 PM and 6 AM in Kampala. Backend call skipped.");
-                return;
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            setAppointments(data);
+
+            if (data[0].reminded === "no") {
+              setDisplayingReminder(true);
             }
 
-            const response = await fetch(urls.appointments, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ token }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    setAppointments(data);
-
-                    if (data[0].reminded === "no") {
-                        setDisplayingReminder(true);
-                    }
-
-                    setTotalReminders(data.filter(app => app.reminded === "no").length);
-                } else {
-                    console.warn("No valid appointment data received.");
-                }
-            } else {
-                throw new Error('Failed to fetch appointments');
-            }
-        } catch (error) {
-            console.error('Error fetching appointments:', error);
+            setTotalReminders(data.filter(app => app.reminded === "no").length);
+          } else {
+            console.warn("No valid appointment data received.");
+          }
+        } else {
+          throw new Error('Failed to fetch appointments');
         }
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      }
     };
 
     fetchAppointments();
