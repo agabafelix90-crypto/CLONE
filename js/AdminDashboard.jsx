@@ -755,13 +755,13 @@ const setTheme = (isMob) => {
 };
 
 const PUB_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAup3FU135mAvJT6OheYW3
-pQyWf6jvS4duUMY4cXrlJXyGqu8HqvTU0ewPy6w2HhCPxWboNclkAkPhOCc4URNT
-x1Grg+mCsWmfhVimP2wtfmlBCJ09cyDMYf93iGj8RFf3CshY5yhppT/pX+RgTuXw
-ClpOXe24CLG2VF9suNylk+ReAMLyOxaekYofAMBvvrD4+GYPJgvkTMXCXCKp2PnO
-8+OjiltNMnoyqPEZoXHTV4EXtTrjYnwzSe0WZSSuzgVMhmtdx+IS4eisSumHV1eI
-wBeZwI0bYGxDCedPRassmSFgTFqkkcgIXmEP1n5w/08S/QPr2G+myKTeRqp5RJA5
-PQIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyd2UMPL8blglJo5Bifv0
+hLIP50pki7ujRkQf3NEgba2HtA4nC4yzR2qC7+/DwfgMNWnDDIIyfGC9wZ8IZHL6
+3L1nsoncPE8klToykvEfWlz0QYW9pX9zD7QxRPtLY0tqQzNr7UWgMBy70GFjE60R
+MNdL6XPir3ghGym0HEEqbgC7zSz1mfWoQOK3jUyDHwKR7r7QbDVrysKe8ebsK5n/
+BDnKHRfp8gEqZPFs7pcgPLY2o1lgchLfphVgoaWwOsBObGR3qtPyQ7PALvSQqIwe
+XdeRvElGFTiEJrpbgK3X7w79cRdOXODeuM/WzNPaUb/dS6n6hOBlaY7iILgkZdBW
+UwIDAQAB
 -----END PUBLIC KEY-----`;
 
 const PERMS = [
@@ -784,6 +784,7 @@ const PERMS = [
   { key:"access-radiographer",                  label:"Access Radiology Section",                  c:true,  p:false },
   { key:"manageLaboratory",                     label:"Manage Lab & Radiology Investigations",     c:true,  p:false },
   { key:"familyPlanning",                       label:"Manage Family Planning Settings",           c:true,  p:false },
+  { key:"maternity-dashboard",                   label:"Access Maternity Dashboard",                c:true,  p:false },
   { key:"view costs spent on treating patient", label:"View Costs Spent Treating a Patient",       c:true,  p:false },
 ];
 const initPerms = () => Object.fromEntries(PERMS.map(p => [p.key, false]));
@@ -846,6 +847,15 @@ const KBox = ({ title, desc, accent }) => (
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
+  const redirectToDashboard = useCallback((dashboardToken) => {
+    if (dashboardToken) {
+      navigate(`/dashboard?token=${dashboardToken}`);
+      return;
+    }
+    console.warn('Session expired but no dashboard token was returned. Redirecting to login.');
+    navigate('/login');
+  }, [navigate]);
+
   const [loading, setLoading]           = useState(true);
   const [empName, setEmpName]           = useState('');
   const [clinicName, setClinicName]     = useState('');
@@ -875,6 +885,7 @@ const AdminDashboard = () => {
   const [showSMS, setShowSMS]             = useState(false);
   const [showInact, setShowInact]         = useState(false);
   const [showDocHeader, setShowDocHeader] = useState(false);
+  const [backBusy, setBackBusy]           = useState(false);
   const chartRef = useRef(null);
 
   const [emps, setEmps]         = useState([]);
@@ -924,8 +935,10 @@ const AdminDashboard = () => {
           setHasHeader(d.has_header === 'yes');
           fetchDash(t);
         } else if (d.error === 'Session expired') {
-          navigate(`/dashboard?token=${d.clinic_session_token}`);
-        } else { navigate('/login'); }
+          redirectToDashboard(d.clinic_session_token);
+        } else {
+          navigate('/login');
+        }
       } catch { navigate('/login'); }
     })();
   }, [navigate]);
@@ -952,11 +965,12 @@ const AdminDashboard = () => {
     } finally { setLoading(false); }
   };
 
-  const fetchEmps = useCallback(async () => {
-    if (!sessionToken) return;
+  const fetchEmps = useCallback(async (t) => {
+    const tokenToUse = t || sessionToken;
+    if (!tokenToUse) return;
     setEmpLoad(true);
     try {
-      const r = await fetch(`${urls.fetchemployees2}?token=${sessionToken}`);
+      const r = await fetch(`${urls.fetchemployees2}?token=${tokenToUse}`);
       if (r.ok) setEmps(await r.json());
     } finally { setEmpLoad(false); }
   }, [sessionToken]);
@@ -964,7 +978,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (view === 'employees' && sessionToken) {
       fetchEmps();
-      const iv = setInterval(fetchEmps, 60000);
+      const iv = setInterval(() => fetchEmps(), 60000);
       return () => clearInterval(iv);
     }
   }, [view, sessionToken, fetchEmps]);
@@ -1248,6 +1262,27 @@ const AdminDashboard = () => {
     </aside>
   );
 
+  const handleBackToDashboard = async () => {
+    const currentToken = sessionToken || token;
+    if (!currentToken) return;
+    setBackBusy(true);
+    setShowAdd(false);
+    setShowPerm(false);
+    setShowDocHeader(false);
+    setShowSett(false);
+    setShowSMS(false);
+    if (mob) setMenuOpen(false);
+
+    try {
+      await Promise.all([fetchDash(currentToken), fetchEmps(currentToken)]);
+    } catch (error) {
+      console.warn('Back to dashboard refresh failed:', error);
+    } finally {
+      setBackBusy(false);
+      redirectToDashboard(currentToken);
+    }
+  };
+
   const TB = ({ title, sub }) => (
     <div className="fu" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12, marginBottom:24 }}>
       <div>
@@ -1433,6 +1468,11 @@ const AdminDashboard = () => {
         {mob && menuOpen && <div className="mob-ov" onClick={() => setMenuOpen(false)}/>}
 
         <main style={{ flex:1, marginLeft:mob?0:'var(--sw)', padding:mob?'60px 16px 30px':'28px 32px 38px', maxWidth:'100%', minWidth:0 }}>
+          <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:18 }}>
+            <button className="bp" onClick={handleBackToDashboard} disabled={backBusy} style={{ whiteSpace:'nowrap' }}>
+              {backBusy ? 'Updating…' : 'Back to Dashboard'}
+            </button>
+          </div>
           {view === 'dashboard' && <DashView/>}
           {view === 'employees' && <EmpView/>}
           <footer style={{ borderTop:'1px solid var(--border)', paddingTop:16, textAlign:'center', color:'var(--text-3)', fontSize:11.5 }}>

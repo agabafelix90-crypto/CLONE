@@ -48,6 +48,7 @@ function EmployeeSettings() {
     'view costs spent on treating patient': false,
     'makeOrderForDrugs': false,
     clinicStatistics: false,
+    'maternity-dashboard': false,
     'access-doctors-room': false,
     'access-nurse': false,
     manageDrugs: false,
@@ -65,13 +66,13 @@ function EmployeeSettings() {
   const [selectedPermissions, setSelectedPermissions] = useState({...initialPermissions});
 
   const publicKey = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAup3FU135mAvJT6OheYW3
-pQyWf6jvS4duUMY4cXrlJXyGqu8HqvTU0ewPy6w2HhCPxWboNclkAkPhOCc4URNT
-x1Grg+mCsWmfhVimP2wtfmlBCJ09cyDMYf93iGj8RFf3CshY5yhppT/pX+RgTuXw
-ClpOXe24CLG2VF9suNylk+ReAMLyOxaekYofAMBvvrD4+GYPJgvkTMXCXCKp2PnO
-8+OjiltNMnoyqPEZoXHTV4EXtTrjYnwzSe0WZSSuzgVMhmtdx+IS4eisSumHV1eI
-wBeZwI0bYGxDCedPRassmSFgTFqkkcgIXmEP1n5w/08S/QPr2G+myKTeRqp5RJA5
-PQIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyd2UMPL8blglJo5Bifv0
+hLIP50pki7ujRkQf3NEgba2HtA4nC4yzR2qC7+/DwfgMNWnDDIIyfGC9wZ8IZHL6
+3L1nsoncPE8klToykvEfWlz0QYW9pX9zD7QxRPtLY0tqQzNr7UWgMBy70GFjE60R
+MNdL6XPir3ghGym0HEEqbgC7zSz1mfWoQOK3jUyDHwKR7r7QbDVrysKe8ebsK5n/
+BDnKHRfp8gEqZPFs7pcgPLY2o1lgchLfphVgoaWwOsBObGR3qtPyQ7PALvSQqIwe
+XdeRvElGFTiEJrpbgK3X7w79cRdOXODeuM/WzNPaUb/dS6n6hOBlaY7iILgkZdBW
+UwIDAQAB
 -----END PUBLIC KEY-----`;
 
   const navigate = useNavigate();
@@ -281,9 +282,10 @@ PQIDAQAB
         throw new Error('Missing session token');
       }
 
+
       const encrypt = new JSEncrypt();
       encrypt.setPublicKey(publicKey);
-      const encryptedLoginCode = encrypt.encrypt(loginCode.toString());
+      const encryptedSecurityCode = encrypt.encrypt(loginCode.toString());
 
       const response = await fetch(urls.updatepermissions, {
         method: 'POST',
@@ -292,7 +294,7 @@ PQIDAQAB
           employeeName: selectedEmployee.Name,
           permissions: selectedPermissions,
           token: requestToken,
-          loginCode: encryptedLoginCode,
+          securityCode: encryptedSecurityCode,
         })
       });
 
@@ -376,6 +378,7 @@ PQIDAQAB
               'access-doctors-room': fetchedPermissions.includes('access-doctors-room'),
               'access-nurse': fetchedPermissions.includes('access-nurse'),
               manageDrugs: fetchedPermissions.includes('managedrugs'),
+              'maternity-dashboard': fetchedPermissions.includes('maternity-dashboard'),
               triage: fetchedPermissions.includes('triage'),
               manageLaboratory: fetchedPermissions.includes('managelaboratory'),
               'access-sales-details': fetchedPermissions.includes('access-sales-details'),
@@ -672,6 +675,16 @@ PQIDAQAB
                       onChange={() => handleCheckboxChange('triage')}
                     />
                     Access the triage department
+                  </label>
+                </div>
+                <div>
+                  <label className="permission-label">
+                    <input
+                      type="checkbox"
+                      checked={selectedPermissions['maternity-dashboard']}
+                      onChange={() => handleCheckboxChange('maternity-dashboard')}
+                    />
+                    Access Maternity Dashboard
                   </label>
                 </div>
                 <div>

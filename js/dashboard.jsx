@@ -6,6 +6,7 @@ import { getTokenFromUrlOrSession, saveSessionToken, saveEmployeeSessionActivity
 import EmployeeOfTheMonth from './EmployeeOfTheMonth';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import JSEncrypt from 'jsencrypt';
 import {
   faDollarSign, faCommentDots, faClipboardList, faNotesMedical,
   faUserNurse, faTimes, faUserMd, faRadiation,
@@ -237,7 +238,7 @@ const WelcomeModal = ({ onClose }) => (
           cursor: 'pointer', marginBottom: '10px'
         }}>Get Started</button>
         <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
-          For support contact: +2567526488447 | MEDCORE Systems
+          For support contact: +256752648844 | MEDCORE Systems
         </p>
       </div>
     </div>
@@ -506,13 +507,13 @@ function Dashboard() {
   const navigate            = useNavigate();
 
   const publicKey = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAup3FU135mAvJT6OheYW3
-pQyWf6jvS4duUMY4cXrlJXyGqu8HqvTU0ewPy6w2HhCPxWboNclkAkPhOCc4URNT
-x1Grg+mCsWmfhVimP2wtfmlBCJ09cyDMYf93iGj8RFf3CshY5yhppT/pX+RgTuXw
-ClpOXe24CLG2VF9suNylk+ReAMLyOxaekYofAMBvvrD4+GYPJgvkTMXCXCKp2PnO
-8+OjiltNMnoyqPEZoXHTV4EXtTrjYnwzSe0WZSSuzgVMhmtdx+IS4eisSumHV1eI
-wBeZwI0bYGxDCedPRassmSFgTFqkkcgIXmEP1n5w/08S/QPr2G+myKTeRqp5RJA5
-PQIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyd2UMPL8blglJo5Bifv0
+hLIP50pki7ujRkQf3NEgba2HtA4nC4yzR2qC7+/DwfgMNWnDDIIyfGC9wZ8IZHL6
+3L1nsoncPE8klToykvEfWlz0QYW9pX9zD7QxRPtLY0tqQzNr7UWgMBy70GFjE60R
+MNdL6XPir3ghGym0HEEqbgC7zSz1mfWoQOK3jUyDHwKR7r7QbDVrysKe8ebsK5n/
+BDnKHRfp8gEqZPFs7pcgPLY2o1lgchLfphVgoaWwOsBObGR3qtPyQ7PALvSQqIwe
+XdeRvElGFTiEJrpbgK3X7w79cRdOXODeuM/WzNPaUb/dS6n6hOBlaY7iILgkZdBW
+UwIDAQAB
 -----END PUBLIC KEY-----`;
 
   // Check if we are in pharmacy mode
@@ -779,10 +780,19 @@ PQIDAQAB
         return;
       }
 
+      const encrypt = new JSEncrypt();
+      encrypt.setPublicKey(publicKey);
+      const encryptedSecurityCode = securityCode ? encrypt.encrypt(securityCode.toString()) : '';
+
+      if (!encryptedSecurityCode) {
+        toast.error('Unable to encrypt security code. Please try again.');
+        return;
+      }
+
       const codeResponse = await fetch(urls.code, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ employee: selectedEmployee, action, securityCode, token: tk, theme: selectedEmployeeTheme }),
+        body: JSON.stringify({ employee: selectedEmployee, action, securityCode: encryptedSecurityCode, token: tk, theme: selectedEmployeeTheme }),
       });
 
       if (codeResponse.ok) {
@@ -842,10 +852,19 @@ PQIDAQAB
         return;
       }
 
+      const encrypt = new JSEncrypt();
+      encrypt.setPublicKey(publicKey);
+      const encryptedSecurityCode = sidebarSecurityCode ? encrypt.encrypt(sidebarSecurityCode.toString()) : '';
+
+      if (!encryptedSecurityCode) {
+        toast.error('Unable to encrypt security code. Please try again.');
+        return;
+      }
+
       const response = await fetch(urls.code, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ employee: selectedEmployee, action: sidebarAction, securityCode: sidebarSecurityCode, token: tk, theme: sidebarEmployeeTheme }),
+        body: JSON.stringify({ employee: selectedEmployee, action: sidebarAction, securityCode: encryptedSecurityCode, token: tk, theme: sidebarEmployeeTheme }),
       });
 
       if (response.ok) {
@@ -1513,7 +1532,7 @@ PQIDAQAB
           </div>
 
           <footer style={{ marginTop: '20px', textAlign: 'center', color: '#6c757d', fontSize: isMobile ? '10px' : '14px', padding: '0 10px' }}>
-            This system was created by MEDCORE Systems. For support or help contact +2567526488447
+            This system was created by MEDCORE Systems. For support or help contact +256752648844
           </footer>
         </div>
 
