@@ -1,6 +1,7 @@
 // config.dev.js
 
-export const API_URL = 'http://localhost:4000/';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/';
+export const API_URL = rawApiUrl.endsWith('/') ? rawApiUrl : `${rawApiUrl}/`;
 
 
 
@@ -30,6 +31,7 @@ export const urls = {
   fetchemployees: `${API_URL}fetchemployees.php`,
   addemployee: `${API_URL}addemployee.php`,
   deleteEmployee: `${API_URL}deleteEmployee.php`,
+  updateemployeepassword: `${API_URL}updateemployeepassword.php`,
   closeshift: `${API_URL}closeshift.php`,
   live: `${API_URL}live.php`,
   appointments: `${API_URL}appointments.php`,

@@ -8,11 +8,15 @@ const SettingsModal = ({ token, onClose }) => {
   const [editMode, setEditMode] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [clinicPassword, setClinicPassword] = useState('');
+  const [employeeName, setEmployeeName] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
+  const [employeeNewPassword, setEmployeeNewPassword] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordType, setPasswordType] = useState(''); // 'admin' or 'clinic'
   const [loading, setLoading] = useState(false);
+  const [employeeResetMode, setEmployeeResetMode] = useState(false);
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmNewPassword) {
@@ -67,8 +71,48 @@ const SettingsModal = ({ token, onClose }) => {
       }
     } catch (error) {
       setLoading(false);
-      alert('Oops! Something went wrong. Please check and confirm your old password is correct and you have an internet connection.');
       console.error('Error changing password:', error.message || error);
+      alert('Error changing password: ' + (error.message || error));
+    }
+  };
+
+  const handleResetEmployeePassword = async () => {
+    if (!employeeNewPassword) {
+      alert('Please enter a new password for the employee.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(urls.updateemployeepassword, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          employeeId: employeeId || undefined,
+          employeeName: employeeName || undefined,
+          new_password: employeeNewPassword,
+          admin_password: adminPassword,
+        }),
+      });
+
+      const data = await response.json();
+      setLoading(false);
+      if (data.success) {
+        setEmployeeId('');
+        setEmployeeName('');
+        setEmployeeNewPassword('');
+        setAdminPassword('');
+        setEmployeeResetMode(false);
+        alert(data.message || 'Employee password updated successfully.');
+        onClose();
+      } else {
+        const errorMessage = data.message || data.error || 'Unknown error occurred';
+        alert(`Error resetting employee password: ${errorMessage}`);
+      }
+    } catch (error) {
+      setLoading(false);
+      alert('Error resetting employee password: ' + (error.message || error));
     }
   };
 
@@ -77,6 +121,47 @@ const SettingsModal = ({ token, onClose }) => {
       <div className="settings-modal">
         <h2>Change Password</h2>
         <div className="settings-form">
+          <button
+            onClick={() => setEmployeeResetMode(prev => !prev)}
+            style={{ marginBottom: '10px', background: '#4B5563', color: '#fff' }}
+          >
+            {employeeResetMode ? 'Back to Clinic/Admin Password' : 'Reset Employee Password (Admin Only)'}
+          </button>
+          {employeeResetMode ? (
+            <>
+              <input
+                type="text"
+                placeholder="Employee ID (optional)"
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Employee Name"
+                value={employeeName}
+                onChange={(e) => setEmployeeName(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="New Employee Password"
+                value={employeeNewPassword}
+                onChange={(e) => setEmployeeNewPassword(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Admin Password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+              />
+              <button
+                onClick={handleResetEmployeePassword}
+                disabled={!employeeNewPassword || !adminPassword || loading}
+              >
+                {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Reset Employee Password'}
+              </button>
+            </>
+          ) : (
+            <>
           <select
             value={passwordType}
             onChange={(e) => setPasswordType(e.target.value)}
@@ -115,6 +200,8 @@ const SettingsModal = ({ token, onClose }) => {
           >
             {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Change Password'}
           </button>
+            </>
+          )}
         </div>
         <button className="close-button1" onClick={onClose}>Close</button>
       </div>

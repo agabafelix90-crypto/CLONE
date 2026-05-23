@@ -8,7 +8,7 @@
     "dev": "nodemon src/server.js",
     "test": "node test-endpoints.js",
     "migrate": "node migrate.js",
-    "prod": "set NODE_ENV=production&&node src/server.js"
+    "prod": "cross-env NODE_ENV=production node src/server.js"
   },
   "dependencies": {
     "@googleapis/calendar": "^8.0.0",
