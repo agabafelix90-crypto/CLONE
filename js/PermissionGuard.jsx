@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { Navigate, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { urls } from './config.dev';
-import { getTokenFromUrlOrSession, clearSessionToken, verifySession, isEmployeeSessionActive, saveEmployeeSessionActivity, clearEmployeeSessionActivity } from './authUtils';
+import { clearSessionToken, verifySession, isEmployeeSessionActive, saveEmployeeSessionActivity, clearEmployeeSessionActivity } from './authUtils';
+import { useAuth } from './AuthContext';
 
 /**
  * PermissionGuard checks if an employee has permission for the current route.
@@ -17,15 +18,20 @@ import { getTokenFromUrlOrSession, clearSessionToken, verifySession, isEmployeeS
 function PermissionGuard() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [status, setStatus] = useState({ checking: true, allowAccess: false, message: '', redirectTo: null });
+  const { token } = useAuth();
   
-  // Extract token and employee from URL params (stable references)
-  const token = useMemo(() => searchParams.get('token') || getTokenFromUrlOrSession(), [searchParams]);
-  const employeeParam = useMemo(() => searchParams.get('employee'), [searchParams]);
+  // Extract employee from URL params (stable references)
+  const employeeParam = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('employee');
+  }, [location.search]);
 
   // Track previous values to detect meaningful changes
   const prevCheckRef = useRef({ token: null, pathname: null, employee: null });
+
+  // Routes that are allowed without selecting an employee
+  const routesWithoutEmployeeSelection = useMemo(() => new Set(['/triage']), []);
 
   // Map routes to required permission names (memoized - created once)
   const routePermissionMap = useMemo(() => ({
@@ -156,19 +162,30 @@ function PermissionGuard() {
         clearTimeout(verifyTimeout);
       }
 
+      const normalizedPath = normalizePath(location.pathname);
+      const requiresEmployee = !routesWithoutEmployeeSelection.has(normalizedPath);
+
       // === 3. Check employee session activity ===
       if (!isEmployeeSessionActive()) {
-        clearEmployeeSessionActivity();
-        setStatus({
-          checking: false,
-          allowAccess: false,
-          message: 'Employee session expired. Please select employee again.',
-          redirectTo: `/dashboard?token=${token}`
-        });
-        return;
+        // If the route contains an employee selection, restore the active employee session
+        // rather than forcing an unnecessary redirect on every protected page load.
+        if (employeeParam) {
+          saveEmployeeSessionActivity();
+        } else if (!requiresEmployee) {
+          // Allow routes like /triage to continue without an employee-specific session.
+        } else {
+          clearEmployeeSessionActivity();
+          setStatus({
+            checking: false,
+            allowAccess: false,
+            message: 'Employee session expired. Please select employee again.',
+            redirectTo: `/dashboard?token=${token}`
+          });
+          return;
+        }
+      } else {
+        saveEmployeeSessionActivity();
       }
-
-      saveEmployeeSessionActivity();
 
       // === 4. Determine required permission for this route ===
       const requiredPermission = getRequiredPermission();
@@ -180,7 +197,7 @@ function PermissionGuard() {
       }
 
       // === 5. Ensure employee is selected for protected routes ===
-      if (!employeeParam) {
+      if (!employeeParam && requiresEmployee) {
         setStatus({
           checking: false,
           allowAccess: false,
@@ -197,26 +214,30 @@ function PermissionGuard() {
       let employeePermissions = [];
 
       try {
-        const permResponse = await fetch(urls.fetchpermissions2, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, employeeName: employeeParam }),
-          signal: permController.signal,
-        });
+        if (employeeParam) {
+          const permResponse = await fetch(urls.fetchpermissions2, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, employeeName: employeeParam }),
+            signal: permController.signal,
+          });
 
-        if (permResponse.ok) {
-          const permData = await permResponse.json();
-          // Treat an explicit empty permission list as "no employee-specific permissions set",
-          // and fall back to clinic-level permissions in that case.
-          const hasEmployeePermissions = Array.isArray(permData.permissions) && permData.permissions.length > 0;
-          if (!permData.success || !hasEmployeePermissions) {
-            console.warn('Employee-specific permissions unavailable or empty, attempting clinic-level fallback');
-            throw new Error('Employee permissions unavailable');
+          if (permResponse.ok) {
+            const permData = await permResponse.json();
+            // Treat an explicit empty permission list as "no employee-specific permissions set",
+            // and fall back to clinic-level permissions in that case.
+            const hasEmployeePermissions = Array.isArray(permData.permissions) && permData.permissions.length > 0;
+            if (!permData.success || !hasEmployeePermissions) {
+              console.warn('Employee-specific permissions unavailable or empty, attempting clinic-level fallback');
+              throw new Error('Employee permissions unavailable');
+            }
+
+            employeePermissions = normalizePermissions(permData.permissions || []);
+          } else {
+            throw new Error(`Permission fetch failed (${permResponse.status})`);
           }
-
-          employeePermissions = normalizePermissions(permData.permissions || []);
         } else {
-          throw new Error(`Permission fetch failed (${permResponse.status})`);
+          throw new Error('No employee selected; using clinic-level permissions fallback');
         }
       } catch (fetchError) {
         // Fallback: fetch clinic-level permissions

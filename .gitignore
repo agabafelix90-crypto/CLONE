@@ -2,4 +2,5 @@ node_modules/
 dist/
 .vite/
 .env
+backend/.env
 .DS_Store

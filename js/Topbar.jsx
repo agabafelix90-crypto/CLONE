@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { urls } from './config.dev';
+import { getTokenPayload } from './authUtils';
+import { useAuth } from './AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faTimes, faSignOutAlt, faStar as faSolidStar, faCaretDown, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
@@ -72,6 +74,9 @@ function Topbar({ token }) {
   const [loading, setLoading] = useState(false);
   const [isRadiographerDropdownOpen, setIsRadiographerDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const { token: authToken } = useAuth();
+  const activeToken = token || authToken;
+  const buildPayload = (payload = {}) => ({ ...(activeToken ? getTokenPayload(activeToken) : {}), ...payload });
   const [isCashierDropdownOpen, setIsCashierDropdownOpen] = useState(false);
   const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
   const [isCritical, setIsCritical] = useState(false);
@@ -300,12 +305,17 @@ function Topbar({ token }) {
   // Fetch session data including employee balance and theme color
   const fetchSessionData = async () => {
     try {
+      if (!activeToken) {
+        setSecurityDataLoaded(true);
+        return;
+      }
+
       const response = await fetch(urls.security, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token: token }),
+        body: JSON.stringify(buildPayload()),
       });
 
       if (response.ok) {
@@ -347,16 +357,17 @@ function Topbar({ token }) {
 
   useEffect(() => {
     fetchSessionData(); // Fetch session data on component mount
-  }, [token]);
+  }, [activeToken]);
 
   useEffect(() => {
     const fetchClinicPermissions = async () => {
+      if (!activeToken) return [];
       const response = await fetch(urls.fetchpermissions, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify(buildPayload()),
       });
 
       if (response.ok) {
@@ -370,14 +381,14 @@ function Topbar({ token }) {
     const fetchPermissions = async () => {
       try {
         const endpoint = employeeName ? urls.fetchpermissions2 : urls.fetchpermissions;
-        const payload = employeeName ? { token, employeeName } : { token };
+        const payload = employeeName ? { employeeName } : {};
 
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(buildPayload(payload)),
         });
 
         if (response.ok) {
@@ -407,10 +418,10 @@ function Topbar({ token }) {
       }
     };
 
-    if (token) {
+    if (activeToken) {
       fetchPermissions();
     }
-  }, [token, employeeName]);
+  }, [activeToken, employeeName]);
 
   const fetchPerformanceData = async (token, employeeName) => {
     try {
@@ -420,12 +431,11 @@ function Topbar({ token }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          token,
+        body: JSON.stringify(buildPayload({
           startDate,
           endDate,
           section: 'all',
-        }),
+        })),
       });
 
       const data = await response.json();
@@ -472,13 +482,14 @@ function Topbar({ token }) {
   };
 
   const fetchHomeToken = async () => {
+    if (!activeToken) return null;
     try {
       const response = await fetch(urls.dashboardtoken, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify(buildPayload()),
       });
 
       if (response.ok) {
@@ -509,12 +520,17 @@ function Topbar({ token }) {
   const handleLogout = async () => {
     setLogoutLoading(true);
     try {
+      if (!activeToken) {
+        navigate('/login');
+        return;
+      }
+
       const response = await fetch(urls.logout, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify(buildPayload()),
       });
 
       if (response.ok) {
@@ -567,7 +583,7 @@ function Topbar({ token }) {
   };
 
   const handleNavigation = (path) => {
-    navigate(`${path}?token=${token}`);
+    navigate(`${path}?token=${activeToken}`);
   };
 
   const handlePerformanceClick = () => {
@@ -591,14 +607,16 @@ function Topbar({ token }) {
     let notificationInterval, displayNotification;
 
     const checkCriticalPatients = () => {
-      if (permissions.includes('access-doctors-room')) {
-        fetch(urls.checkcritical, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token }),
-        })
+      if (!activeToken || !permissions.includes('access-doctors-room')) {
+        return;
+      }
+      fetch(urls.checkcritical, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(buildPayload()),
+      })
           .then(response => response.json())
           .then(data => {
             if (data.response === 'yes') {
@@ -610,7 +628,6 @@ function Topbar({ token }) {
             }
           })
           .catch(error => console.error('Error:', error));
-      }
     };
 
     checkCriticalPatients();
@@ -636,17 +653,18 @@ function Topbar({ token }) {
       clearInterval(notificationInterval);
       clearInterval(displayNotification);
     };
-  }, [permissions, token]);
+  }, [permissions, activeToken]);
 
   useEffect(() => {
     const fetchAppointments = async () => {
+      if (!activeToken) return;
       try {
         const response = await fetch(urls.appointments, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify(buildPayload()),
         });
 
         if (response.ok) {
@@ -671,7 +689,7 @@ function Topbar({ token }) {
     };
 
     fetchAppointments();
-  }, [urls.appointments, token]);
+  }, [urls.appointments, activeToken]);
 
   const handleReminderClick = async () => {
     const currentAppointment = appointments[currentAppointmentIndex];
@@ -684,10 +702,9 @@ function Topbar({ token }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
+                body: JSON.stringify(buildPayload({
                     appointment_id: currentAppointment.appointment_id,
-                    token,
-                }),
+                })),
             });
 
             if (response.ok) {

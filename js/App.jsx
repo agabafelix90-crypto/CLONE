@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
 import LandingPage from './LandingPage';
 import LandingPagePhones from './LandingPagePhones'; // Import the mobile version
 import Dashboard from './dashboard';
@@ -110,8 +111,9 @@ const DynamicLandingPage = () => {
 function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Routes>
-        {/* Use DynamicLandingPage for the root path */}
+      <AuthProvider>
+        <Routes>
+          {/* Use DynamicLandingPage for the root path */}
         <Route path="/" element={<DynamicLandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/clinic-registration1" element={<ClinicRegistration1 />} />
@@ -197,7 +199,8 @@ function App() {
           <Route path="/birthdays" element={<BirthdayPage />} />
         </Route>
       </Routes>
-    </Router>
+    </AuthProvider>
+  </Router>
   );
 }
 

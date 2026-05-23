@@ -21,7 +21,7 @@ module.exports = defineConfig({
   },
   define: {
     global: 'window',
-    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://jzfdxstpomdcoucywimy.supabase.co'),
-    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_f7FTaja3G59yW29OAGulbQ_KwllAjL5')
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co'),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key')
   }
 });

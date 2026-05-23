@@ -84,7 +84,7 @@ function Laboratory() {
 
   const navigate = useNavigate();
   const urlTheme = parseThemeFromSearch(window.location.search);
-  const urlToken = getTokenFromUrlOrSession({ stripUrl: true });
+  const urlToken = getTokenFromUrlOrSession();
 
   const notificationTimerRef = useRef(null);
   const refreshIntervalRef = useRef(null);

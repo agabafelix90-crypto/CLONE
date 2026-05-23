@@ -1,0 +1,22 @@
+/* Utility cursor classes for table interactions
+
+Usage in JSX/HTML:
+  - Add the class `cursor-pointer` to make an element use the pointing hand cursor.
+  - Use `cursor-col-resize` for column resize handles, etc.
+
+This file maps the cursor keywords provided by the system to easy-to-use CSS classes.
+*/
+
+.cursor-default { cursor: default; }
+.cursor-pointer { cursor: pointer; }
+.cursor-cell { cursor: cell; }
+.cursor-col-resize { cursor: col-resize; }
+.cursor-row-resize { cursor: row-resize; }
+.cursor-text { cursor: text; }
+.cursor-move { cursor: move; }
+.cursor-grab { cursor: grab; }
+.cursor-grabbing { cursor: grabbing; }
+.cursor-wait { cursor: wait; }
+.cursor-progress { cursor: progress; }
+.cursor-not-allowed { cursor: not-allowed; }
+.cursor-crosshair { cursor: crosshair; }

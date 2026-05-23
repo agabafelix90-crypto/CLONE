@@ -428,7 +428,7 @@ const Sales = () => {
   // ── Data fetchers ──
   const fetchSalesData = async () => {
     try {
-      const res = await fetch(`${API_URL}/fetchsales.php`, {
+      const res = await fetch(urls.fetchsales, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: shiftDate, shift: selectedShift, token: tokenFromUrl }),
       });
@@ -441,13 +441,13 @@ const Sales = () => {
 
   const fetchExpensesData = async () => {
     try {
-      const res = await fetch(`${API_URL}/fetchexpenses.php`, {
+      const res = await fetch(urls.fetchexpenses, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: shiftDate, shift: selectedShift, token: tokenFromUrl }),
       });
       if (res.ok) {
         const d = await res.json();
-        setExpensesData(d.map(e => ({ amount: Math.round(parseFloat(e.Amount)), details: e.Details, takenBy: e.TakenBy, servedBy: e.ServedBy, category: e.category || 'non-categorized', id: e.ExpenseID })));
+        setExpensesData(d.map(e => ({ amount: Math.round(parseFloat(e.Amount)), details: e.Details, takenBy: e.TakenBy, servedBy: e.ServedBy, category: e.Category || e.category || 'non-categorized', id: e.ExpenseID })));
       }
     } catch (e) { toast.error('Failed to fetch expenses data'); }
   };
@@ -510,7 +510,7 @@ const Sales = () => {
     try {
       const res = await fetch(urls.deletesale, {
         method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: item.amount, reason: item.reason, category: item.category, servedBy: item.servedBy, shift: selectedShift, date: new Date().toISOString().split('T')[0], token: tokenFromUrl }),
+        body: JSON.stringify({ id: item.id, amount: item.amount, reason: item.reason, category: item.category, servedBy: item.servedBy, shift: selectedShift, date: new Date().toISOString().split('T')[0], token: tokenFromUrl }),
       });
       if (res.ok) { setSalesData(p => p.filter(s => s.id !== id)); toast.success('Sale deleted'); }
       else {
@@ -529,7 +529,7 @@ const Sales = () => {
     try {
       const res = await fetch(urls.deleteexpense, {
         method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: item.amount, details: item.details, takenBy: item.takenBy, servedBy: item.servedBy, category: item.category, shift: selectedShift, date: new Date().toISOString().split('T')[0], token: tokenFromUrl }),
+        body: JSON.stringify({ id: item.id, amount: item.amount, details: item.details, takenBy: item.takenBy, servedBy: item.servedBy, category: item.category, shift: selectedShift, date: new Date().toISOString().split('T')[0], token: tokenFromUrl }),
       });
       if (res.ok) { setExpensesData(p => p.filter(e => e.id !== id)); toast.success('Expense deleted'); }
       else toast.error('Failed to delete expense');

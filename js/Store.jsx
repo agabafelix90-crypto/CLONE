@@ -1785,6 +1785,8 @@ function Store() {
         drug_id: drug.drug_id,
         drug: drug.drug,
         quantity: drug.quantity,
+        quantity_on_hand: Number(drug.quantity || 0),
+        quantity_reserved: 0,
         packaging: drug.packaging,
         costPrice: drug.costPrice,
         sellingPrice: drug.sellingPrice,

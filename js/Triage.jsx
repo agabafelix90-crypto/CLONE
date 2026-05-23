@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { urls } from './config.dev';
-import { saveSessionToken } from './authUtils';
-import { useNavigate } from 'react-router-dom';
+import { saveSessionToken, saveEmployeeSessionActivity, getTokenPayload } from './authUtils';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 import { 
     faPhone, faUser, faIdCard, faVenusMars, faPray, 
     faHome, faUserFriends, faCompressAlt, faChevronLeft,
@@ -923,6 +924,7 @@ function Triage() {
     const [showAddPatientPrompt, setShowAddPatientPrompt] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
     const [readOnlyPatientDetails, setReadOnlyPatientDetails] = useState(null);
     const [showLabTestPrompt, setShowLabTestPrompt] = useState(false);
     const [showRadiologyTestPrompt, setShowRadiologyTestPrompt] = useState(false);
@@ -957,9 +959,9 @@ function Triage() {
     const suggestionsRef = useRef(null);
     const debounceTimer = useRef(null);
     const isMounted = useRef(true);
-    const params = new URLSearchParams(window.location.search);
-    const urlToken = params.get('token');
-    const urlTheme = parseThemeFromSearch(window.location.search);
+    const { token: authToken } = useAuth();
+    const urlToken = authToken;
+    const urlTheme = parseThemeFromSearch(location.search);
 
     // Get the active theme colors
     const theme = colors[currentTheme];
@@ -990,7 +992,7 @@ function Triage() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ token: urlToken }),
+                    body: JSON.stringify(getTokenPayload(urlToken)),
                 });
 
                 if (response.ok) {
@@ -1051,6 +1053,11 @@ function Triage() {
 
     // Fetch employee name, clinic info and perform security check
     useEffect(() => {
+        if (!urlToken) {
+            navigate('/login');
+            return;
+        }
+
         const fetchEmployeeName = async () => {
             try {
                 const securityResponse = await fetch(urls.security, {
@@ -1058,7 +1065,7 @@ function Triage() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ token: urlToken }),
+                    body: JSON.stringify(getTokenPayload(urlToken)),
                 });
 
                 if (securityResponse.ok) {
@@ -1073,6 +1080,7 @@ function Triage() {
                         setEmployeeName(securityData.employee_name);
                         setClinicInfo(securityData);
                         saveSessionToken(securityData.clinic_session_token);
+                        saveEmployeeSessionActivity();
                         fetchAvailableLabTests();
                         fetchAvailableRadiologyTests();
                         
@@ -1094,7 +1102,7 @@ function Triage() {
         };
 
         fetchEmployeeName();
-    }, [navigate, urlToken]);
+    }, [navigate, urlToken, urlTheme]);
 
     // Sort tests/exams alphabetically
     const sortTestsAlphabetically = (tests) => {
@@ -1114,7 +1122,7 @@ function Triage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ token: urlToken }),
+                body: JSON.stringify(getTokenPayload(urlToken)),
             });
 
             if (!response.ok) throw new Error('Failed to fetch available lab tests');
@@ -1135,7 +1143,7 @@ function Triage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ token: urlToken }),
+                body: JSON.stringify(getTokenPayload(urlToken)),
             });
 
             if (!response.ok) throw new Error('Failed to fetch available radiology exams');
@@ -1218,8 +1226,9 @@ function Triage() {
 
         debounceTimer.current = setTimeout(async () => {
             try {
-                const queryString = `?name=${encodeURIComponent(name)}&token=${urlToken}`;
-                const response = await fetch(`${urls.suggest}${queryString}`);
+                const queryString = new URLSearchParams({ name: name.trim() });
+                if (urlToken) queryString.append('token', urlToken);
+                const response = await fetch(`${urls.suggest}?${queryString.toString()}`);
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -1543,7 +1552,7 @@ function Triage() {
                 },
                 body: JSON.stringify({
                     ...newPatientDetails,
-                    token: urlToken,
+                    ...getTokenPayload(urlToken),
                     ageDetails: {
                         years: newPatientDetails.years || 0,
                         months: newPatientDetails.months || 0,
@@ -1773,7 +1782,7 @@ function Triage() {
                 pulse_rate: pulseRate,
                 labTests: selectionState.lab ? selectedLabTests : [],
                 radiologyExams: selectionState.radiology ? selectedRadiologyTests : [],
-                token: urlToken,
+                ...getTokenPayload(urlToken),
                 action: selectionState.doctor ? 'Going to the doctor' : '',
                 familyPlanning: selectionState.familyPlanning,
                 antenatalCare: selectionState.antenatalCare,

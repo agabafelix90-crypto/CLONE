@@ -2,9 +2,10 @@ import { urls } from './config.dev';
 
 /*
  * Token model and security notes:
- * - Auth tokens are persisted only in localStorage under the legacy key 'token'.
- * - sessionStorage is no longer used for auth token persistence.
- * - URL tokens are accepted once on initial load and stripped from the address bar
+ * - Tokens are accepted from the URL first, then from stored client state.
+ * - Supported storage keys are both modern "clinic_auth_token" and legacy "token".
+ * - Tokens may exist in either sessionStorage or localStorage for compatibility.
+ * - URL tokens are accepted once on initial load and optionally stripped from the address bar
  *   when getTokenFromUrlOrSession({ stripUrl: true }) resolves them.
  * - Application code must use centralized helpers instead of direct
  *   localStorage.getItem('token') access.
@@ -12,6 +13,7 @@ import { urls } from './config.dev';
  */
 
 export const LEGACY_TOKEN_KEY = 'clinic_auth_token';
+export const LEGACY_COMPAT_TOKEN_KEY = 'token';
 export const EMPLOYEE_SESSION_TIMESTAMP_KEY = 'employee_session_timestamp';
 export const REDIRECT_AFTER_LOGIN_KEY = 'redirect_after_login';
 const EMPLOYEE_SESSION_TTL_MS = 15 * 60 * 1000; // 15 minutes
@@ -25,10 +27,17 @@ const sanitizeToken = (value) => {
 
 export const getStoredToken = () => {
   try {
-    // Prefer sessionStorage (short-lived) but fall back to localStorage for compatibility
-    const fromSession = sanitizeToken(sessionStorage.getItem(LEGACY_TOKEN_KEY));
-    if (fromSession) return fromSession;
-    return sanitizeToken(localStorage.getItem(LEGACY_TOKEN_KEY));
+    const keys = [LEGACY_TOKEN_KEY, LEGACY_COMPAT_TOKEN_KEY];
+    const storages = [sessionStorage, localStorage];
+
+    for (const storage of storages) {
+      for (const key of keys) {
+        const stored = sanitizeToken(storage.getItem(key));
+        if (stored) return stored;
+      }
+    }
+
+    return '';
   } catch (error) {
     console.error('Unable to read stored token:', error);
     return '';
@@ -40,8 +49,10 @@ export const saveSessionToken = (token, { persistToLocal = false } = {}) => {
   if (!cleanToken) return;
   try {
     sessionStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
-    // Optional compatibility persistence for older clients/tests
-    if (persistToLocal) localStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
+    if (persistToLocal) {
+      localStorage.setItem(LEGACY_TOKEN_KEY, cleanToken);
+      localStorage.setItem(LEGACY_COMPAT_TOKEN_KEY, cleanToken);
+    }
   } catch (error) {
     console.error('Unable to save session token:', error);
   }
@@ -77,8 +88,15 @@ export const clearEmployeeSessionActivity = () => {
 
 export const clearSessionToken = () => {
   try {
-    sessionStorage.removeItem(LEGACY_TOKEN_KEY);
-    localStorage.removeItem(LEGACY_TOKEN_KEY);
+    const keys = [LEGACY_TOKEN_KEY, LEGACY_COMPAT_TOKEN_KEY];
+    const storages = [sessionStorage, localStorage];
+
+    for (const storage of storages) {
+      for (const key of keys) {
+        storage.removeItem(key);
+      }
+    }
+
     clearEmployeeSessionActivity();
   } catch (error) {
     console.error('Unable to clear session token:', error);
@@ -104,7 +122,7 @@ export const isSessionExpiredResponse = (response, data) => {
   return message.includes('session expired') || message.includes('unauthorized');
 };
 
-export const getTokenFromUrlOrSession = ({ stripUrl = true } = {}) => {
+export const getTokenFromUrlOrSession = ({ stripUrl = false } = {}) => {
   try {
     const params = new URLSearchParams(window.location.search);
     const urlToken = sanitizeToken(params.get('token'));
@@ -123,6 +141,13 @@ export const getTokenFromUrlOrSession = ({ stripUrl = true } = {}) => {
 };
 
 export const getVerifiedToken = () => getTokenFromUrlOrSession({ stripUrl: true });
+
+export const getActiveToken = () => getTokenFromUrlOrSession();
+
+export const getTokenPayload = (token) => {
+  const cleanToken = sanitizeToken(token);
+  return cleanToken ? { token: cleanToken } : {};
+};
 
 export const getAuthConfig = (options = {}) => {
   const token = getVerifiedToken();

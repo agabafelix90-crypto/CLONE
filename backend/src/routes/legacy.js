@@ -120,13 +120,6 @@ function securityHeaders(req, res, next) {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
 
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  // Echo incoming origin to allow credentialed requests from the frontend
-  const allowedOrigin = req.headers.origin || process.env.FRONTEND_URL || '*';
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Access-Token, X-Token');
-
   next();
 }
 
@@ -804,7 +797,18 @@ async function addSale(req) {
     return { success: false, message: 'Session expired' };
   }
 
-  const payload = { ...req.body, clinic_id: token };
+  const payload = {
+    clinic_id: token,
+    amount: Number(req.body.amount || 0),
+    reason: req.body.reason || '',
+    category: req.body.category || 'non-categorized',
+    served_by: req.body.servedBy || req.body.ServedBy || req.body.served_by || '',
+    shift: req.body.shift || '',
+    date: req.body.date ? req.body.date : new Date().toISOString().split('T')[0],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase.from('sales').insert([payload]);
 
   if (error) {
@@ -813,6 +817,195 @@ async function addSale(req) {
   }
 
   return { success: true, data };
+}
+
+function formatSaleRecord(record) {
+  if (!record) return null;
+  return {
+    SaleID: record.id || record.sale_id || null,
+    Amount: record.amount != null ? Number(record.amount) : 0,
+    Reason: record.reason || '',
+    Category: record.category || 'non-categorized',
+    ServedBy: record.served_by || record.servedBy || '',
+    Shift: record.shift || '',
+    Date: record.date ? new Date(record.date).toISOString().split('T')[0] : null,
+  };
+}
+
+function formatExpenseRecord(record) {
+  if (!record) return null;
+  return {
+    ExpenseID: record.id || record.expense_id || null,
+    Amount: record.amount != null ? Number(record.amount) : 0,
+    Details: record.details || record.description || '',
+    Category: record.category || 'non-categorized',
+    TakenBy: record.taken_by || record.takenBy || '',
+    ServedBy: record.served_by || record.servedBy || '',
+    Shift: record.shift || '',
+    Date: record.date ? new Date(record.date).toISOString().split('T')[0] : null,
+  };
+}
+
+async function fetchSales(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+
+  if (!token) {
+    return [];
+  }
+
+  const { date, shift } = req.body || {};
+  let query = supabase.from('sales').select('*').eq('clinic_id', token);
+  if (date) query = query.eq('date', date);
+  if (shift) query = query.eq('shift', shift);
+  query = query.order('created_at', { ascending: false });
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('Supabase fetchSales error:', error);
+    throw error;
+  }
+  return (data || []).map(formatSaleRecord);
+}
+
+async function addExpense(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+
+  if (!token) {
+    return { success: false, message: 'Unauthorized' };
+  }
+
+  const clinic = await getClinicByToken(token);
+  if (!clinic) {
+    return { success: false, message: 'Session expired' };
+  }
+
+  const payload = {
+    clinic_id: token,
+    employee_id: req.body.employeeId || req.body.employee_id || null,
+    amount: Number(req.body.amount || 0),
+    details: req.body.details || '',
+    category: req.body.category || 'non-categorized',
+    taken_by: req.body.takenBy || req.body.TakenBy || req.body.taken_by || '',
+    served_by: req.body.servedBy || req.body.ServedBy || req.body.served_by || '',
+    shift: req.body.shift || '',
+    date: req.body.date ? req.body.date : new Date().toISOString().split('T')[0],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data, error } = await supabase.from('expenses').insert([payload]);
+
+  if (error) {
+    console.error('Supabase addExpense error:', error);
+    return { success: false, message: error.message || 'Failed to add expense' };
+  }
+
+  return { success: true, data };
+}
+
+async function fetchExpenses(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+
+  if (!token) {
+    return [];
+  }
+
+  const { date, shift } = req.body || {};
+  let query = supabase.from('expenses').select('*').eq('clinic_id', token);
+  if (date) query = query.eq('date', date);
+  if (shift) query = query.eq('shift', shift);
+  query = query.order('created_at', { ascending: false });
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('Supabase fetchExpenses error:', error);
+    throw error;
+  }
+  return (data || []).map(formatExpenseRecord);
+}
+
+async function deleteSale(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+  const { id, amount, reason, category, servedBy, shift, date } = req.body;
+
+  if (!token) {
+    return { success: false, message: 'Unauthorized' };
+  }
+
+  const selectQuery = supabase.from('sales').select('id').eq('clinic_id', token);
+  if (id) {
+    selectQuery.eq('id', id);
+  } else {
+    if (amount != null) selectQuery.eq('amount', Number(amount));
+    if (reason) selectQuery.eq('reason', reason);
+    if (category) selectQuery.eq('category', category);
+    if (servedBy) selectQuery.eq('served_by', servedBy);
+    if (shift) selectQuery.eq('shift', shift);
+    if (date) selectQuery.eq('date', date);
+  }
+
+  const { data: matchedSale, error: findError } = await selectQuery.limit(1).maybeSingle();
+  if (findError) {
+    console.error('Supabase deleteSale lookup error:', findError);
+    return { success: false, message: findError.message || 'Failed to find sale' };
+  }
+
+  if (!matchedSale || !matchedSale.id) {
+    return { success: true, deleted: [] };
+  }
+
+  const { data, error } = await supabase.from('sales').delete().eq('id', matchedSale.id);
+  if (error) {
+    console.error('Supabase deleteSale error:', error);
+    return { success: false, message: error.message || 'Failed to delete sale' };
+  }
+
+  return { success: true, deleted: data || [] };
+}
+
+async function deleteExpense(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+  const { id, amount, details, category, takenBy, servedBy, shift, date } = req.body;
+
+  if (!token) {
+    return { success: false, message: 'Unauthorized' };
+  }
+
+  const selectQuery = supabase.from('expenses').select('id').eq('clinic_id', token);
+  if (id) {
+    selectQuery.eq('id', id);
+  } else {
+    if (amount != null) selectQuery.eq('amount', Number(amount));
+    if (details) selectQuery.eq('details', details);
+    if (category) selectQuery.eq('category', category);
+    if (takenBy) selectQuery.eq('taken_by', takenBy);
+    if (servedBy) selectQuery.eq('served_by', servedBy);
+    if (shift) selectQuery.eq('shift', shift);
+    if (date) selectQuery.eq('date', date);
+  }
+
+  const { data: matchedExpense, error: findError } = await selectQuery.limit(1).maybeSingle();
+  if (findError) {
+    console.error('Supabase deleteExpense lookup error:', findError);
+    return { success: false, message: findError.message || 'Failed to find expense' };
+  }
+
+  if (!matchedExpense || !matchedExpense.id) {
+    return { success: true, deleted: [] };
+  }
+
+  const { data, error } = await supabase.from('expenses').delete().eq('id', matchedExpense.id);
+  if (error) {
+    console.error('Supabase deleteExpense error:', error);
+    return { success: false, message: error.message || 'Failed to delete expense' };
+  }
+
+  return { success: true, deleted: data || [] };
 }
 
 async function fetchDrugs(req) {
@@ -901,6 +1094,115 @@ async function addDrug(req) {
   }
 
   return { success: true, drug: data };
+}
+
+async function insertDrugs(req) {
+  const supabase = getSupabase();
+  const token = getRequestToken(req);
+
+  if (!token) {
+    return { success: false, message: 'Unauthorized' };
+  }
+
+  const clinic = await getClinicByToken(token);
+  if (!clinic) {
+    return { success: false, message: 'Session expired' };
+  }
+
+  const body = req.body || {};
+  const inserts = [];
+
+  if (Array.isArray(body.drugs)) {
+    for (const d of body.drugs) {
+      const drugName = d.drug || d.drugName || d.drug_name || d.name;
+      if (!drugName) continue;
+      inserts.push({
+        clinic_id: token,
+        drug_name: drugName,
+        generic_name: d.generic_name || d.genericName || null,
+        packaging: d.packaging || d.unit_packaging || '',
+        warning_point: Number(d.warningPoint || d.warning_point || 0),
+        cost_price: Number(d.costPrice || d.cost_price || 0),
+        selling_price: Number(d.sellingPrice || d.selling_price || 0),
+        quantity: Number(d.quantity || 0),
+        average: 0,
+        status: 'active',
+        additional_info: d.additional_info || '',
+        unit_packaging: d.packaging || d.unit_packaging || '',
+        created_at: new Date().toISOString(),
+      });
+    }
+  } else if (body.name || body.drugName || body.drug_name) {
+    inserts.push({
+      clinic_id: token,
+      drug_name: body.name || body.drugName || body.drug_name,
+      generic_name: body.generic_name || body.genericName || null,
+      packaging: body.packaging || '',
+      warning_point: Number(body.warningPoint || body.warning_point || 0),
+      cost_price: Number(body.costPrice || body.cost_price || 0),
+      selling_price: Number(body.sellingPrice || body.selling_price || 0),
+      quantity: Number(body.quantity || 0),
+      average: 0,
+      status: 'active',
+      additional_info: body.additional_info || '',
+      unit_packaging: body.packaging || '',
+      created_at: new Date().toISOString(),
+    });
+  } else {
+    return { success: false, message: 'No drugs provided' };
+  }
+
+  if (inserts.length === 0) {
+    return { success: false, message: 'No valid drug entries found' };
+  }
+
+  const { data, error } = await supabase.from('drugs').insert(inserts).select('*');
+
+  if (error) {
+    console.error('Supabase insertDrugs error:', error);
+    return { success: false, message: error.message || 'Failed to insert drugs' };
+  }
+
+  // Attempt to initialize pharmacy inventory entries for the new drugs using provided batch/expiry when available.
+  try {
+    const inventoryRows = [];
+    for (let i = 0; i < (data || []).length; i++) {
+      const d = data[i];
+      const orig = inserts[i] || {};
+
+      // Prefer explicit expiry from the original payload. If none provided, skip inventory initialization
+      const expiry = orig.expiry_date || orig.expiryDate || orig.expiry || orig.expiry_date_string || null;
+      if (!expiry) continue;
+
+      const batch = orig.batch_number || orig.batchNumber || orig.batch || `batch-${crypto.randomUUID()}`;
+
+      inventoryRows.push({
+        drug_id: d.id || d.drug_id,
+        clinic_id: token,
+        quantity_on_hand: Number(orig.quantity_on_hand || orig.quantityOnHand || 0),
+        quantity_reserved: Number(orig.quantity_reserved || orig.quantityReserved || 0),
+        batch_number: batch,
+        manufacture_date: orig.manufacture_date || orig.manufactureDate || null,
+        expiry_date: expiry,
+        location: orig.location || '',
+        status: 'active',
+        created_at: new Date().toISOString(),
+      });
+    }
+
+    if (inventoryRows.length > 0) {
+      const { error: invError } = await supabase.from('pharmacy_inventory').insert(inventoryRows).select('id');
+      if (invError) {
+        if (!isMissingTableError(invError)) {
+          console.warn('pharmacy_inventory initialization warning:', invError.message || invError);
+        }
+      }
+    }
+  } catch (invErr) {
+    console.warn('Failed to initialize pharmacy_inventory for inserted drugs:', invErr && invErr.message ? invErr.message : invErr);
+  }
+
+  return { status: 'success', success: true, inserted: data };
 }
 
 function normalizeDrugRow(drug) {
@@ -3134,6 +3436,69 @@ async function changePasswords(req) {
   };
 }
 
+// Admin-only: update an employee's password via settings
+async function updateEmployeePassword(req) {
+  const supabase = getSupabase();
+  const { token } = req.body;
+  const admin_password = decryptMaybe(req.body.admin_password || '');
+  const employeeId = req.body.employeeId || null;
+  const employeeName = req.body.employeeName || req.body.name || null;
+  const new_password = decryptMaybe(req.body.new_password || '');
+
+  if (!token || !admin_password) {
+    return { success: false, message: 'Unauthorized' };
+  }
+
+  if (!new_password || (!employeeId && !employeeName)) {
+    return { success: false, message: 'Missing required parameters' };
+  }
+
+  const { data: clinic, error: clinicError } = await supabase
+    .from('clinics')
+    .select('*')
+    .eq('id', token)
+    .maybeSingle();
+
+  if (clinicError || !clinic) {
+    return { success: false, message: 'Session expired' };
+  }
+
+  // Verify admin password
+  const storedHash = getStoredPasswordHash(clinic);
+  const adminValid = storedHash ? await verifyPassword(admin_password, storedHash) : false;
+  const adminDefault = isDefaultLoginAllowed(clinic, admin_password);
+  if (!adminValid && !adminDefault) {
+    return { success: false, message: 'Invalid admin password' };
+  }
+
+  // Find employee record
+  let employeeQuery;
+  if (employeeId) {
+    employeeQuery = await supabase.from('employees').select('id').eq('id', employeeId).eq('clinic_id', token).maybeSingle();
+  } else {
+    employeeQuery = await supabase.from('employees').select('id').ilike('name', employeeName).eq('clinic_id', token).maybeSingle();
+  }
+
+  const employee = employeeQuery.data;
+  if (employeeQuery.error || !employee) {
+    return { success: false, message: 'Employee not found' };
+  }
+
+  try {
+    const hashed = await hashPassword(new_password);
+    const { error: updateError } = await supabase.from('employees').update({ password: hashed }).eq('id', employee.id);
+    if (updateError) {
+      console.error('Failed to update employee password:', updateError);
+      return { success: false, message: 'Failed to update employee password' };
+    }
+  } catch (err) {
+    console.error('Error updating employee password:', err);
+    return { success: false, message: 'Failed to update employee password' };
+  }
+
+  return { success: true, message: 'Employee password updated successfully' };
+}
+
 async function messagingPermission(req) {
   const supabase = getSupabase();
   const { token } = req.body;
@@ -3508,7 +3873,13 @@ async function deleteEmployee(req) {
 
 const endpointMap = {
   sales: addSale,
+  fetchsales: fetchSales,
+  expenses: addExpense,
+  fetchexpenses: fetchExpenses,
+  deletesale: deleteSale,
+  deleteexpense: deleteExpense,
   fetchdrugs: fetchDrugs,
+  insertdrugs: insertDrugs,
   fetchcontacts: fetchContacts,
   appointments: fetchAppointments,
   registerClinic: registerClinic,
@@ -3566,6 +3937,7 @@ const endpointMap = {
   updatestockfiguresbatch: updateStockFiguresBatch,
   fetchprescriptiondrugs: fetchPrescriptionDrugs,
   deleteEmployee: deleteEmployee,
+  updateemployeepassword: updateEmployeePassword,
   countappointments: countAppointments,
   addemployee: addEmployee,
   inputInvestigation: inputInvestigation,
@@ -3599,6 +3971,7 @@ router.all('/:endpoint.php', async (req, res) => {
 
   const protectedSettingsEndpoints = [
     'addemployee',
+    'updateemployeepassword',
     'adddrug',
     'updatedrugdetails',
     'updatepermissions',
@@ -3673,11 +4046,25 @@ router.all('/:endpoint.php', async (req, res) => {
 module.exports = router;
 
 // Cleanup job: delete expired onboarding redirect tokens periodically
-async function cleanupExpiredOnboardingTokens() {
+async function cleanupExpiredOnboardingTokens(retries = 3) {
   try {
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .rpc('cleanup_expired_onboarding_tokens');
+
+    const attemptCleanup = async (attempt = 1) => {
+      const { data, error } = await supabase.rpc('cleanup_expired_onboarding_tokens');
+      if (error) {
+        const message = String(error.message || '');
+        const isTransient = /(fetch failed|timeout|connect.*timed out|connect.*timeout|request.*timeout|ECONNRESET|ENOTFOUND|ETIMEDOUT)/i.test(message);
+        if (isTransient && attempt < retries) {
+          console.warn(`Cleanup job transient error (attempt ${attempt}): ${message}. Retrying in 2s...`);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          return attemptCleanup(attempt + 1);
+        }
+      }
+      return { data, error };
+    };
+
+    const { data, error } = await attemptCleanup();
 
     if (error) {
       console.error('Cleanup function error:', error);
