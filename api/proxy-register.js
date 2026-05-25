@@ -1,4 +1,4 @@
-const TARGET = 'https://medcore.vercel.app/api/registerClinic.php';
+const TARGET = '/api/registerClinic';
 
 async function getRawBody(req) {
   return await new Promise((resolve, reject) => {
