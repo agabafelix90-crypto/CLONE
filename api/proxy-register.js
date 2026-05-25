@@ -36,9 +36,16 @@ module.exports = async (req, res) => {
     const text = await fetchRes.text();
 
     res.setHeader('Content-Type', contentType);
+    // Ensure CORS headers are present on every response
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     return res.status(fetchRes.status || 200).send(text);
   } catch (err) {
     console.error('proxy-register error:', err);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     return res.status(502).json({ success: false, message: 'Proxy error' });
   }
 };
