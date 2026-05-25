@@ -50,6 +50,13 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
+#### Root serverless API routes (.env)
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_ANON_KEY=your-anon-key
+```
+
 #### Backend (backend/.env)
 ```env
 SUPABASE_URL=https://your-project.supabase.co
