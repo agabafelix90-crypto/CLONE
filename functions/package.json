@@ -1,0 +1,14 @@
+{
+  "name": "functions",
+  "description": "Firebase Cloud Functions for Medcore System",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.3",
+    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "firebase-functions": "^4.8.0"
+  }
+}

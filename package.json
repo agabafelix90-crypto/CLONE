@@ -9,7 +9,8 @@
     "serve:preview": "vite preview",
     "backend:start": "npm --prefix backend start",
     "backend:dev": "npm --prefix backend run dev",
-    "start:all": "npx concurrently \"npm run dev\" \"npm --prefix backend run dev\""
+    "start:all": "npx concurrently \"npm run dev\" \"npm --prefix backend run dev\"",
+    "firebase:deploy": "firebase deploy --only hosting,functions"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",

@@ -1,4 +1,12 @@
-const TARGET = '/api/loginClinic';
+function buildTarget(req, path) {
+  if (process.env.API_BASE_URL) {
+    return `${process.env.API_BASE_URL.replace(/\/$/, '')}${path}`;
+  }
+
+  const host = req.headers.host || 'localhost:5000';
+  const protocol = req.headers['x-forwarded-proto'] || 'https';
+  return `${protocol}://${host}${path}`;
+}
 
 async function getRawBody(req) {
   return await new Promise((resolve, reject) => {
@@ -27,7 +35,8 @@ module.exports = async (req, res) => {
       headers[k] = req.headers[k];
     }
 
-    const fetchRes = await fetch(TARGET, {
+    const target = buildTarget(req, '/api/loginClinic');
+    const fetchRes = await fetch(target, {
       method: req.method,
       headers,
       body: rawBody,

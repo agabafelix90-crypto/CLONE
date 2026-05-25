@@ -1,7 +1,16 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+let supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+let supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+try {
+  const functions = require('firebase-functions');
+  const firebaseConfig = functions.config?.().supabase || {};
+  supabaseUrl = supabaseUrl || firebaseConfig.url;
+  supabaseKey = supabaseKey || firebaseConfig.key;
+} catch (error) {
+  // Ignore when not running in Firebase Functions environment.
+}
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(
